@@ -1,6 +1,8 @@
+import com.jom.DoubleMatrixND;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
@@ -386,8 +388,12 @@ public class View  extends Application{
 
         javafx.scene.control.Label howBigPlot = new javafx.scene.control.Label("How big is plot?");
         javafx.scene.control.TextField sizeValue = new javafx.scene.control.TextField();
+        ToggleGroup areaValues = new ToggleGroup();
         RadioButton sqm = new RadioButton("Sqm");
+        sqm.setToggleGroup(areaValues);
+        sqm.setSelected(true);
         RadioButton sqft = new RadioButton("Sqft");
+        sqft.setToggleGroup(areaValues);
 
 
         javafx.scene.control.Label environmentLabel = new javafx.scene.control.Label("Environment");
@@ -415,31 +421,92 @@ public class View  extends Application{
 
 
         javafx.scene.control.Label plantLabel = new javafx.scene.control.Label("What are you planting?");
-        ComboBox plantType = new ComboBox();
+        ComboBox<String> plantType = new ComboBox();
         ComboBox plant = new ComboBox();
 
         plantType.getItems().add(0, "1 Vegetable");
         plantType.getItems().add(1, "2 Fruit");
         plantType.getItems().add(2, "3 Herbs");
+        //plantType.getSelectionModel().select(0 );
 
-        plantType.setOnAction((event) -> {
+        HashMap<Integer, String> plantsInUser = new HashMap<>();
 
-            int type = Integer.parseInt(plantType.getValue().toString().substring(0,1));
+       plantType.setOnAction(new EventHandler<ActionEvent>() {
+           @Override
+           public void handle(ActionEvent actionEvent) {
+               int type = Integer.parseInt(plantType.getValue().toString().substring(0,1));
+               plantsInUser.clear();
+               HashMap<Integer, String> plantNames = Database.returnPlantDetails(type);
+               plant.getItems().clear();
+               plantNames.forEach((k,v)->{plantsInUser.put(k, v);
+               plant.getItems().add(v);});
 
-            HashMap<Integer, String> plantNames = Database.returnPlantDetails(type);
 
-            plant.getItems().clear();
-            for(Map.Entry<Integer, String> e : plantNames.entrySet()){
-                plant.getItems().add(e.getValue());
-            }
+
+           }
+       });
 
 
 
-        });
 
         DatePicker plantedDate = new DatePicker(LocalDate.now());
 
+
+        // code to add plot after button is pushed
         javafx.scene.control.Button addPlotButton = new javafx.scene.control.Button("Add Plot ");
+        addPlotButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+//                PLot object =  (String name,
+//                double size,
+//                LocalDate datePlanted,
+//                Plant plant,
+//                int number,
+//                double soil,
+//                double environment,
+//                int priority
+
+                String ThePlotsName = nameField.getText();
+                double thePlotSize;
+                if(sqm.isSelected()){
+                    thePlotSize= Double.parseDouble(sizeValue.getText());
+                } else {
+                    thePlotSize = Double.parseDouble(sizeValue.getText()) * 0.092903;
+                }
+                LocalDate ThedatePlanted = plantedDate.getValue();
+                int day = ThedatePlanted.getDayOfMonth();
+                int month = ThedatePlanted.getMonthValue();
+                int year = ThedatePlanted.getYear();
+
+                String selectedPlant = plant.getValue().toString();
+                int plantID = 0;
+                if(selectedPlant.equals(null)){
+                    Alert noPlantAlert = new Alert(Alert.AlertType.ERROR);
+                    noPlantAlert.setContentText("please select a plant");
+                } else {
+                    for (Map.Entry<Integer, String> entry : plantsInUser.entrySet()) {
+                        if(entry.getValue().equals(selectedPlant)){
+                            plantID = entry.getKey();
+                        }
+                        else{
+                            System.out.println("Something went wrong");
+                        }
+                    }
+
+                }
+                try {
+                    Plant plotsPlant = Database.createPlant(plantID);
+                } catch(SQLException e){
+
+                }
+
+                System.out.println("The plot name is " + ThePlotsName + "\n" + "The plot size is " + thePlotSize + "\n" +
+                 "It was planted on " + ThedatePlanted + " Day= " + day + "month= " + month + "year= " + year + "\n" +
+                "its size is " + thePlotSize);
+
+            }
+        });
 
 
 
@@ -465,6 +532,7 @@ public class View  extends Application{
         addPlotPane.add(sqm, 7, 8);
 
 
+        addPlotPane.add(addPlotButton, 5, 10    );
 
         s.setScene(addPlotScene);
     }

@@ -230,7 +230,7 @@ public class Database {
         ResultSet r = getPlants.executeQuery();
 
         String name = null;
-        int st1Days=0;
+        int id=0, st1Days=0;
         int  st2Days = 0, st3Days = 0, st4Days = 0, numPerMeter = 0;
         double st1OW = 0.0, st1BW= 0.0, st2OW = 0.0, st2BW= 0.0, st3OW = 0.0,
                 st3BW= 0.0, st4OW= 0.0, st4BW = 0.0;
@@ -240,6 +240,7 @@ public class Database {
 
         while(r.next()){
 
+            id = r.getInt("id");
             name = r.getString("name");
             st1Days = r.getInt("st1_days");
             st1OW = r.getDouble("st1_ow");
@@ -260,7 +261,7 @@ public class Database {
 
         System.out.println(name + " " + st2Days + " " + st1OW +" " + st1BW);
 
-        Plant plant = new Plant(name, st1Days, st1OW, st1BW, st2Days, st2OW, st2BW, st3Days, st3OW, st3BW,
+        Plant plant = new Plant(id, name, st1Days, st1OW, st1BW, st2Days, st2OW, st2BW, st3Days, st3OW, st3BW,
                 st4Days, st4OW, st4BW, numPerMeter);
 
         conn.close();

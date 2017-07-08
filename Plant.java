@@ -5,7 +5,7 @@
 public class Plant {
 
     String name;
-    int st1_days, st2_days, st3_days, st4_days;
+    int st1_days, st2_days, st3_days, st4_days, id;
     double st1_or, st2_or, st3_or, st4_or;
     double st1_br, st2_br, st3_br, st4_br;
     int numberPerMeter;
@@ -15,7 +15,8 @@ public class Plant {
 
     }
 
-    public Plant(String name,
+    public Plant(int id,
+                 String name,
                  int st1Days,
                  double st1OR,
                  double st1BR,
@@ -29,6 +30,7 @@ public class Plant {
                  double st4OR,
                  double st4BR,
                  int numberPerMeter ){
+        this.id=id;
         this.name=name;
         this.st1_days=st1Days;
         this.st1_or=st1OR;
@@ -50,6 +52,7 @@ public class Plant {
 
 
     }
+    public int getid() {return id;}
 
     public int getSt1_days() {
         return st1_days;
