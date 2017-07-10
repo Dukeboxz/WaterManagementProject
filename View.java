@@ -400,16 +400,21 @@ public class View  extends Application{
         ComboBox<String> environmentSelect = new ComboBox<>();
 
         environmentSelect.getItems().add(0, "Normal");
-        environmentSelect.getItems().add(1, "Raised beds");
+        environmentSelect.getItems().add(1, "Raised Beds");
         environmentSelect.getItems().add(2, "Polytunnel");
         environmentSelect.getSelectionModel().selectFirst();
 
 
         javafx.scene.control.Label soilSelectTitle = new javafx.scene.control.Label("SoilType");
         HashMap obs = Database.getSoilVariables();
-        ComboBox<String> soilSelect = new ComboBox<>();
+        ArrayList<SoilType> soilTypesList = Database.returnSoilTypeList();
 
-        obs.forEach((k,v )-> soilSelect.getItems().add(k.toString()) );
+        ComboBox<String> soilSelect = new ComboBox<>();
+        for(SoilType st : soilTypesList){
+            soilSelect.getItems().add(st.getName());
+        }
+
+
         soilSelect.getSelectionModel().select(3);
 
         javafx.scene.control.Label plotPrioirityTitle = new javafx.scene.control.Label("Importance of plot crop");
@@ -467,18 +472,22 @@ public class View  extends Application{
 //                double environment,
 //                int priority
 
+                // name of plot
                 String ThePlotsName = nameField.getText();
+                // plot size
                 double thePlotSize;
                 if(sqm.isSelected()){
                     thePlotSize= Double.parseDouble(sizeValue.getText());
                 } else {
                     thePlotSize = Double.parseDouble(sizeValue.getText()) * 0.092903;
                 }
+                // date planted
                 LocalDate ThedatePlanted = plantedDate.getValue();
                 int day = ThedatePlanted.getDayOfMonth();
                 int month = ThedatePlanted.getMonthValue();
                 int year = ThedatePlanted.getYear();
 
+                // plant in plot
                 String selectedPlant = plant.getValue().toString();
                 int plantID = 0;
                 if(selectedPlant.equals(null)){
@@ -495,15 +504,70 @@ public class View  extends Application{
                     }
 
                 }
+                Plant plotsPlant = new Plant();
                 try {
-                    Plant plotsPlant = Database.createPlant(plantID);
+                     plotsPlant = Database.createPlant(plantID);
                 } catch(SQLException e){
 
+                }
+                // number of plants in plot
+                int number = ((plotsPlant.getNumberPerMeter()*(int)thePlotSize) < 1) ? 1 : (plotsPlant.getNumberPerMeter()*(int)thePlotSize);
+
+
+                // soil value
+                String soilStringValue = soilSelect.getValue();
+               double TheSoilValue = 0.0;
+               int soilID = 0;
+                for(SoilType st : soilTypesList){
+                    if(st.getName().equals(soilStringValue)){
+                        TheSoilValue=st.getValue();
+                        soilID = st.getId();
+                    }
+                }
+
+
+                // environment value
+                double theEnvironmentValue = 0.0;
+                int environmentID = 0;
+                if(environmentSelect.getValue().toString().equals("Polytunnel")){
+                    theEnvironmentValue= 1.25;
+                    environmentID = 1;
+
+                } else if(environmentSelect.getValue().toString().equals("Raised Beds")) {
+                    theEnvironmentValue = 1.05;
+                    environmentID = 2;
+                } else{
+                    theEnvironmentValue = 1.0;
+                    environmentID = 3;
+                }
+
+                // priority
+                int thePriorityValue = 0;
+                int priorityID = 0;
+                if(plotPriorty.getValue().toString().equals("High")){
+                    thePriorityValue = 3;
+
+                } else if(plotPriorty.getValue().toString().equals("Low")){
+                    thePriorityValue = 1;
+                } else {
+                    thePriorityValue = 2;
                 }
 
                 System.out.println("The plot name is " + ThePlotsName + "\n" + "The plot size is " + thePlotSize + "\n" +
                  "It was planted on " + ThedatePlanted + " Day= " + day + "month= " + month + "year= " + year + "\n" +
-                "its size is " + thePlotSize);
+                "its size is " + thePlotSize + " the plant is " + plotsPlant.getName() + "\n" +
+                        " the number of plants is is " + number + "\n" +  " the soil value is " + TheSoilValue + "\n" +
+                        " the environment value is " + theEnvironmentValue + "\n" + "the priority value is " + thePriorityValue
+                );
+
+                Plot theNewPlot = new Plot(ThePlotsName, thePlotSize, ThedatePlanted, plotsPlant, number, TheSoilValue, theEnvironmentValue, thePriorityValue);
+                g.getPlots().add(theNewPlot);
+
+               if(Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.gardenID, soilID, environmentID, day, month, year, thePriorityValue )==true) {
+                    setGardenAndPlotScene(s, u, g);
+
+               }
+
 
             }
         });

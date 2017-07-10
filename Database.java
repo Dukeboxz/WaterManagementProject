@@ -411,6 +411,54 @@ public class Database {
     }
 
     /**
+     * Method to return list of soilTypes objects
+     * @return List<SoilType></SoilType>
+     */
+    public static ArrayList<SoilType> returnSoilTypeList() {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+        System.out.println("working");
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        ArrayList<SoilType> theSoilTypes = new ArrayList<>();
+
+        String returnSoilTypeList = "SELECT * FROM soiltype;";
+        try {
+            PreparedStatement returnSoilTypePS = conn.prepareStatement(returnSoilTypeList);
+            ResultSet rs = returnSoilTypePS.executeQuery();
+
+            while(rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                double value = rs.getDouble("value");
+
+                SoilType soilTypeObject = new SoilType(id, name, value);
+
+                theSoilTypes.add(soilTypeObject);
+
+            }
+        } catch(SQLException e){
+
+        }
+
+
+        return theSoilTypes;
+
+    }
+
+    /**
      * creates hash map of plant names and id based on planttype
      * @param plantType
      * @return
@@ -730,6 +778,56 @@ public class Database {
 
     }
 
+    // method to insert new plot in database
+    public static boolean insertNewPlot(String name, double size, int plantID, int gardenID, int soilTypeID, int environmentID,
+                              int dayPlanted, int monthPlanted, int yearPlanted,  int priority) {
+
+        boolean inserted = true;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        String insertNewPlotString = "INSERT INTO plots(name, size, plantid, gardenid, soiltypeid, environmentid, " +
+                "day_planted, month_planted, year_planted, priority) VALUES(?, ?,?,?,?,?,?,?,?, ?)";
+
+        try {
+            PreparedStatement insertNewPlotPS = conn.prepareStatement(insertNewPlotString);
+            insertNewPlotPS.setString(1, name);
+            insertNewPlotPS.setDouble(2, size);
+            insertNewPlotPS.setInt(3, plantID);
+            insertNewPlotPS.setInt(4, gardenID);
+            insertNewPlotPS.setInt(5, soilTypeID);
+            insertNewPlotPS.setInt(6, environmentID);
+            insertNewPlotPS.setInt(7, dayPlanted);
+            insertNewPlotPS.setInt(8, monthPlanted);
+            insertNewPlotPS.setInt(9, yearPlanted);
+            insertNewPlotPS.setInt(10, priority);
+
+            insertNewPlotPS.executeUpdate();
+
+            conn.close();
+        } catch(SQLException e){
+            inserted = false;
+            System.out.println("The plot was not inserted");
+        }
+
+        return inserted;
+
+    }
+
     /**
      * Main method used for testing in development
      * @param args
@@ -761,7 +859,19 @@ public class Database {
 
             createNewGarden("specialGarden", u);
 
+            List<SoilType> test = returnSoilTypeList();
+
+            for(SoilType a : test){
+                System.out.println(a);
+                System.out.println();
+            }
+
+
+
            // System.out.println(u.getPassword());
+
+           // insertNewPlot("My Tomatoe Plot", 5, 4, 3, 2, 1, 10 , 5,  2017, 2);
+
 
        }
 
