@@ -237,13 +237,14 @@ public class View  extends Application{
         });
         javafx.scene.control.TextField waterText = new javafx.scene.control.TextField();
         javafx.scene.control.Button optimise = new javafx.scene.control.Button("OPTIMISE");
+        LocalDate dateSelected = LocalDate.now();
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 int days = Integer.parseInt(dayLabel.getText());
                 //double water = Double.parseDouble(waterLabel.getText());
                 double water = Double.parseDouble(waterText.getText());
-                Optimiser opObject = new Optimiser(g, days, water);
+                Optimiser opObject = new Optimiser(g, days, water,dateSelected );
                 optimisationScene(opObject, stage);
 
             }

@@ -50,22 +50,31 @@ public class Plot {
      * @param days
      * @return
      */
-    public double getOptimal(int days){
+    public double getOptimal(int days, LocalDate date){
+
+        LocalDate planted = this.datePlanted;
+
+        int noDays = (int)planted.until(date.plusDays(days), ChronoUnit.DAYS);
+
+
+
 
         double optimalRequirement = 0.0;
-        int todaysDate = (int)this.datePlanted.until(LocalDate.now(), ChronoUnit.DAYS);
 
-        if(days >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days())){
+
+        if(noDays >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days()) & noDays <= this.plant.getSt1_days()+this.plant.getSt2_days() + this.plant.getSt3_days() + this.plant.getSt4_days()){
             optimalRequirement = this.plant.getSt4_or();
 
-        } else if(days >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & days < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
+        } else if(noDays >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
             optimalRequirement = this.plant.getSt3_or();
         }
-        else if(days >= this.plant.getSt1_days() & days < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
+        else if(noDays >= this.plant.getSt1_days() & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
             optimalRequirement = this.plant.getSt2_or();
         }
-        else {
+        else if (noDays >=0 & noDays < this.plant.getSt1_days()){
             optimalRequirement = this.plant.getSt1_or();
+        } else {
+            optimalRequirement=0;
         }
 
         return optimalRequirement;
@@ -77,21 +86,23 @@ public class Plot {
      * @param days
      * @return
      */
-    public double getBasic(int days){
+    public double getBasic(int days, LocalDate date){
 
         double basicRequirement = 0.0;
-        int todaysDate = (int)this.datePlanted.until(LocalDate.now(), ChronoUnit.DAYS);
+        LocalDate planted = this.datePlanted;
 
-        if(days >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days())){
+        int noDays = (int)planted.until(date.plusDays(days), ChronoUnit.DAYS);
+
+        if(noDays >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days()) &  noDays <= this.plant.getSt1_days() + this.plant.st2_days + this.plant.st3_days + this.plant.st4_days){
             basicRequirement = this.plant.getSt4_br();
 
-        } else if(days >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & days < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
+        } else if(noDays >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
             basicRequirement = this.plant.getSt3_br();
         }
-        else if(days >= this.plant.getSt1_days() & days < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
+        else if(noDays >= this.plant.getSt1_days() & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
             basicRequirement = this.plant.getSt2_br();
         }
-        else {
+        else if(noDays >= 0 & noDays <this.plant.getSt1_days()) {
             basicRequirement = this.plant.getSt1_br();
         }
 
@@ -104,21 +115,26 @@ public class Plot {
      * @param days
      * @return
      */
-    public int getStagePriority(int days){
+    public int getStagePriority(int days, LocalDate date){
 
-        int stagePriority = 1;
+        int stagePriority = 0;
+        LocalDate planted = this.datePlanted;
 
-        if(days >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days())){
+        int noDays = (int)planted.until(date.plusDays(days), ChronoUnit.DAYS);
+
+        if(noDays >= (this.plant.getSt1_days()+this.plant.getSt2_days()+this.plant.getSt3_days()) & noDays <= (this.plant.getSt1_days() + this.plant.getSt2_days() + this.plant.getSt3_days() + this.plant.getSt4_days())){
             stagePriority=1;
 
-        } else if(days >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & days < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
+        } else if(noDays >= (this.plant.getSt1_days()+ this.plant.getSt2_days()) & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days()+ this.plant.getSt3_days())){
             stagePriority = 3;
         }
-        else if(days >= this.plant.getSt1_days() & days < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
+        else if(noDays >= this.plant.getSt1_days() & noDays < (this.plant.getSt1_days()+ this.plant.getSt2_days())){
             stagePriority = 2;
         }
-        else {
+        else  if(noDays >= 0 & noDays< this.plant.getSt1_days()){
             stagePriority = 4;
+        } else{
+            stagePriority = 0;
         }
 
 
@@ -127,11 +143,11 @@ public class Plot {
 
     /**
      * Method that returns an integer value to show priority of the plot based on stage of plot and plot priority
-     * @param int days
+     * @param days
      * @return int
      */
-    public int getPlotPriorityValue(int days){
-        return this.getPriority()+ this.getStagePriority(days);
+    public int getPlotPriorityValue(int days, LocalDate date){
+        return this.getPriority()+ this.getStagePriority(days, date);
     }
 
     public double getSize() {
@@ -188,6 +204,23 @@ public class Plot {
 
     public String getName() {
         return this.name;
+    }
+
+    public static void main(String[] args){
+
+        try {
+            Plot a = Database.createPlot(2);
+
+            System.out.println(a.getDatePlanted());
+
+            System.out.println(a.getDatePlanted().until(LocalDate.now(), ChronoUnit.DAYS));
+
+           for(int i = 0 ; i < 50 ; i++ ){
+               System.out.println(a.getBasic(i, LocalDate.now()));
+           }
+        } catch(SQLException e){
+
+        }
     }
 
 }
