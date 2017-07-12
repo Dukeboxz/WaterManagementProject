@@ -356,6 +356,26 @@ public class View  extends Application{
             decionUse.getData().add(new XYChart.Data<>(i , arg[i]));
         }
 
+        double[][] plotsOptimal = o.optimize();
+        for(int i = 0; i < o.getGarden().getPlots().size(); i++){
+
+            XYChart.Series plotOptimalSeries = new XYChart.Series();
+           // double[] plotOptimalValues = new double[o.getDays()];
+            for(int j = 0; j < o.getDays(); j++){
+              //  plotOptimalValues[j] =
+                double value = plotsOptimal[i][j];
+                plotOptimalSeries.getData().add(new XYChart.Data<>(j, value));
+
+            }
+
+//            for(int k = 0; k < o.getDays(); k++){
+//
+//
+//            }
+
+            waterChart.getData().add(plotOptimalSeries);
+        }
+
         waterChart.getData().add(optimalUse);
         waterChart.getData().add(decionUse);
 
