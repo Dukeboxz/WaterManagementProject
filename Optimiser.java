@@ -430,9 +430,9 @@ public class Optimiser  {
 
 
 
-            Optimiser test = new Optimiser(testGarden, 31, 4000, LocalDate.now());
+            Optimiser test = new Optimiser(testGarden, 31, 9500, LocalDate.now());
 
-            double[][] temp = test.optimizeForDrought();
+            double[][] temp = test.optimize();
 
             for(int i = 0; i < test.getGarden().getPlots().size(); i++){
                 for(int j = 0 ; j < test.getDays(); j++){
