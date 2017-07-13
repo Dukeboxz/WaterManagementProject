@@ -368,10 +368,6 @@ public class View  extends Application{
 
             }
 
-//            for(int k = 0; k < o.getDays(); k++){
-//
-//
-//            }
 
             waterChart.getData().add(plotOptimalSeries);
         }
@@ -593,6 +589,15 @@ public class View  extends Application{
             }
         });
 
+        javafx.scene.control.Button backButton = new javafx.scene.control.Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                setGardenAndPlotScene(s, u, g);
+            }
+        });
+
+
 
 
         addPlotPane.add(name, 5, 1);
@@ -618,6 +623,8 @@ public class View  extends Application{
 
 
         addPlotPane.add(addPlotButton, 5, 10    );
+
+        addPlotPane.add(backButton, 7, 12);
 
         s.setScene(addPlotScene);
     }
