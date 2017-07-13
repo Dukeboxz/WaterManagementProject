@@ -232,7 +232,7 @@ public class Optimiser  {
         op.setInputParameter("x", new DoubleMatrixND(this.createOptimalMatrix()));
 
         // set objective function - JOM
-        op.setObjectiveFunction("minimize", "sum(x-y)");
+        op.setObjectiveFunction("minimize", "sum(x -( y)");
 
 
         // add constraint JOM
