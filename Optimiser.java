@@ -232,7 +232,7 @@ public class Optimiser  {
         op.setInputParameter("x", new DoubleMatrixND(this.createOptimalMatrix()));
 
         // set objective function - JOM
-        op.setObjectiveFunction("minimize", "sum(x -( y)");
+        op.setObjectiveFunction("minimize", "sum(x -y)");
 
 
         // add constraint JOM
@@ -433,30 +433,38 @@ public class Optimiser  {
             Optimiser test = new Optimiser(testGarden, 31, 9500, LocalDate.now());
 
             double[][] temp = test.optimize();
-
+            double total = 0;
             for(int i = 0; i < test.getGarden().getPlots().size(); i++){
                 for(int j = 0 ; j < test.getDays(); j++){
 
                     System.out.print(temp[i][j] + " ");
+                    total+= temp[i][j];
                 }
                 System.out.println("\n");
             }
-//
-//            double[] decisionPoints = new double[test.getDays()];
-//            for(int i = 0 ; i < test.getDays(); i++){
-//                double dayToal = 0;
-//                for (int j = 0; j < temp.length; j++){
-//
-//                    //System.out.print(temp[j][i] + " ");
-//                    dayToal+= temp[j][i];
-//                    System.out.print(dayToal + " ");
-//                }
-//               System.out.println("\n");
-//
-//                decisionPoints[i]= dayToal;
+
+            System.out.println("The solution total is " + total );
+
+            //double[] decisionPoints = new double[test.getDays()];
+
+            double[][] temp2 = test.createOptimalMatrix();
+            double dayToal = 0;
+            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
+
+                for (int j = 0; j <  test.getDays(); j++){
+
+                    System.out.print(temp2[i][j] + " ");
+                    dayToal+= temp2[i][j];
+                   // System.out.print(dayToal + " ");
+                }
+               System.out.println("\n");
+
+               // decisionPoints[i]= dayToal;
 
 
-      //      }
+            }
+
+            System.out.println("Optimal total is " + dayToal);
 
 //            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 //            int counter = 0;

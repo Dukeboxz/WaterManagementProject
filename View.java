@@ -155,10 +155,23 @@ public class View  extends Application{
             }
         });
 
+        javafx.scene.control.Button backButon = new javafx.scene.control.Button("Back");
+        backButon.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                try {
+                    setGardenScene(s, user);
+                } catch(SQLException e){
+
+                }
+            }
+        });
+
         addGardenPane.setAlignment(Pos.CENTER);
         addGardenPane.add(createGardenLabel, 1, 1);
         addGardenPane.add(gardenNameText, 2, 1);
         addGardenPane.add(createNewGardenButton, 1, 2);
+        addGardenPane.add(backButon, 3, 3);
 
         s.setScene(addGardenScene);
 
