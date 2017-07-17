@@ -7,17 +7,19 @@ import java.util.List;
  * class to create Garden Object
  */
 public class Garden {
-    int gardenID;
-    String name;
-    ArrayList<Plot> plots;
-    int userID;
+   private int gardenID;
+     private String name;
+     private ArrayList<Plot> plots;
+    private int userID;
+     private String location;
 
-    public Garden(int id, String name, ArrayList<Plot> plots, int userID) {
+    public Garden(int id, String name, ArrayList<Plot> plots, int userID, String location) {
         this.gardenID=id;
         this.name= name;
         this.plots= new ArrayList<>();
         this.plots=plots;
         this.userID = userID;
+        this.location=location;
     }
 
     public String getName(){
@@ -35,5 +37,7 @@ public class Garden {
     public int getUserID() {
         return this.getUserID();
     }
+
+    public String getLocation() { return this.getLocation();}
 
 }

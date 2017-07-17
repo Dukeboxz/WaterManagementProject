@@ -237,7 +237,7 @@ public class UserCreateView extends Application {
                 int days = Integer.parseInt(dayLabel.getText());
                 //double water = Double.parseDouble(waterLabel.getText());
                 double water = Double.parseDouble(waterText.getText());
-                Optimiser opObject = new Optimiser(g, days, water, dateSelected );
+                Optimiser opObject = new Optimiser(g, days, water, dateSelected, false );
                 optimisationScene(opObject, stage);
 
             }
@@ -342,6 +342,23 @@ public class UserCreateView extends Application {
         for(int i = 0; i < arg.length; i++){
             decionUse.getData().add(new XYChart.Data<>(i , arg[i]));
         }
+        double[][] plotsOptimal = o.optimize();
+        for(int i = 0; i < o.getGarden().getPlots().size(); i++){
+
+            XYChart.Series plotOPtimal = new XYChart.Series();
+            double[] plotOptimalValues = new double[o.getDays()];
+            for(int j = 0; j < o.getDays(); j++){
+                plotOptimalValues[j] = plotsOptimal[i][j];
+
+            }
+
+            for(int k = 0; k < o.getDays(); k++){
+
+            }
+
+            waterChart.getData().add(plotOPtimal);
+        }
+
 
         waterChart.getData().add(optimalUse);
         waterChart.getData().add(decionUse);

@@ -537,6 +537,7 @@ public class Database {
         String gardenName = null;
         int gardenUserID = 0;
         ArrayList<Plot> plots = new ArrayList<>();
+        String gardenLocation = null;
 
         try{
         String userGardenReturnString = "Select * FROM garden WHERE name=? and id=?;";
@@ -551,6 +552,7 @@ public class Database {
          gardenid = rs.getInt("id");
          gardenName = rs.getString("name");
         gardenUserID = rs.getInt("userid");
+          gardenLocation = rs.getString("location");
 
 
         conn.close();
@@ -560,7 +562,7 @@ public class Database {
 
             }
 
-            return new Garden(gardenid, gardenName, plots,  gardenUserID);
+            return new Garden(gardenid, gardenName, plots,  gardenUserID, gardenLocation);
     }
 
     /**
@@ -644,9 +646,10 @@ public class Database {
         ResultSet r = createGarden.executeQuery();
         ResultSet n = gardenname.executeQuery();
 
-        String name="";
+        String name=null;
         int gardensid = 0;
         int userID = 0;
+        String gardenLocation = null;
 
         ArrayList<Plot> gardenPlots = new ArrayList<>();
 
@@ -656,6 +659,7 @@ public class Database {
              gardensid = n.getInt("id");
             name = n.getString("name");
             userID = n.getInt("userid");
+            gardenLocation = n.getString("location");
         }
 
 
@@ -669,7 +673,7 @@ public class Database {
 
 
         }
-        Garden newGarden = new Garden(gardensid, name, gardenPlots, userID);
+        Garden newGarden = new Garden(gardensid, name, gardenPlots, userID, gardenLocation);
 
         conn.close();
 

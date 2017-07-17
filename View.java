@@ -124,6 +124,12 @@ public class View  extends Application{
 
         javafx.scene.control.Label createGardenLabel = new javafx.scene.control.Label("Garden Name");
         javafx.scene.control.TextField gardenNameText = new javafx.scene.control.TextField();
+
+        javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden");
+        javafx.scene.control.TextField location = new javafx.scene.control.TextField();
+
+
+
         javafx.scene.control.Button createNewGardenButton = new javafx.scene.control.Button("Create Garden");
         createNewGardenButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -257,7 +263,8 @@ public class View  extends Application{
                 int days = Integer.parseInt(dayLabel.getText());
                 //double water = Double.parseDouble(waterLabel.getText());
                 double water = Double.parseDouble(waterText.getText());
-                Optimiser opObject = new Optimiser(g, days, water,dateSelected );
+
+                Optimiser opObject = new Optimiser(g, days, water,dateSelected, false );
                 optimisationScene(opObject, stage);
 
             }
@@ -593,7 +600,7 @@ public class View  extends Application{
                 Plot theNewPlot = new Plot(ThePlotsName, thePlotSize, ThedatePlanted, plotsPlant, number, TheSoilValue, theEnvironmentValue, thePriorityValue);
                 g.getPlots().add(theNewPlot);
 
-               if(Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.gardenID, soilID, environmentID, day, month, year, thePriorityValue )==true) {
+               if(Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.getGardenID(), soilID, environmentID, day, month, year, thePriorityValue )==true) {
                     setGardenAndPlotScene(s, u, g);
 
                }

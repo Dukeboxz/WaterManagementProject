@@ -2,6 +2,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import sun.reflect.generics.tree.Tree;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -24,6 +26,54 @@ public class WeatherData {
         String url = "http://api.wunderground.com/api/88d7a239ed54d0d5/geolookup/conditions/forecast10day/q/UK/" + town + ".json";
 
         return url;
+    }
+
+    public static TreeMap<String, String> getPotentialLocations(String part){
+
+        TreeMap<String, String> name = new TreeMap<>();
+
+        try {
+            String url = "http://autocomplete.wunderground.com/aq?query=" + part + "&c=GB" ;
+            URL webaddress = new URL(url);
+            URLConnection wc = webaddress.openConnection();
+
+            BufferedReader in = new BufferedReader( new InputStreamReader(wc.getInputStream()));
+
+            String inputLine;
+            StringBuilder ab = new StringBuilder();
+            JSONParser parser = new JSONParser();
+
+
+
+            while((inputLine=in.readLine()) != null){
+                System.out.println(inputLine);
+                ab.append(inputLine);
+            }
+
+
+            Object obj = parser.parse(ab.toString());
+            JSONObject lv1 = (JSONObject) obj;
+            JSONArray potentialTown = (JSONArray) lv1.get("RESULTS");
+            for(Object elem : potentialTown){
+
+                String potentialName = ((JSONObject) elem).get("name").toString();
+                String zmw = ((JSONObject) elem).get("zmw").toString();
+                name.put(potentialName, zmw);
+            }
+
+
+
+        } catch (MalformedURLException e){
+
+        } catch(IOException f) {
+
+
+
+        } catch(ParseException g){
+
+        }
+
+        return name;
     }
 
     public static ArrayList<WeatherObject> getWeatherData(String town){
@@ -48,13 +98,13 @@ public class WeatherData {
             StringBuilder ab = new StringBuilder();
 
             while((inputLine = in.readLine())!=null) {
-                System.out.println(inputLine);
+               // System.out.println(inputLine);
 
                 ab.append(inputLine);
 
 
             }
-            System.out.println("TEST");
+            //System.out.println("TEST");
 
             Object obj = parser.parse(ab.toString());
 
@@ -78,19 +128,19 @@ public class WeatherData {
                 String day = element.get("day").toString();
                 String month = element.get("month").toString();
                 String year = element.get("year").toString();
-                System.out.println(" Day " + day + " month " + month + " year " + year);
+                //System.out.println(" Day " + day + " month " + month + " year " + year);
 
                 JSONObject tempHigh = (JSONObject)((JSONObject) elem).get("high");
                 String celciusHigh = tempHigh.get("celsius").toString();
-                System.out.println("The high= " + celciusHigh);
+               // System.out.println("The high= " + celciusHigh);
 
                 JSONObject tempLow = (JSONObject)((JSONObject) elem).get("low");
                 String celciusLow = tempLow.get("celsius").toString();
-                System.out.println("The low=" + celciusLow);
+                //System.out.println("The low=" + celciusLow);
 
                 JSONObject dayRain = (JSONObject)((JSONObject) elem).get("qpf_allday");
                 String inchesOfRain = dayRain.get("in").toString();
-                System.out.println("inches of Rain " + inchesOfRain);
+                //System.out.println("inches of Rain " + inchesOfRain);
 
                 LocalDate weatherDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
                 int weatherHighTemp = Integer.parseInt(celciusHigh);
@@ -122,7 +172,17 @@ public class WeatherData {
 
 
 
+
+
     public static void main(String[] args) {
+
+       // ArrayList<WeatherObject> test = getWeatherData("chesterfield");
+
+//        for(WeatherObject a : test){
+//            System.out.println(a.getHighTemp());
+//        }
+
+        TreeMap test2 = getPotentialLocations("ches");
     }
 
 }
