@@ -230,7 +230,7 @@ public class View  extends Application{
         addGardenPane.setAlignment(Pos.CENTER);
         addGardenPane.add(createGardenLabel, 1, 1);
         addGardenPane.add(gardenNameText, 2, 1);
-        addGardenPane.add(createNewGardenButton, 1, 2);
+        addGardenPane.add(createNewGardenButton, 1, 4);
         addGardenPane.add(locationLabel, 1, 3   );
         addGardenPane.add(potentialLoctions, 2, 3);
 
@@ -314,13 +314,50 @@ public class View  extends Application{
         });
         javafx.scene.control.TextField waterText = new javafx.scene.control.TextField();
         javafx.scene.control.Button optimise = new javafx.scene.control.Button("OPTIMISE");
-        LocalDate dateSelected = LocalDate.now();
+
+        // date picker
+        DatePicker optimiseStartDate = new DatePicker(LocalDate.now());
+
+
+        //  include weather toggle and its impact on date picker
+        RadioButton includeWeatherToggle = new RadioButton("Include Weather");
+
+        LocalDate dateSelected;
+
+        if(includeWeatherToggle.isSelected()){
+
+            dateSelected= LocalDate.now();
+
+        } else {
+
+            dateSelected=optimiseStartDate.getValue();
+
+        }
+
+        includeWeatherToggle.setSelected(false);
+        includeWeatherToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if(t1==true){
+                    optimiseStartDate.setVisible(false);
+                    Alert weatherToggled = new Alert(Alert.AlertType.WARNING);
+                    weatherToggled.setContentText("Using wether means" + "\n" + "optimisation must be done from todays date");
+                    weatherToggled.show();
+                } else{
+                    optimiseStartDate.setVisible(true);
+                }
+            }
+        });
+
+
+
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 int days = Integer.parseInt(dayLabel.getText());
                 //double water = Double.parseDouble(waterLabel.getText());
                 double water = Double.parseDouble(waterText.getText());
+
 
                 Optimiser opObject = new Optimiser(g, days, water,dateSelected, false );
                 optimisationScene(opObject, stage);
@@ -336,7 +373,9 @@ public class View  extends Application{
         gardenPlotPane.add(waterTitle, 3, 2);
         //gardenPlotPane.add(waterLabel, 3, 2);
         gardenPlotPane.add(dayLabel, 3, 4);
-        gardenPlotPane.add(optimise, 2, 6);
+        gardenPlotPane.add(includeWeatherToggle, 2 , 5);
+        gardenPlotPane.add(optimiseStartDate, 2, 6);
+        gardenPlotPane.add(optimise, 2, 10);
 
 
 
