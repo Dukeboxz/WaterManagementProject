@@ -91,7 +91,7 @@ public class Optimiser  {
 
     public double[][] createOptimalWithWeather() {
         double[][] matrix = new double[this.garden.getPlots().size()][this.getDays()];
-        ArrayList<WeatherObject> weather = WeatherData.getWeatherData("chesterfield");
+        ArrayList<WeatherObject> weather = WeatherData.getWeatherData(this.getGarden().getLocation());
         double total = 0.0;
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
@@ -152,6 +152,7 @@ public class Optimiser  {
      */
     public double[][] createBasicMatrix() {
         double[][] matrix = new double[this.garden.getPlots().size()][this.getDays()];
+
         double total = 0.0;
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
@@ -176,6 +177,58 @@ public class Optimiser  {
         System.out.println(" BASIC TOTAL SUM= " + total);
 
         return matrix;
+    }
+
+    public double[][] createBasicMatrixWithWeather() {
+        double[][] matrix = new double[this.getGarden().getPlots().size()][this.getDays()];
+        ArrayList<WeatherObject> weather = WeatherData.getWeatherData(this.getGarden().getLocation());
+        double total = 0.0;
+
+        for(int i = 0; i < this.getGarden().getPlots().size(); i++){
+            Plot a = this.garden.getPlots().get(i);
+            double soilAndEnvironment = a.getEnvironment()+ a.getSoil();
+            int numPlants = a.getNoOfPlants();
+            for(int j = 0; j < this.getDays(); j++){
+
+                double tempValue = 1;
+
+                if(j < 10 & j < this.getDays()) {
+                    int temp = weather.get(j).getHighTemp();
+                    if (temp > 20 & temp <= 25) {
+                        tempValue = 1.05;
+                    } else if (temp > 25 & temp < 30) {
+                        tempValue = 1.10;
+                    } else if (temp >= 30) {
+                        tempValue = 1.15;
+                    } else {
+                        tempValue = 1;
+                    }
+                }
+                double basicPerPlant;
+                if(j < 10 & j < this.getDays()) {
+                    basicPerPlant = a.getBasic(j + 1, this.dateSelected) - weather.get(j).rainInInches;
+                    if (basicPerPlant < 1) {
+                        basicPerPlant = 1;
+                    }
+                } else{
+                    basicPerPlant = a.getBasic(j+ 1, this.dateSelected);
+                }
+
+
+                double dayOptimalRequirment = (basicPerPlant*(double)numPlants)*soilAndEnvironment * tempValue;
+                matrix[i][j] =  dayOptimalRequirment;
+                total += dayOptimalRequirment;
+
+
+
+            }
+            System.out.print("\n");
+        }
+
+        System.out.println(" BASIC  WITH WEATHER TOTAL SUM= " + total);
+
+        return matrix;
+
     }
 
     /**
@@ -279,18 +332,41 @@ public class Optimiser  {
     // method that undertakes optimisation and returns solution using JOM methods
     public double[][] optimize(){
 
-        // create optimisation problem object - JOM
-        OptimizationProblem op = new OptimizationProblem();
 
-        // add decision variable with lower and upper limit based on optimal and basic levels - JOM
-        op.addDecisionVariable("y", false, new int[]{this.getGarden().getPlots().size(), this.getDays()},
-                new DoubleMatrixND(this.createBasicMatrix()), new DoubleMatrixND(this.createOptimalMatrix()));
 
-        // input parameter basic level matrix - JOM
-        op.setInputParameter("z", new DoubleMatrixND(this.createBasicMatrix()));
+            // create optimisation problem object - JOM
+            OptimizationProblem op = new OptimizationProblem();
 
-        // input parameter optimal level matrix - JOM
-        op.setInputParameter("x", new DoubleMatrixND(this.createOptimalMatrix()));
+        if(this.withWeather==false) {
+
+            // add decision variable with lower and upper limit based on optimal and basic levels - JOM
+            op.addDecisionVariable("y", false, new int[]{this.getGarden().getPlots().size(), this.getDays()},
+                    new DoubleMatrixND(this.createBasicMatrix()), new DoubleMatrixND(this.createOptimalMatrix()));
+
+            // input parameter basic level matrix - JOM
+            op.setInputParameter("z", new DoubleMatrixND(this.createBasicMatrix()));
+
+            // input parameter optimal level matrix - JOM
+            op.setInputParameter("x", new DoubleMatrixND(this.createOptimalMatrix()));
+
+
+
+
+        } else {
+
+            // add decision variable with lower and upper limit based on optimal and basic levels - JOM
+            op.addDecisionVariable("y", false, new int[]{this.getGarden().getPlots().size(), this.getDays()},
+                    new DoubleMatrixND(this.createBasicMatrixWithWeather()), new DoubleMatrixND(this.createBasicMatrixWithWeather()));
+
+            // input parameter basic level matrix - JOM
+            op.setInputParameter("z", new DoubleMatrixND(this.createBasicMatrixWithWeather()));
+
+            // input parameter optimal level matrix - JOM
+            op.setInputParameter("x", new DoubleMatrixND(this.createOptimalWithWeather()));
+
+
+
+        }
 
         // set objective function - JOM
         op.setObjectiveFunction("minimize", "sum(x -y)");
@@ -299,7 +375,7 @@ public class Optimiser  {
         // add constraint JOM
         double water = this.getWaterAvailable();
         String waterAvailable = String.valueOf(water);
-        String expression = "sum(sum(y,2),1)<="+waterAvailable;
+        String expression = "sum(sum(y,2),1)<=" + waterAvailable;
         op.addConstraint(expression, "a");
 
 
@@ -309,7 +385,6 @@ public class Optimiser  {
 
         // call solver - JOM
         double[][] solMatrix = new double[this.garden.getPlots().size()][this.getDays()];
-
         try {
             op.solve("glpk", "solverLibraryName", "libglpk.so.36");
 
