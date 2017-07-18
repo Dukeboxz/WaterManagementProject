@@ -3,6 +3,9 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
@@ -11,9 +14,11 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,6 +26,7 @@ import java.awt.Button;
 import java.awt.Insets;
 import java.awt.Label;
 import java.awt.TextField;
+import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -125,8 +131,31 @@ public class View  extends Application{
         javafx.scene.control.Label createGardenLabel = new javafx.scene.control.Label("Garden Name");
         javafx.scene.control.TextField gardenNameText = new javafx.scene.control.TextField();
 
-        javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden");
-        javafx.scene.control.TextField location = new javafx.scene.control.TextField();
+        javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden Type first 3 letters");
+
+
+        ComboBox<String> potentialLoctions = new ComboBox();
+        potentialLoctions.setEditable(true);
+
+        Map<String, String> possibleLocations  = new TreeMap<>();
+        int counter = 0;
+
+        potentialLoctions.setOnAction((event) -> {
+            String new_val = potentialLoctions.getValue();
+            if(new_val.length() >= 3 ){
+
+                TreeMap<String, String> temp = WeatherData.getPotentialLocations(new_val);
+                temp.entrySet().forEach((e) -> possibleLocations.put(e.getKey(), e.getValue()));
+
+                ObservableMap<String, String> obsMap = FXCollections.observableMap(temp);
+
+                        potentialLoctions.getItems().clear();
+                        potentialLoctions.getItems().addAll(obsMap.keySet());
+
+
+            }
+        });
+
 
 
 
@@ -134,6 +163,9 @@ public class View  extends Application{
         createNewGardenButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
+
+                boolean allOK = true;
+
                 if(gardenNameText.getText().length()< 1){
 
                     Alert noText = new Alert(Alert.AlertType.ERROR);
@@ -146,14 +178,36 @@ public class View  extends Application{
                 else{
                     String gardenName = gardenNameText.getText().trim();
                     System.out.println("*"+ gardenName+"*");
+                    String theGardenLocation = potentialLoctions.getValue().trim();
+
+                    if(possibleLocations.containsKey(theGardenLocation)){
+                        allOK=true;
+                        String locationRef = null;
+
+                        for(Map.Entry<String, String> entry : possibleLocations.entrySet()){
+                            if(theGardenLocation.equals(entry.getKey())){
+                                locationRef = entry.getValue();
+                            }
+                        }
+
+
+
+                    } else {
+                        Alert noText = new Alert(Alert.AlertType.ERROR);
+                        noText.setContentText("Location not recognised");
+                        noText.show();
+
+                        gardenNameText.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+
+                        allOK = false;
+                    }
+
+                    //TODO
+                    // change database method to reflect new garden object
 
                     Database.createNewGarden(gardenName, user);
 
                     Garden createdGarden = Database.userGardenReturn(gardenName, user);
-
-
-
-
                     setGardenAndPlotScene(s,user,createdGarden );
 
 
@@ -177,7 +231,11 @@ public class View  extends Application{
         addGardenPane.add(createGardenLabel, 1, 1);
         addGardenPane.add(gardenNameText, 2, 1);
         addGardenPane.add(createNewGardenButton, 1, 2);
-        addGardenPane.add(backButon, 3, 3);
+        addGardenPane.add(locationLabel, 1, 3   );
+        addGardenPane.add(potentialLoctions, 2, 3);
+
+        addGardenPane.add(backButon, 3, 4);
+
 
         s.setScene(addGardenScene);
 
