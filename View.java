@@ -126,7 +126,7 @@ public class View  extends Application{
 
         s.setTitle("Add New Garden");
         GridPane addGardenPane = new GridPane();
-        Scene addGardenScene = new Scene(addGardenPane, 500 , 500);
+        Scene addGardenScene = new Scene(addGardenPane, 600 , 500);
 
         javafx.scene.control.Label createGardenLabel = new javafx.scene.control.Label("Garden Name");
         javafx.scene.control.TextField gardenNameText = new javafx.scene.control.TextField();
@@ -141,18 +141,21 @@ public class View  extends Application{
         int counter = 0;
 
         potentialLoctions.setOnAction((event) -> {
-            String new_val = potentialLoctions.getValue();
-            if(new_val.length() >= 3 ){
+            System.out.println("Event Triggered");
+            if(potentialLoctions.getValue()!=null) {
+                String new_val = potentialLoctions.getValue();
+                if (new_val.length() >= 3 & new_val.length() < 15) {
 
-                TreeMap<String, String> temp = WeatherData.getPotentialLocations(new_val);
-                temp.entrySet().forEach((e) -> possibleLocations.put(e.getKey(), e.getValue()));
+                    TreeMap<String, String> temp = WeatherData.getPotentialLocations(new_val);
+                    temp.entrySet().forEach((e) -> possibleLocations.put(e.getKey(), e.getValue()));
 
-                ObservableMap<String, String> obsMap = FXCollections.observableMap(temp);
+                    ObservableMap<String, String> obsMap = FXCollections.observableMap(temp);
 
-                        potentialLoctions.getItems().clear();
-                        potentialLoctions.getItems().addAll(obsMap.keySet());
+                    potentialLoctions.getItems().clear();
+                    potentialLoctions.getItems().addAll(obsMap.keySet());
 
 
+                }
             }
         });
 
@@ -165,6 +168,8 @@ public class View  extends Application{
             public void handle(ActionEvent actionEvent) {
 
                 boolean allOK = true;
+                String locationRef = null;
+                String location = null;
 
                 if(gardenNameText.getText().length()< 1){
 
@@ -182,10 +187,12 @@ public class View  extends Application{
 
                     if(possibleLocations.containsKey(theGardenLocation)){
                         allOK=true;
-                        String locationRef = null;
+
+
 
                         for(Map.Entry<String, String> entry : possibleLocations.entrySet()){
                             if(theGardenLocation.equals(entry.getKey())){
+                                location = entry.getKey();
                                 locationRef = entry.getValue();
                             }
                         }
@@ -205,7 +212,7 @@ public class View  extends Application{
                     //TODO
                     // change database method to reflect new garden object
 
-                    Database.createNewGarden(gardenName, user);
+                    Database.createNewGarden(gardenName, user, location, locationRef);
 
                     Garden createdGarden = Database.userGardenReturn(gardenName, user);
                     setGardenAndPlotScene(s,user,createdGarden );
