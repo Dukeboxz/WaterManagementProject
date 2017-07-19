@@ -570,7 +570,7 @@ public class Database {
      * @param Gname
      * @param gardenUser
      */
-    public static  void createNewGarden(String Gname, User gardenUser){
+    public static  void createNewGarden(String Gname, User gardenUser, String location, String locationReference){
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -590,10 +590,12 @@ public class Database {
 
         try{
 
-            String createNewGardenString = "INSERT INTO garden(name, userid) VALUES(?, ?);";
+            String createNewGardenString = "INSERT INTO garden(name, userid, location, location_reference) VALUES(?, ?, ?, ?);";
             PreparedStatement createNewGardenPS = conn.prepareStatement(createNewGardenString);
             createNewGardenPS.setString(1, Gname);
             createNewGardenPS.setInt(2, gardenUser.getId());
+            createNewGardenPS.setString(3, location);
+            createNewGardenPS.setString(4, locationReference);
 
             createNewGardenPS.executeUpdate();
         } catch (SQLException c){
@@ -861,7 +863,7 @@ public class Database {
 
             User u = createUser("Stephen");
 
-            createNewGarden("specialGarden", u);
+            createNewGarden("specialGarden", u, "Birmingham", "Test");
 
             List<SoilType> test = returnSoilTypeList();
 

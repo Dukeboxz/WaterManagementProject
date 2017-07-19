@@ -71,11 +71,12 @@ public class Optimiser  {
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.garden.getPlots().get(i);
-            double soilAndEnvironment = a.getEnvironment()+ a.getSoil();
+            double soil = a.getSoil();
+            double environment = a.getEnvironment();
             int numPlants = a.getNoOfPlants();
             for(int j = 0; j < this.getDays(); j++){
 
-                double dayOptimalRequirment = (a.getOptimal(j + 1, this.dateSelected)*(double)numPlants)*soilAndEnvironment;
+                double dayOptimalRequirment = (a.getOptimal(j + 1, this.dateSelected)*(double)numPlants)*soil*environment;
                 matrix[i][j] =  dayOptimalRequirment;
                 total += dayOptimalRequirment;
 
@@ -101,7 +102,8 @@ public class Optimiser  {
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.garden.getPlots().get(i);
-            double soilAndEnvironment = a.getEnvironment()+ a.getSoil();
+            double soil = a.getSoil();
+            double environment = a.getEnvironment();
             int numPlants = a.getNoOfPlants();
             for(int j = 0; j < this.getDays(); j++){
                 double tempValue = 1;
@@ -129,7 +131,7 @@ public class Optimiser  {
                 }
 
 
-                double dayOptimalRequirment = (optimalPerPlant*(double)numPlants)*soilAndEnvironment * tempValue;
+                double dayOptimalRequirment = (optimalPerPlant*(double)numPlants)*soil * environment * tempValue;
                 matrix[i][j] =  dayOptimalRequirment;
                 total += dayOptimalRequirment;
 
@@ -162,11 +164,12 @@ public class Optimiser  {
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.garden.getPlots().get(i);
-            double soilAndEnvironment = a.getEnvironment()+ a.getSoil();
+            double soil = a.getSoil();
+            double environment = a.getEnvironment();
             int numPlants = a.getNoOfPlants();
             for(int j = 0; j < this.getDays(); j++){
 
-                double dayBasicRequirement = (a.getBasic(j + 1 , this.dateSelected)*(double)numPlants)*soilAndEnvironment;
+                double dayBasicRequirement = (a.getBasic(j + 1 , this.dateSelected)*(double)numPlants)*soil * environment;
                 matrix[i][j] = dayBasicRequirement;
                 // System.out.print(a.getBasic(j) + " ");
                 total+= dayBasicRequirement;
@@ -191,7 +194,8 @@ public class Optimiser  {
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.garden.getPlots().get(i);
-            double soilAndEnvironment = a.getEnvironment()+ a.getSoil();
+            double soil = a.getSoil();
+            double environment = a.getEnvironment();
             int numPlants = a.getNoOfPlants();
             for(int j = 0; j < this.getDays(); j++){
 
@@ -220,7 +224,7 @@ public class Optimiser  {
                 }
 
 
-                double dayOptimalRequirment = (basicPerPlant*(double)numPlants)*soilAndEnvironment * tempValue;
+                double dayOptimalRequirment = (basicPerPlant*(double)numPlants)*soil * environment * tempValue;
                 matrix[i][j] =  dayOptimalRequirment;
                 total += dayOptimalRequirment;
 
@@ -245,9 +249,9 @@ public class Optimiser  {
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.getGarden().getPlots().get(i);
-            int plotPriority = a.getPriority();
+
             for(int j = 0; j < this.getDays(); j ++){
-                priortyMatrix[i][j]= plotPriority+a.getStagePriority(j + 1, this.dateSelected);
+                priortyMatrix[i][j]= a.getPlotPriorityValue(j, this.dateSelected);
                // System.out.print(priortyMatrix[i][j] + " ");
             }
            // System.out.println("\n");
@@ -600,11 +604,12 @@ public class Optimiser  {
 
 
 
-            Optimiser test = new Optimiser(testGarden, 30,  9000, LocalDate.now(), false);
+            Optimiser test = new Optimiser(testGarden, 30,  5000, LocalDate.now(), false);
 
             Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
 
 
+            System.out.println(testGarden.getPlots().get(0).getPlant().getSt1_br());
             BufferedWriter out = new BufferedWriter(new FileWriter("matrix.txt"));
 
 //
@@ -668,7 +673,7 @@ public class Optimiser  {
             out.newLine();
             out.write("Solution Matrix ");
             out.newLine();
-            double[][] temp3 = test.createBasicMatrix();
+            double[][] temp3 = test.optimize();
             double basicToal = 0;
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
 
@@ -691,13 +696,13 @@ public class Optimiser  {
             out.newLine();
             System.out.println("The basic with  total is " + basicToal);
             out.newLine();
-            out.write("Difference between Optimal and Decision ");
+            out.write("Difference  between Optimal and Decision ");
             out.newLine();
             double[][] less = new double[test.getGarden().getPlots().size()][test.getDays()];
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
                 for(int j = 0 ; j < test.getDays(); j++){
                     if(temp2[i][j]< temp[i][j]){
-                        double value = (temp[i][j] - temp2[i][j])/temp[i][j] * 100;
+                        double value = (temp[i][j] - temp3[i][j]);
                         less[i][j] = value;
                     } else{
                         less[i][j] = 0;
@@ -737,7 +742,7 @@ public class Optimiser  {
                 }
                 out.newLine();
             }
-            out.write(" optimal Water Needs =   made up of water need per plant * number of plant ");
+            out.write(" optimal Water Needs =   made up of water need per plant ");
             out.newLine();
 
             double[][] baseOptimalNeed = new double[test.getGarden().getPlots().size()][test.getDays()];
@@ -761,29 +766,41 @@ public class Optimiser  {
             }
             out.newLine();
 
-//            out.write(" Basic Water need made up of water need per plant * number of plants ");
+            out.write("number of plants ");
+
             out.newLine();
 
-//            double[][] baseBasic = new double[test.getGarden().getPlots().size()][test.getDays()];
-//
-//            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
-//                for (int j = 0; j < test.getDays(); j++) {
-//                    double value =  test.getGarden().getPlots().get(i).getBasic(j, test.dateSelected.plusDays(j)) *
-//                            test.getGarden().getPlots().get(i).getNoOfPlants();
-//                    baseOptimalNeed[i][j] = value;
-//                }
-//
-//
-//            }
-//
-//            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
-//                for (int j = 0; j < test.getDays(); j++) {
-//                    out.write(String.format("|%6.4f", baseBasic[i][j]));
-//
-//                }
-//
-//                out.newLine();
-//            }
+            for(int i = 0; i < test.getGarden().getPlots().size(); i++) {
+                for(int j = 0; j < test.getDays(); j++){
+                    int numPlants = test.getGarden().getPlots().get(i).getNoOfPlants();
+                    out.write(String.format("|%-6d", numPlants));
+                }
+                out.newLine();
+            }
+
+            out.write(" Basic Water need made up of water need per plant ");
+            out.newLine();
+
+            double[][] baseBasic = new double[test.getGarden().getPlots().size()][test.getDays()];
+
+            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
+                for (int j = 0; j < test.getDays(); j++) {
+                    double value =  test.getGarden().getPlots().get(i).getBasic(j, test.dateSelected.plusDays(j));
+                    System.out.println("The base value is " + value);
+                    baseBasic[i][j] = value;
+                }
+
+
+            }
+
+            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
+                for (int j = 0; j < test.getDays(); j++) {
+                    out.write(String.format("|%6.4f", baseBasic[i][j]));
+
+                }
+
+                out.newLine();
+            }
 
             out.newLine();
             out.write("Soil and Environment multiplications ");
@@ -794,8 +811,7 @@ public class Optimiser  {
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for (int j = 0; j < test.getDays(); j++) {
-                    double value =  test.getGarden().getPlots().get(i).getSoil() + test.getGarden().getPlots().get(i).getEnvironment() *
-                            test.getGarden().getPlots().get(i).getNoOfPlants();
+                    double value =  test.getGarden().getPlots().get(i).getSoil() + test.getGarden().getPlots().get(i).getEnvironment();
                     soilAndEnv[i][j] = value;
                 }
 

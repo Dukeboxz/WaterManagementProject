@@ -160,6 +160,8 @@ public class WeatherData {
 
         } catch(IOException e){
 
+            System.out.println("Could not get weather Data ");
+
         } catch (ParseException f){
 
         }
@@ -176,11 +178,11 @@ public class WeatherData {
 
     public static void main(String[] args) {
 
-       // ArrayList<WeatherObject> test = getWeatherData("chesterfield");
+        ArrayList<WeatherObject> test = getWeatherData("chesterfield");
 
-//        for(WeatherObject a : test){
-//            System.out.println(a.getHighTemp());
-//        }
+        for(WeatherObject a : test){
+            System.out.println(a.getHighTemp());
+        }
 
         TreeMap test2 = getPotentialLocations("ches");
     }

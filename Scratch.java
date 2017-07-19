@@ -1,17 +1,11 @@
-import java.sql.Date;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.time.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.joptimizer.functions.PDQuadraticMultivariateRealFunction;
+import com.joptimizer.optimizers.JOptimizer;
 
+import javax.swing.*;
+import java.beans.Expression;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import com.jom.*;
-import javafx.scene.control.ComboBox;
 
 /**
  * Created by stephen on 14/06/17.
@@ -21,15 +15,31 @@ public class Scratch {
 
     public static void main(String[] args) {
 
-        for(int i = 0; i < 35; i++) {
+       try {
+           Garden testGarden = Database.createGarden(2);
 
-            LocalDate now = LocalDate.now();
-           // System.out.println(now);
-           // System.out.println(now.plusDays(i));
-            LocalDate then = now.plusDays(i);
-            System.out.println(now.until(then, ChronoUnit.DAYS));
-        }
 
+           Optimiser test = new Optimiser(testGarden, 31, 9050, LocalDate.now(), false);
+
+           Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
+
+           OptimizationProblem op = new OptimizationProblem();
+
+           com.jom.Expression c = new OptimizationProblem().parseExpression("[7;1;4;;5;2;6]");
+         // System.out.println("value of e: " + c.evaluate());
+           System.out.println("c(1,2) = " +  op.parseExpression("c(0,0)").evaluate());
+
+
+           // Optimiser test = new Optimiser(testGarden, 31, 9500, LocalDate.now()), false);
+
+
+           double[][] p = new double[][]{{1., 0.4}, {0.4, 1.}};
+           PDQuadraticMultivariateRealFunction objectiveFunction = new PDQuadraticMultivariateRealFunction(p, null, 0);
+
+
+       } catch(SQLException e){
+
+       }
     }
 
 }

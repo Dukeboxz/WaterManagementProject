@@ -38,6 +38,6 @@ public class Garden {
         return this.getUserID();
     }
 
-    public String getLocation() { return this.getLocation();}
+    public String getLocation() { return this.location;}
 
 }

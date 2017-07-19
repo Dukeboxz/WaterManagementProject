@@ -141,7 +141,7 @@ public class UserCreateView extends Application {
                     String gardenName = gardenNameText.getText().trim();
                     System.out.println("*"+ gardenName+"*");
 
-                    Database.createNewGarden(gardenName, user);
+                  //  Database.createNewGarden(gardenName, user);
 
                     Garden createdGarden = Database.userGardenReturn(gardenName, user);
 
