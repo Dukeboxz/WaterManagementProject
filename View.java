@@ -15,8 +15,10 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.*;
 import javafx.stage.Stage;
 import sun.reflect.generics.tree.Tree;
 
@@ -30,6 +32,8 @@ import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+
+import static java.awt.Color.red;
 
 
 /**
@@ -59,16 +63,17 @@ public class View  extends Application{
 
         java.util.List<Garden> gardenList = Database.getUsersGardens(user.getId());
 
-
+        stage.setTitle("Garden Selection ");
 
 
         // Garden Selection Page
         javafx.scene.control.Label gardenLabel = new javafx.scene.control.Label();
-        String  a = " the name is " + user.getName();
+        String  a = " Welcome  " + user.getName().trim() + "\n" + " please select your garden or create a new one ";
         gardenLabel.setText(a);
         javafx.scene.control.Label selectGarden = new javafx.scene.control.Label("Existing Garden");
         javafx.scene.control.Button load = new javafx.scene.control.Button("Load");
         javafx.scene.control.Button createNewGarden = new javafx.scene.control.Button("Create new Garden");
+
         createNewGarden.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -90,9 +95,11 @@ public class View  extends Application{
         load.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                if(usersGardens.getValue().equals(null)){
+
+                if(usersGardens.getSelectionModel().isEmpty()){
                     Alert noGarden = new Alert(Alert.AlertType.ERROR);
                     noGarden.setContentText("Please select a garden");
+                  usersGardens.setStyle("-fx-border-width: 2.5; -fx-border-color: red");
                 } else {
                     String chosenGarden = usersGardens.getValue().toString();
                     for(Garden h : gardenList){
@@ -108,11 +115,14 @@ public class View  extends Application{
             }
         });
         gardenGrid.setAlignment(Pos.CENTER);
+        gardenGrid.setVgap(2.0 );
+        gardenGrid.setHgap(1.0);
+        gardenGrid.setPadding(new javafx.geometry.Insets(10, 10, 50, 10));
         gardenGrid.add(gardenLabel, 0, 1);
         gardenGrid.add(createNewGarden, 0, 2);
         gardenGrid.add(usersGardens, 0, 4);
         gardenGrid.add(selectGarden, 0, 3);
-        gardenGrid.add(load, 1, 4);
+        gardenGrid.add(load, 0, 5);
 
         stage.setScene(garden);
     }
@@ -209,7 +219,7 @@ public class View  extends Application{
                         allOK = false;
                     }
 
-                    //TODO
+
                     // change database method to reflect new garden object
 
                     Database.createNewGarden(gardenName, user, location, locationRef);
@@ -260,6 +270,7 @@ public class View  extends Application{
 
         GridPane gardenPlotPane = new GridPane();
         Scene gardenPlotScene = new Scene(gardenPlotPane, 500, 500);
+        stage.setTitle("Optimse Your Water Supply");
         ArrayList<Plot> gPlots = g.getPlots();
         int counter = 1;
 
@@ -342,6 +353,7 @@ public class View  extends Application{
         }
 
         includeWeatherToggle.setSelected(false);
+
         includeWeatherToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
@@ -350,13 +362,20 @@ public class View  extends Application{
                     Alert weatherToggled = new Alert(Alert.AlertType.WARNING);
                     weatherToggled.setContentText("Using wether means" + "\n" + "optimisation must be done from todays date");
                     weatherToggled.show();
+
+
                 } else{
                     optimiseStartDate.setVisible(true);
                 }
             }
         });
 
-
+        boolean weatherActive;
+        if(optimiseStartDate.isVisible()){
+            weatherActive = false;
+        } else {
+            weatherActive= true;
+        }
 
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -366,7 +385,7 @@ public class View  extends Application{
                 double water = Double.parseDouble(waterText.getText());
 
 
-                Optimiser opObject = new Optimiser(g, days, water,dateSelected, false );
+                Optimiser opObject = new Optimiser(g, days, water,dateSelected, weatherActive);
                 optimisationScene(opObject, stage);
 
             }
@@ -468,6 +487,8 @@ public class View  extends Application{
         optimalUse.setName("Optimal");
         double[] opP = o.getOptimisationPoints();
         for(int i = 0 ; i < opP.length; i++){
+
+            System.out.println("The day is " + i  + " and the value is " + opP[i]);
             optimalUse.getData().add(new XYChart.Data<>(i, opP[i]));
 
 
@@ -813,6 +834,7 @@ public class View  extends Application{
 
 
         theStage = primaryStage;
+
 
 
 

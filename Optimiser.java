@@ -604,7 +604,7 @@ public class Optimiser  {
 
 
 
-            Optimiser test = new Optimiser(testGarden, 30,  5000, LocalDate.now(), false);
+            Optimiser test = new Optimiser(testGarden, 32,  5000, LocalDate.now(), false);
 
             Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
 
@@ -635,6 +635,16 @@ public class Optimiser  {
                 out.newLine();
 
             }
+            for(int i = 0; i < test.getDays(); i++){
+                double opTotal = 0;
+                for(int j = 0 ; j < test.getGarden().getPlots().size(); j++){
+                    opTotal += temp[j][i];
+                }
+
+                out.write(String.format("|%6.2f", opTotal));
+
+            }
+            out.newLine();
             out.write("The Optimal Matrix total is " + total);
             out.newLine();
             System.out.println("The optinmal matrix total is " + total );
@@ -694,6 +704,19 @@ public class Optimiser  {
             }
             out.write("The solution total is " + basicToal);
             out.newLine();
+
+            for(int i = 0 ; i < test.getDays(); i ++){
+                double solTotal = 0;
+                for (int j = 0 ; j < test.getGarden().getPlots().size(); j ++){
+                    solTotal += temp3[j][i];
+                }
+                out.write(String.format("|%6.2f", solTotal));
+            }
+
+            out.newLine();
+
+
+
             System.out.println("The basic with  total is " + basicToal);
             out.newLine();
             out.write("Difference  between Optimal and Decision ");
@@ -749,7 +772,7 @@ public class Optimiser  {
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for (int j = 0; j < test.getDays(); j++) {
-                   double value =  test.getGarden().getPlots().get(i).getOptimal(j, test.dateSelected.plusDays(j));
+                   double value =  test.getGarden().getPlots().get(i).getOptimal(j, test.dateSelected);
                    baseOptimalNeed[i][j] = value;
                 }
 
@@ -785,8 +808,8 @@ public class Optimiser  {
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for (int j = 0; j < test.getDays(); j++) {
-                    double value =  test.getGarden().getPlots().get(i).getBasic(j, test.dateSelected.plusDays(j));
-                    System.out.println("The base value is " + value);
+                    double value =  test.getGarden().getPlots().get(i).getBasic(j, test.dateSelected);
+
                     baseBasic[i][j] = value;
                 }
 
@@ -795,7 +818,7 @@ public class Optimiser  {
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for (int j = 0; j < test.getDays(); j++) {
-                    out.write(String.format("|%6.4f", baseBasic[i][j]));
+                    out.write(String.format("|%6.2f", baseBasic[i][j]));
 
                 }
 
@@ -803,7 +826,7 @@ public class Optimiser  {
             }
 
             out.newLine();
-            out.write("Soil and Environment multiplications ");
+            out.write("Soil multiplications ");
 
             double[][] soilAndEnv = new double[test.getGarden().getPlots().size()][test.getDays()];
 
@@ -811,7 +834,7 @@ public class Optimiser  {
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for (int j = 0; j < test.getDays(); j++) {
-                    double value =  test.getGarden().getPlots().get(i).getSoil() + test.getGarden().getPlots().get(i).getEnvironment();
+                    double value =  test.getGarden().getPlots().get(i).getSoil() ;
                     soilAndEnv[i][j] = value;
                 }
 
@@ -827,14 +850,39 @@ public class Optimiser  {
                 out.newLine();
             }
 
+            out.newLine();
+            out.write("Environment multiplications ");
+
+            double[][] env = new double[test.getGarden().getPlots().size()][test.getDays()];
+
+            out.newLine();
+
+            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
+                for (int j = 0; j < test.getDays(); j++) {
+                    double value =  test.getGarden().getPlots().get(i).getEnvironment() ;
+                    env[i][j] = value;
+                }
 
 
+            }
 
+            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
+                for (int j = 0; j < test.getDays(); j++) {
+                    out.write(String.format("|%6.2f", env[i][j]));
 
+                }
 
+                out.newLine();
+            }
 
 
             out.close();
+
+            double[] byDay = test.decisionByDay(test.optimize());
+
+            for(double d : byDay){
+                System.out.printf("|%6.2f", d);
+            }
 
 
 //            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");

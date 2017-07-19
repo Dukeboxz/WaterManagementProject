@@ -212,14 +212,14 @@ public class Plot {
 
         try {
             Plot a = Database.createPlot(2);
+            a.setDatePlanted(LocalDate.now());
 
-            System.out.println(a.getDatePlanted());
+            for(int i = 0; i < 30 ; i++){
+                System.out.print( " | " + a.getOptimal(i, LocalDate.now()));
+            }
 
-            System.out.println(a.getDatePlanted().until(LocalDate.now(), ChronoUnit.DAYS));
 
-           for(int i = 0 ; i < 50 ; i++ ){
-               System.out.println(a.getBasic(i, LocalDate.now()));
-           }
+
         } catch(SQLException e){
 
         }
