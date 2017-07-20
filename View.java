@@ -15,9 +15,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
 import sun.reflect.generics.tree.Tree;
@@ -472,7 +470,7 @@ public class View  extends Application{
 
         Stage secondStage = new Stage();
 
-        FlowPane opGrid = new FlowPane();
+
 
 
         final NumberAxis xAxis = new NumberAxis();
@@ -520,7 +518,49 @@ public class View  extends Application{
         waterChart.getData().add(optimalUse);
         waterChart.getData().add(decionUse);
 
-        Scene opScene = new Scene(waterChart, 1000, 600);
+
+        RadioButton showOptimal = new RadioButton("show Optimal");
+        showOptimal.setSelected(true);
+        RadioButton showUsage = new RadioButton("Show Total Water Usage");
+        showUsage.setSelected(true);
+
+        showOptimal.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if(t1 == false){
+                    waterChart.getData().remove(optimalUse);
+                } else{
+                    waterChart.getData().add(optimalUse);
+                }
+            }
+        });
+
+        showUsage.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if(t1==false){
+                    waterChart.getData().remove(decionUse);
+                } else{
+                    waterChart.getData().add(decionUse);
+                }
+            }
+        });
+
+
+
+        GridPane opGrid = new GridPane();
+        opGrid.add(waterChart, 0, 0,1, 4);
+        opGrid.add(showOptimal, 1, 0);
+        opGrid.add(showUsage, 1, 1);
+        ColumnConstraints col = new ColumnConstraints();
+
+//        RowConstraints row = new RowConstraints();
+//        row.setPercentHeight(100);
+//        opGrid.getRowConstraints().add(row);
+
+
+
+        Scene opScene = new Scene(opGrid, 1000, 600);
 
 
 

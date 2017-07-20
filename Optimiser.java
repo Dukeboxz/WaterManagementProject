@@ -244,8 +244,8 @@ public class Optimiser  {
      * Method creates matrix of priority weightings
      * @return
      */
-    public int[][] createPriorityMatrix() {
-        int[][] priortyMatrix = new int[this.garden.getPlots().size()][this.getDays()];
+    public double[][] createPriorityMatrix() {
+        double[][] priortyMatrix = new double[this.garden.getPlots().size()][this.getDays()];
 
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             Plot a = this.getGarden().getPlots().get(i);
@@ -267,7 +267,7 @@ public class Optimiser  {
         double[][] decisionMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
         double[][] optiamalMatrix = this.createOptimalMatrix();
         double[][] baseMatrix = this.createBasicMatrix();
-        int[][] priorityMatrix = this.createPriorityMatrix();
+        double[][] priorityMatrix = this.createPriorityMatrix();
         double total = 0.0;
 
         for(int i = 0; i < optiamalMatrix.length; i++ ){
@@ -595,7 +595,7 @@ public class Optimiser  {
     public static void main(String[] args){
 
         try {
-            Garden testGarden = Database.createGarden(2);
+            Garden testGarden = Database.createGarden(3);
 
             for(int i = 0; i < testGarden.getPlots().size(); i++){
                 testGarden.getPlots().get(i).setDatePlanted(LocalDate.now());
@@ -604,7 +604,7 @@ public class Optimiser  {
 
 
 
-            Optimiser test = new Optimiser(testGarden, 32,  5000, LocalDate.now(), false);
+            Optimiser test = new Optimiser(testGarden, 32,  3000, LocalDate.now(), false);
 
             Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
 
@@ -757,7 +757,7 @@ public class Optimiser  {
             out.write("Priority Weightings ");
             out.newLine();
 
-            int[][] prior = test.createPriorityMatrix();
+            double[][] prior = test.createPriorityMatrix();
 
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++) {
                 for(int j = 0 ; j < test.getDays(); j++){
@@ -765,8 +765,41 @@ public class Optimiser  {
                 }
                 out.newLine();
             }
+
+            out.newLine();
+
+            out.write("Stage Priority ");
+            out.newLine();
+
+            for ( int i = 0 ; i < test.getGarden().getPlots().size(); i++){
+                Plot tempPlot = test.getGarden().getPlots().get(i);
+                for( int j = 0 ; j < test.getDays(); j++){
+
+                   int priority = tempPlot.getStagePriority(j, test.dateSelected);
+                    out.write(String.format("|%-6d", priority));
+
+                }
+                out.newLine();
+            }
+
+            out.write("Plot Prioirty ");
+            out.newLine();
+
+            for ( int i = 0 ; i < test.getGarden().getPlots().size(); i++){
+                Plot tempPlot = test.getGarden().getPlots().get(i);
+                for( int j = 0 ; j < test.getDays(); j++){
+
+                    double thePlotPrioirty = tempPlot.getPriority();
+                    out.write(String.format("|%-6.2f", thePlotPrioirty));
+
+                }
+                out.newLine();
+            }
+
+
             out.write(" optimal Water Needs =   made up of water need per plant ");
             out.newLine();
+
 
             double[][] baseOptimalNeed = new double[test.getGarden().getPlots().size()][test.getDays()];
 

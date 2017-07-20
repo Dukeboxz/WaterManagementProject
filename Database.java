@@ -24,6 +24,7 @@ public class Database {
      */
     public static boolean userNameExists(String userName) throws  SQLException{
 
+
         boolean doesExist = true;
         try {
             Class.forName("org.postgresql.Driver");
@@ -39,14 +40,20 @@ public class Database {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
         } catch(SQLException e){ }
 
-        String checkUserNameString = "SELECT id FROM users WHERE name = ?";
+        String checkUserNameString = "SELECT name FROM users";
         PreparedStatement checkedUserName = conn.prepareStatement(checkUserNameString);
-        checkedUserName.setString(1, userName);
+
+        String userElemnt = null;
+
 
         try {
             ResultSet r = checkedUserName.executeQuery();
-            if(!r.next()){
-                doesExist = false;
+            while(r.next()){
+                userElemnt = r.getString("name");
+
+                if(userElemnt.trim().equals(userName)){
+                    doesExist=false;
+                }
             }
 
         } catch (SQLException missing) {
@@ -312,7 +319,7 @@ public class Database {
         int plantID = 0;
         int soilID = 0;
         int environmentID = 0;
-        int priority = 1;
+        double priority = 1;
 
         try {
           PreparedStatement getPlot =  conn.prepareStatement(createPlotString);
@@ -330,7 +337,7 @@ public class Database {
               soilID= r.getInt("soiltypeid");
               environmentID = r.getInt("environmentid");
               plantID = r.getInt("plantid");
-              priority = r.getInt("priority");
+              priority = r.getDouble("priority");
 
 
 
@@ -820,7 +827,7 @@ public class Database {
             insertNewPlotPS.setInt(7, dayPlanted);
             insertNewPlotPS.setInt(8, monthPlanted);
             insertNewPlotPS.setInt(9, yearPlanted);
-            insertNewPlotPS.setInt(10, priority);
+            insertNewPlotPS.setDouble(10, priority);
 
             insertNewPlotPS.executeUpdate();
 

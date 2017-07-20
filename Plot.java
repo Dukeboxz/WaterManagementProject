@@ -18,7 +18,7 @@ public class Plot {
     int noOfPlants;
     double soil;
     double environment;
-    int priority;
+    double priority;
 
 
     public Plot(String name,
@@ -28,7 +28,7 @@ public class Plot {
                 int number,
                 double soil,
                 double environment,
-                int priority){
+                double priority){
 
         this.name=name;
         this.size=size;
@@ -146,7 +146,7 @@ public class Plot {
      * @param days
      * @return int
      */
-    public int getPlotPriorityValue(int days, LocalDate date){
+    public double getPlotPriorityValue(int days, LocalDate date){
         return this.getPriority()+ this.getStagePriority(days, date);
     }
 
@@ -198,7 +198,7 @@ public class Plot {
         this.environment = environment;
     }
 
-    public int getPriority() {
+    public double getPriority() {
         return this.priority;
     }
 
