@@ -15,31 +15,20 @@ public class Scratch {
 
     public static void main(String[] args) {
 
-       try {
-           Garden testGarden = Database.createGarden(2);
 
+        try {
+            Garden testGarden = Database.createGarden(2);
 
-           Optimiser test = new Optimiser(testGarden, 31, 9050, LocalDate.now(), false);
+            for(int i = 0; i < 20 ; i++) {
 
-           Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
+                System.out.println(Math.floorDiv(i, 4)); // for rows
+                System.out.println();
+                System.out.println(Math.floorMod(i, 4)); // for columns
+            }
 
-           OptimizationProblem op = new OptimizationProblem();
+        } catch (SQLException e) {
 
-           com.jom.Expression c = new OptimizationProblem().parseExpression("[7;1;4;;5;2;6]");
-         // System.out.println("value of e: " + c.evaluate());
-           System.out.println("c(1,2) = " +  op.parseExpression("c(0,0)").evaluate());
+        }
 
-
-           // Optimiser test = new Optimiser(testGarden, 31, 9500, LocalDate.now()), false);
-
-
-           double[][] p = new double[][]{{1., 0.4}, {0.4, 1.}};
-           PDQuadraticMultivariateRealFunction objectiveFunction = new PDQuadraticMultivariateRealFunction(p, null, 0);
-
-
-       } catch(SQLException e){
-
-       }
     }
-
 }

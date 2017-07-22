@@ -7,9 +7,10 @@ import java.util.Calendar;
  * Created by stephen on 14/06/17.
  * class to create plot object
  */
-public class Plot {
+public class Plot implements  Comparable<Plot>{
 
 
+    int id;
     double size;
 
    String name;
@@ -21,7 +22,8 @@ public class Plot {
     double priority;
 
 
-    public Plot(String name,
+    public Plot(int id,
+                String name,
                 double size,
                 LocalDate datePlanted,
                 Plant plant,
@@ -30,6 +32,7 @@ public class Plot {
                 double environment,
                 double priority){
 
+        this.id=id;
         this.name=name;
         this.size=size;
         this.datePlanted=datePlanted;
@@ -43,6 +46,11 @@ public class Plot {
 //
 
 
+    }
+
+    public int compareTo(Plot comparePlot){
+
+      return this.getName().compareTo(comparePlot.getName());
     }
 
     /**
@@ -211,12 +219,11 @@ public class Plot {
     public static void main(String[] args){
 
         try {
-            Plot a = Database.createPlot(2);
-            a.setDatePlanted(LocalDate.now());
+            Plot a = Database.createPlot("Radish 2", 12, 7, 2017);
 
-            for(int i = 0; i < 30 ; i++){
-                System.out.print( " | " + a.getOptimal(i, LocalDate.now()));
-            }
+            System.out.println(a.getName());
+            System.out.println(a.getPlant().getName());
+
 
 
 

@@ -282,12 +282,12 @@ public class Database {
 
 
     /**
-     * Create Plot object based on plot id
-     * @param plotID
+     * Create Plot object based on name and date
+     * @param
      * @return
      * @throws SQLException
      */
-    public static Plot createPlot(int plotID) throws SQLException  {
+    public static Plot createPlot(String plotName, int dayPlanted, int monthPlanted, int yearPlanted) throws SQLException  {
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -308,8 +308,9 @@ public class Database {
             System.out.println("Connection ");
         }
 
-        String createPlotString = " SELECT * from plots WHERE id=?";
+        String createPlotString = " SELECT * from plots WHERE name=? AND day_planted=? AND month_planted=? AND year_planted=? ";
 
+        int id = 0;
         String name ="";
         double size = 0.0;
         int day = 0;
@@ -323,12 +324,16 @@ public class Database {
 
         try {
           PreparedStatement getPlot =  conn.prepareStatement(createPlotString);
-          getPlot.setInt(1, plotID);
+          getPlot.setString(1, plotName);
+          getPlot.setInt(2, dayPlanted);
+          getPlot.setInt(3, monthPlanted);
+          getPlot.setInt(4, yearPlanted);
 
           ResultSet r = getPlot.executeQuery();
 
 
           while(r.next()){
+              id = r.getInt("id");
               name = r.getString("name");
               size = r.getDouble("size");
               day = r.getInt("day_planted");
@@ -357,7 +362,7 @@ public class Database {
             Double soilValue = getSoilTypeValue(soilID);
             double environmentValue = getEnvironmentValue(environmentID);
             int number = plant.getNumberPerMeter()* (int)size;
-            Plot plot = new Plot(name, size, datePlanted, plant,  number, soilValue, environmentValue, priority);
+            Plot plot = new Plot(id, name, size, datePlanted, plant,  number, soilValue, environmentValue, priority);
 
 
 
@@ -370,6 +375,99 @@ public class Database {
 
 
     }
+
+    /**
+     * Create Plot object based on name and date
+     * @param
+     * @return
+     * @throws SQLException
+     */
+    public static Plot createPlotBasedOnId(int plotid) throws SQLException  {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+        System.out.println("working");
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+        if(conn!=null) {
+            System.out.println("Connection ");
+        }
+
+        String createPlotString = " SELECT * from plots WHERE  id=?";
+
+        int id = 0;
+        String name ="";
+        double size = 0.0;
+        int day = 0;
+        int month = 0 ;
+        int year = 0;
+
+        int plantID = 0;
+        int soilID = 0;
+        int environmentID = 0;
+        double priority = 1;
+
+        try {
+            PreparedStatement getPlot =  conn.prepareStatement(createPlotString);
+            getPlot.setInt(1, plotid);
+
+            ResultSet r = getPlot.executeQuery();
+
+
+            while(r.next()){
+                id = r.getInt("id");
+                name = r.getString("name");
+                size = r.getDouble("size");
+                day = r.getInt("day_planted");
+                month = r.getInt("month_planted");
+                year = r.getInt("year_planted");
+                soilID= r.getInt("soiltypeid");
+                environmentID = r.getInt("environmentid");
+                plantID = r.getInt("plantid");
+                priority = r.getDouble("priority");
+
+
+
+
+            }
+        }
+
+        catch(SQLException e){
+
+        }
+
+        LocalDate datePlanted = LocalDate.of(year, month, day);
+
+
+        Plant plant = createPlant(plantID);
+
+        Double soilValue = getSoilTypeValue(soilID);
+        double environmentValue = getEnvironmentValue(environmentID);
+        int number = plant.getNumberPerMeter()* (int)size;
+        Plot plot = new Plot(id, name, size, datePlanted, plant,  number, soilValue, environmentValue, priority);
+
+
+
+        conn.close();
+
+        return plot;
+
+
+
+
+
+    }
+
 
     /**
      * Create hashmap of soil variables for using in showing option in UI
@@ -676,12 +774,26 @@ public class Database {
 
            int plotid = r.getInt("id");
 
-            Plot nextPlot = createPlot(plotid);
+            Plot nextPlot = createPlotBasedOnId(plotid);
 
             gardenPlots.add(nextPlot);
 
 
         }
+
+        System.out.println("Not sorted");
+        for(Plot p : gardenPlots){
+            System.out.println(p.getName() + " id  " + p.id);
+        }
+
+        Collections.sort(gardenPlots);
+
+        System.out.println("after sort");
+        for(Plot p : gardenPlots){
+            System.out.println(p.getName() + " id " + p.id);
+        }
+
+
         Garden newGarden = new Garden(gardensid, name, gardenPlots, userID, gardenLocation);
 
         conn.close();
@@ -868,16 +980,7 @@ public class Database {
 //                   System.out.println(np.getName());
 //               }
 
-            User u = createUser("Stephen");
-
-            createNewGarden("specialGarden", u, "Birmingham", "Test");
-
-            List<SoilType> test = returnSoilTypeList();
-
-            for(SoilType a : test){
-                System.out.println(a);
-                System.out.println();
-            }
+           createGarden(2);
 
 
 

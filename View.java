@@ -471,12 +471,13 @@ public class View  extends Application{
         Stage secondStage = new Stage();
 
 
+        GridPane opGrid = new GridPane();
 
-
-        final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Days");
         yAxis.setLabel("Water mm^3");
+
 
         LineChart<Number, Number> waterChart = new LineChart<Number, Number>(xAxis, yAxis);
         waterChart.setTitle("Water Usage");
@@ -499,20 +500,37 @@ public class View  extends Application{
             decionUse.getData().add(new XYChart.Data<>(i , arg[i]));
         }
 
-        double[][] plotsOptimal = o.optimize();
-        for(int i = 0; i < o.getGarden().getPlots().size(); i++){
 
-            XYChart.Series plotOptimalSeries = new XYChart.Series();
-           // double[] plotOptimalValues = new double[o.getDays()];
-            for(int j = 0; j < o.getDays(); j++){
-              //  plotOptimalValues[j] =
-                double value = plotsOptimal[i][j];
-                plotOptimalSeries.getData().add(new XYChart.Data<>(j, value));
+        Map<String, ArrayList<Double>> optimisedInMap = o.optimizeForMap();
+        int plotCounter = 0;
+        for(Map.Entry<String, ArrayList<Double>> entry: optimisedInMap.entrySet()){
+            String thePlotName = entry.getKey();
+            System.out.println(entry.getKey());
+            XYChart.Series newDecisionSeries = new XYChart.Series();
+            newDecisionSeries.setName(thePlotName);
+            int counter = 0;
+            for(Double d : entry.getValue()){
+                System.out.print(d + " ");
+                newDecisionSeries.getData().add(new XYChart.Data<>(counter, d));
+                counter++;
 
             }
+            waterChart.getData().add(newDecisionSeries);
+            RadioButton newButton = new RadioButton(" Remove" + thePlotName);
+           opGrid.add(newButton,Math.floorMod(plotCounter, 4), 6 +  Math.floorDiv(plotCounter, 4));
+           plotCounter++;
+           newButton.setSelected(true);
+           newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+               @Override
+               public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                   if(t1==false){
+                       waterChart.getData().remove(newDecisionSeries);
+                   } else {
+                       waterChart.getData().add(newDecisionSeries);
+                   }
+               }
+           });
 
-
-            waterChart.getData().add(plotOptimalSeries);
         }
 
         waterChart.getData().add(optimalUse);
@@ -548,15 +566,18 @@ public class View  extends Application{
 
 
 
-        GridPane opGrid = new GridPane();
-        opGrid.add(waterChart, 0, 0,1, 4);
-        opGrid.add(showOptimal, 1, 0);
-        opGrid.add(showUsage, 1, 1);
+
+
         ColumnConstraints col = new ColumnConstraints();
 
-//        RowConstraints row = new RowConstraints();
-//        row.setPercentHeight(100);
-//        opGrid.getRowConstraints().add(row);
+        col.setPercentWidth(25);
+        opGrid.getColumnConstraints().addAll(col, col, col , col);
+
+        opGrid.add(waterChart, 0, 0,4, 4);
+        opGrid.add(showOptimal, 1, 5);
+        opGrid.add(showUsage, 2, 5);
+
+
 
 
 
@@ -762,12 +783,23 @@ public class View  extends Application{
                         " the environment value is " + theEnvironmentValue + "\n" + "the priority value is " + thePriorityValue
                 );
 
-                Plot theNewPlot = new Plot(ThePlotsName, thePlotSize, ThedatePlanted, plotsPlant, number, TheSoilValue, theEnvironmentValue, thePriorityValue);
-                g.getPlots().add(theNewPlot);
+
 
                if(Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.getGardenID(), soilID, environmentID, day, month, year, thePriorityValue )==true) {
-                    setGardenAndPlotScene(s, u, g);
 
+                   try {
+                       Plot theNewPlot = Database.createPlot(ThePlotsName, day, month, year);
+                       g.getPlots().add(theNewPlot);
+                       setGardenAndPlotScene(s, u, g);
+                   }catch(SQLException e){
+
+                   }
+
+
+               } else {
+                   Alert writeFailure = new Alert(Alert.AlertType.ERROR);
+                   writeFailure.setContentText("Failed To Write to Database ");
+                   writeFailure.show();
                }
 
 
