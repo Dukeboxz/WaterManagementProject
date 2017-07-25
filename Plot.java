@@ -155,7 +155,16 @@ public class Plot implements  Comparable<Plot>{
      * @return int
      */
     public double getPlotPriorityValue(int days, LocalDate date){
-        return this.getPriority()+ this.getStagePriority(days, date);
+
+        double stagePrioirty = this.getStagePriority(days, date);
+        double plotPriority;
+        if(stagePrioirty==0){
+            plotPriority=0;
+
+        } else {
+            plotPriority=this.getPriority();
+        }
+        return stagePrioirty + plotPriority;
     }
 
     public double getSize() {

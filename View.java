@@ -17,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import sun.reflect.generics.tree.Tree;
 
@@ -392,7 +393,7 @@ public class View  extends Application{
 
         //gardenPlotPane.add(waterSlider, 2, 2, 2, 1);
 
-        gardenPlotPane.add(daySlider, 2, 4);
+        gardenPlotPane.add(daySlider, 2, 4, 3, 1);
         gardenPlotPane.add(waterText, 2,2);
         gardenPlotPane.add(waterTitle, 3, 2);
         //gardenPlotPane.add(waterLabel, 3, 2);
@@ -437,6 +438,27 @@ public class View  extends Application{
         javafx.scene.control.Label plantTypeText = new javafx.scene.control.Label(pl.getPlant().getName());
         javafx.scene.control.Label plantedLabel = new javafx.scene.control.Label("Planted On: ");
         javafx.scene.control.Label plantedLabelText = new javafx.scene.control.Label(pl.getDatePlanted().toString());
+        javafx.scene.control.Label sizeOfPlotLabel = new javafx.scene.control.Label("The size of plot ");
+
+        javafx.scene.control.Label sizeofPlotText = new javafx.scene.control.Label(Double.toString(pl.getSize()) + "sqm");
+
+        String priority;
+        double pValue = pl.getPriority();
+        if(pValue==3){
+            priority="High";
+
+        } else if(pValue==2){
+            priority ="Medium";
+        } else {
+            priority="Low";
+        }
+
+        javafx.scene.control.Label priorityLabel = new javafx.scene.control.Label("Priority of Plot");
+        javafx.scene.control.Label priorityText = new javafx.scene.control.Label(priority);
+
+
+
+
 
         javafx.scene.control.Button back = new javafx.scene.control.Button("Back");
         back.setOnAction(new EventHandler<ActionEvent>() {
@@ -452,8 +474,12 @@ public class View  extends Application{
         plotViewPane.add(plantTypeText, 2, 2);
         plotViewPane.add(plantedLabel, 1, 3);
         plotViewPane.add(plantedLabelText, 2, 3);
+        plotViewPane.add(sizeOfPlotLabel, 1, 4);
+        plotViewPane.add(sizeofPlotText, 2, 4);
+        plotViewPane.add(priorityLabel, 1 , 5);
+        plotViewPane.add(priorityText, 2, 5);
 
-        plotViewPane.add(back, 5, 5);
+        plotViewPane.add(back, 5, 7);
 
 
         s.setScene(plotViewScene);
@@ -476,7 +502,7 @@ public class View  extends Application{
         final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Days");
-        yAxis.setLabel("Water mm^3");
+        yAxis.setLabel("Water inches^3");
 
 
         LineChart<Number, Number> waterChart = new LineChart<Number, Number>(xAxis, yAxis);
@@ -502,6 +528,8 @@ public class View  extends Application{
 
 
         Map<String, ArrayList<Double>> optimisedInMap = o.optimizeForMap();
+        Map<String, ArrayList<Double>> optimalPerPlot = o.createOptimalMap();
+        Map<String, ArrayList<Double>> basicPerPlot = o.returnBasicInMap();
         int plotCounter = 0;
         for(Map.Entry<String, ArrayList<Double>> entry: optimisedInMap.entrySet()){
             String thePlotName = entry.getKey();
@@ -516,8 +544,8 @@ public class View  extends Application{
 
             }
             waterChart.getData().add(newDecisionSeries);
-            RadioButton newButton = new RadioButton(" Remove" + thePlotName);
-           opGrid.add(newButton,Math.floorMod(plotCounter, 4), 6 +  Math.floorDiv(plotCounter, 4));
+            RadioButton newButton = new RadioButton(" Show " + thePlotName);
+           opGrid.add(newButton, Math.floorMod(plotCounter, 4), 6 +  Math.floorDiv(plotCounter, 4));
            plotCounter++;
            newButton.setSelected(true);
            newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -531,6 +559,65 @@ public class View  extends Application{
                }
            });
 
+
+
+        }
+        plotCounter++;
+
+        for(Map.Entry<String, ArrayList<Double>> entry : optimalPerPlot.entrySet()){
+            String thePlotName = entry.getKey();
+            XYChart.Series newOptimalSeries = new XYChart.Series();
+            newOptimalSeries.setName(thePlotName);
+            int counter = 0;
+
+            for(Double d : entry.getValue()) {
+                newOptimalSeries.getData().add(new XYChart.Data<>(counter, d));
+                counter++;
+            }
+
+            RadioButton newButton = new RadioButton("Show Optimal for plot: " + thePlotName);
+            opGrid.add(newButton, Math.floorMod(plotCounter, 4), 6 + Math.floorDiv(plotCounter, 4));
+            plotCounter++;
+            newButton.setSelected(false);
+            newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                    if(t1==true){
+                        waterChart.getData().add(newOptimalSeries);
+                    } else{
+                        waterChart.getData().remove(newOptimalSeries);
+                    }
+                }
+            });
+        }
+
+        plotCounter++;
+
+        for(Map.Entry<String, ArrayList<Double>> entry: basicPerPlot.entrySet()) {
+            String thePlotName = entry.getKey();
+            XYChart.Series newBasicSeries = new XYChart.Series();
+            newBasicSeries.setName(thePlotName);
+            int counter = 0 ;
+
+            for(Double d : entry.getValue()){
+                newBasicSeries.getData().add(new XYChart.Data<>(counter, d));
+                counter++;
+            }
+
+            RadioButton newBasicButton = new RadioButton("Show Basic for plot: " + thePlotName);
+            opGrid.add(newBasicButton, Math.floorMod(plotCounter, 4),  6 + Math.floorDiv(plotCounter, 4));
+            plotCounter++;
+            newBasicButton.setSelected(false);
+            newBasicButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                    if(t1==true){
+                        waterChart.getData().add(newBasicSeries);
+                    } else{
+                        waterChart.getData().remove(newBasicSeries);
+                    }
+                }
+            });
         }
 
         waterChart.getData().add(optimalUse);
@@ -577,8 +664,46 @@ public class View  extends Application{
         opGrid.add(showOptimal, 1, 5);
         opGrid.add(showUsage, 2, 5);
 
+        plotCounter++;
+
+        Slider dayChooseSlide = new Slider();
+        dayChooseSlide.setPadding(new javafx.geometry.Insets( 20 , 20 , 20 , 20));
+        dayChooseSlide.setMax(o.getDays());
+        opGrid.add(dayChooseSlide, 0, plotCounter++, 4, 1);
+
+        javafx.scene.control.Label size = new javafx.scene.control.Label(String.valueOf(optimisedInMap.size()));
+        opGrid.add(size, 0, plotCounter++);
+
+        ArrayList<javafx.scene.control.Label> labels = new ArrayList<>();
+
+        for(Map.Entry<String, ArrayList<Double>> entry:optimisedInMap.entrySet()){
+
+            javafx.scene.control.Label plotText = new javafx.scene.control.Label("water needed in " + entry.getKey());
+            opGrid.add(plotText, 0, plotCounter++);
+            javafx.scene.control.Label plotLabel = new javafx.scene.control.Label();
+            plotLabel.setId(entry.getKey());
+            labels.add(plotLabel);
+            opGrid.add(plotLabel, 2, plotCounter++);
+        }
 
 
+
+        dayChooseSlide.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                int n = t1.intValue();
+                for(Map.Entry<String, ArrayList<Double>> entry : optimisedInMap.entrySet()){
+                    for(javafx.scene.control.Label l : labels){
+                        if(l.getId().equals(entry.getKey())){
+
+                            l.setText(entry.getValue().get(n).toString());
+                        }
+                    }
+
+                }
+
+            }
+        });
 
 
         Scene opScene = new Scene(opGrid, 1000, 600);
