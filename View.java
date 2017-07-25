@@ -88,6 +88,7 @@ public class View  extends Application{
 
         for(Garden g : gardenList){
             usersGardens.getItems().add(g.getName());
+            ;
         }
 
 
@@ -170,7 +171,7 @@ public class View  extends Application{
 
 
 
-
+        // create new garden after button is pressed
         javafx.scene.control.Button createNewGardenButton = new javafx.scene.control.Button("Create Garden");
         createNewGardenButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -270,7 +271,7 @@ public class View  extends Application{
 
 
     /**
-     * Sets up UI elements for showing plots in garden and allow users to add more plots and select optimsie
+     * Sets up UI elements for showing plots in garden and allow users to add more plots  and to link other users to garden and select optimsie
      * @param stage
      * @param user
      * @param g
@@ -407,7 +408,7 @@ public class View  extends Application{
         gardenPlotPane.add(waterText, 2,2);
         gardenPlotPane.add(waterTitle, 3, 2);
         //gardenPlotPane.add(waterLabel, 3, 2);
-        gardenPlotPane.add(dayLabel, 3, 4);
+        gardenPlotPane.add(dayLabel, 5, 4);
         gardenPlotPane.add(includeWeatherToggle, 2 , 5);
         gardenPlotPane.add(optimiseStartDate, 2, 6);
         gardenPlotPane.add(optimise, 2, 10);
@@ -425,7 +426,16 @@ public class View  extends Application{
                 }
             }
         });
+        javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Linked User to Garden");
+        linkUserButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                linkUserView(stage, user, g);
+            }
+        });
+
         gardenPlotPane.add(addPlot, 1, counter);
+        gardenPlotPane.add(linkUserButton, 3, counter);
 
 
 
@@ -434,6 +444,88 @@ public class View  extends Application{
 
 
     }
+
+    public static void linkUserView(Stage stage, User user, Garden g){
+
+        stage.setTitle("Linked New User");
+        GridPane linkedUserPane = new GridPane();
+        Scene linkedUserScene = new Scene(linkedUserPane, 400, 400);
+
+        javafx.scene.control.Label addNewUserLabel = new javafx.scene.control.Label("Add UserName of User you would like to add to your garden");
+
+        javafx.scene.control.Label nameLabel = new javafx.scene.control.Label("UserName");
+        javafx.scene.control.TextField userNameInput = new javafx.scene.control.TextField();
+        javafx.scene.control.Label permissionLabel = new javafx.scene.control.Label("What permissions would you like them to have?");
+
+        ToggleGroup permissions = new ToggleGroup();
+
+        RadioButton viewAndEdit = new RadioButton("View and Edit");
+        RadioButton viewOnly = new RadioButton("View Only");
+        viewAndEdit.setToggleGroup(permissions);
+        viewOnly.setToggleGroup(permissions);
+        viewOnly.setSelected(true);
+
+        javafx.scene.control.Button linkUser = new javafx.scene.control.Button("Link New User");
+        javafx.scene.control.Button back = new javafx.scene.control.Button("Back");
+
+        back.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                setGardenAndPlotScene(stage, user, g);
+            }
+        });
+
+
+
+        linkUser.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String the = userNameInput.getText();
+                System.out.println("*" + the + "*");
+                try {
+                    if (Database.userNameExists(the)) {
+                        int linkedUserid = Database.getUserIDBasedOnName(the);
+                        if(viewOnly.isSelected()) {
+                            Database.insertNewUserGarden(g.getGardenID(), linkedUserid, false);
+                        } else {
+                            Database.insertNewUserGarden(g.getGardenID(), linkedUserid, true);
+                        }
+
+                        setGardenAndPlotScene(stage, user, g);
+                    } else {
+                        Alert noName = new Alert(Alert.AlertType.ERROR);
+                        noName.setContentText("User Name does not exist");
+                        noName.show();
+                    }
+                }
+                catch(SQLException f){
+
+                    }
+
+            }
+        });
+
+
+        linkedUserPane.setHgap(5);
+        linkedUserPane.setVgap(5);
+        ColumnConstraints a = new ColumnConstraints();
+
+        linkedUserPane.add(addNewUserLabel, 1,1,4,1);
+        linkedUserPane.add(nameLabel, 1, 2);
+        linkedUserPane.add(userNameInput, 3, 2);
+        linkedUserPane.add(permissionLabel, 1, 3, 2, 1);
+        linkedUserPane.add(viewAndEdit, 3, 3);
+        linkedUserPane.add(viewOnly ,4, 3);
+        linkedUserPane.add(linkUser, 1, 4);
+        linkedUserPane.add(back, 3, 4);
+
+
+
+        stage.setScene(linkedUserScene);
+
+    }
+
+
 
     // method to create scene that shows information on that plot
     public static  void plotView(Plot pl, Stage s, User u, Garden p){

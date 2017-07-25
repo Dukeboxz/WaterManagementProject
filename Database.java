@@ -51,7 +51,11 @@ public class Database {
             while(r.next()){
                 userElemnt = r.getString("name");
 
-                if(userElemnt.trim().equals(userName)){
+                userElemnt.trim();
+                System.out.println("**" + userElemnt + "**");
+
+
+                if(userElemnt.equals(userName)){
                     doesExist=false;
                 }
             }
@@ -643,6 +647,7 @@ public class Database {
         int gardenUserID = 0;
         ArrayList<Plot> plots = new ArrayList<>();
         String gardenLocation = null;
+        boolean edit =false;
 
         try{
         String userGardenReturnString = "Select * FROM garden WHERE name=? and id=?;";
@@ -660,6 +665,15 @@ public class Database {
           gardenLocation = rs.getString("location");
 
 
+          String userGardenReturnEdit = "SELECT * FROM gardenusers where gardenid=? AND userid=?;";
+          PreparedStatement userGardenReturnEditPS = conn.prepareStatement(userGardenReturnEdit);
+          userGardenReturnEditPS.setInt(1, gardenid);
+          userGardenReturnEditPS.setInt(2, gardenUser.getId());
+
+          ResultSet rsOther = userGardenReturnEditPS.executeQuery();
+
+          edit = rsOther.getBoolean("editrights");
+
         conn.close();
 
         }
@@ -667,7 +681,7 @@ public class Database {
 
             }
 
-            return new Garden(gardenid, gardenName, plots,  gardenUserID, gardenLocation);
+            return new Garden(gardenid, gardenName, plots,  gardenUserID, gardenLocation, edit);
     }
 
     /**
@@ -738,7 +752,7 @@ public class Database {
      * @return
      * @throws SQLException
      */
-    public static Garden createGarden(int gardenID) throws SQLException{
+    public static Garden createGarden(int gardenID, boolean edit) throws SQLException{
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -773,7 +787,7 @@ public class Database {
         int gardensid = 0;
         int userID = 0;
         String gardenLocation = null;
-        boolean edit = true;
+
 
 
 
@@ -815,13 +829,18 @@ public class Database {
         }
 
 
-        Garden newGarden = new Garden(gardensid, name, gardenPlots, userID, gardenLocation);
+        Garden newGarden = new Garden(gardensid, name, gardenPlots, userID, gardenLocation, edit);
 
         conn.close();
 
         return newGarden;
 
     }
+
+    /**
+     *
+     *
+     */
 
     /**
      * Inserts new user into database
@@ -904,19 +923,20 @@ public class Database {
 
         }
 
-        String getUserGardenNamesString = "SELECT id FROM garden where userid = ?";
+        String getUserGardenNamesString = "SELECT * FROM gardenusers where userid = ?";
         PreparedStatement getUsersGardenNames = conn.prepareStatement(getUserGardenNamesString);
         getUsersGardenNames.setInt(1, userID);
 
         ResultSet rs = getUsersGardenNames.executeQuery();
 
-        String name = "";
+
         ArrayList<Garden> nameList = new ArrayList<>();
 
         while(rs.next()){
-            int id = rs.getInt("id");
+            int id = rs.getInt("gardenid");
+            boolean edit = rs.getBoolean("editrights");
 
-            nameList.add(createGarden(id));
+            nameList.add(createGarden(id, edit));
         }
 
         conn.close();
@@ -1059,6 +1079,44 @@ public class Database {
 
     }
 
+    public static int getUserIDBasedOnName(String name){
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+        int theID = 0;
+        try{
+            System.out.println("*" + name + "*");
+            String returnIDString = "SELECT * FROM users WHERE name=?;";
+            PreparedStatement returnIDPS = conn.prepareStatement(returnIDString);
+            returnIDPS.setString(1, name);
+
+            ResultSet rs = returnIDPS.executeQuery();
+
+            while(rs.next()) {
+                theID = rs.getInt("id");
+            }
+
+        } catch(SQLException e ){
+            e.printStackTrace();
+
+        }
+
+        return theID;
+    }
+
+
 
 
     /**
@@ -1070,12 +1128,12 @@ public class Database {
         String one = "Stephen";
         String two = "Stephen";
 
-       // System.out.println(one.equals(two));
+        // System.out.println(one.equals(two));
 
-        try {
 
-            insertUserNameANDPassword("Stephen", "something", "something");
-           // System.out.println(userNameExists("MyUserName"));
+
+
+            // System.out.println(userNameExists("MyUserName"));
             //System.out.println(createUser("MyUserName").getPassword());
 //            User test = createUser("PekingBroth");
 //            System.out.println(test.getPassword());
@@ -1090,20 +1148,18 @@ public class Database {
 //                   System.out.println(np.getName());
 //               }
 
-           //createGarden(2);
+            //createGarden(2);
 
-           insertNewUserGarden(2, 2 , true);
-
-
-
-           // System.out.println(u.getPassword());
-
-           // insertNewPlot("My Tomatoe Plot", 5, 4, 3, 2, 1, 10 , 5,  2017, 2);
+            System.out.println(getUserIDBasedOnName("User Name"));
 
 
-       }
+            // System.out.println(u.getPassword());
 
-        catch ( SQLException r){}
+            // insertNewPlot("My Tomatoe Plot", 5, 4, 3, 2, 1, 10 , 5,  2017, 2);
+
+
+
+
 
 //        try {
 //           Database.insertUserNameANDPassword("Stephen", "sjjjjj@Jackson.com", "boop");

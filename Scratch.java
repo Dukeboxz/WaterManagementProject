@@ -137,7 +137,7 @@ public class Scratch extends Application {
 
         try{
 
-            Garden testGarden = Database.createGarden(2);
+            Garden testGarden = Database.createGarden(2 ,true);
 
 
             Optimiser test = new Optimiser(testGarden, 40, 16000, LocalDate.now(), false);
@@ -199,7 +199,7 @@ public class Scratch extends Application {
         System.out.println(Math.floorDiv(10, 4));
 
         try {
-            Garden testGarden = Database.createGarden(2);
+            Garden testGarden = Database.createGarden(2, true);
 
 
             Optimiser test = new Optimiser(testGarden, 40, 16000, LocalDate.now(), false);
@@ -228,10 +228,18 @@ public class Scratch extends Application {
                 System.out.println("\n");
             }
 
-
             System.out.println("optimal total is " + total);
 
-          launch(args);
+            int numElement = test.getDays()* test.getGarden().getPlots().size();
+            double whatleft = test.getWaterAvailable() - resultTotal;
+            System.out.println("what left = " + whatleft);
+            double split = (double)numElement/whatleft;
+            System.out.println(split);
+
+
+
+
+         // launch(args);
         }catch(SQLException e){
 
         }

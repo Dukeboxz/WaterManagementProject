@@ -12,14 +12,16 @@ public class Garden {
      private ArrayList<Plot> plots;
     private int userID;
      private String location;
+     boolean userEditRights;
 
-    public Garden(int id, String name, ArrayList<Plot> plots, int userID, String location) {
+    public Garden(int id, String name, ArrayList<Plot> plots, int userID, String location, Boolean editRights) {
         this.gardenID=id;
         this.name= name;
         this.plots= new ArrayList<>();
         this.plots=plots;
         this.userID = userID;
         this.location=location;
+        this.userEditRights=editRights;
     }
 
     public String getName(){
@@ -39,5 +41,7 @@ public class Garden {
     }
 
     public String getLocation() { return this.location;}
+
+    public boolean getUserEditRights() { return  this.userEditRights;}
 
 }

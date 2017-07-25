@@ -29,9 +29,9 @@ public class Optimiser  {
      LocalDate dateSelected;
      boolean withWeather;
 
-     public static String maxMin = "maximize";
+     public static String maxMin = "minimize";
 
-     public static String objectiveFunction = "sum(y.*v)";
+     public static String objectiveFunction = "sum(x-y.*v)";
 
 
 
@@ -908,16 +908,16 @@ public class Optimiser  {
     public static void main(String[] args){
 
         try {
-            Garden testGarden = Database.createGarden(2);
+            Garden testGarden = Database.createGarden(2, true);
 
 
 
 
 
 
-            Optimiser test = new Optimiser(testGarden, 20,  14000, LocalDate.now(), false);
+            Optimiser test = new Optimiser(testGarden, 20,  10000, LocalDate.now(), false);
 
-            Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
+            //Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
 
 
             System.out.println(testGarden.getPlots().get(0).getPlant().getSt1_br());
@@ -926,8 +926,10 @@ public class Optimiser  {
 //
             double[][] temp = test.createOptimalMatrix();
             double total = 0;
+            out.write( "Days = " + test.getDays() + "Water avialbe= " + test.getWaterAvailable());
+            out.newLine();
 
-            out.write("optimal Matrix made up of base optimal need * soiland Env ");
+            out.write("Optimal Matrix X made up of base OptimalWater Need * Number of Plant * Soil Multiplication * Env Multiplications ");
             out.newLine();
             for(int i = 0; i < test.getGarden().getPlots().size(); i++){
 
@@ -942,10 +944,12 @@ public class Optimiser  {
                 }
 
                 //System.out.println("\n");
-                out.newLine();
+
                 out.newLine();
 
             }
+            out.write("Optimal Totals");
+
             for(int i = 0; i < test.getDays(); i++){
                 double opTotal = 0;
                 for(int j = 0 ; j < test.getGarden().getPlots().size(); j++){
@@ -961,7 +965,7 @@ public class Optimiser  {
             System.out.println("The optinmal matrix total is " + total );
             out.newLine();
 
-            out.write("Basic Matrix made up of basic water * soil & Environment ");
+            out.write("Basic Matrix Z made up of basicWater need * Number of Plants * soil Multiplication * Environment Multiplication");
             out.newLine();
             double[][] temp2 = test.createBasicMatrix();
             double dayToal = 0;
@@ -992,7 +996,7 @@ public class Optimiser  {
          System.out.println("solution total with weather is " + dayToal);
 
             out.newLine();
-            out.write("Solution Matrix ");
+            out.write("Solution Matrix Y  Object Function =" + maxMin + " " + objectiveFunction);
             out.newLine();
             double[][] temp3 = test.optimize();
             double basicToal = 0;
@@ -1075,7 +1079,7 @@ public class Optimiser  {
             }
             out.newLine();
 
-            out.write("Difference Between Optimal and Basic ");
+           // out.write("Difference Between Optimal and Basic ");
             out.newLine();
 
             double[][] moreorLess = new double[test.getGarden().getPlots().size()][test.getDays()];
@@ -1096,7 +1100,7 @@ public class Optimiser  {
             }
 
             out.newLine();
-            out.write("Priority Weightings ");
+            out.write("Priority Weightings V  ");
             out.newLine();
 
             double[][] prior = test.createPriorityMatrix();
