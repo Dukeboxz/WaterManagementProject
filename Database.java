@@ -703,6 +703,22 @@ public class Database {
             createNewGardenPS.setString(4, locationReference);
 
             createNewGardenPS.executeUpdate();
+
+
+            String getNewGardenID = "SELECT id FROM garden WHERE name=? AND userid=?;";
+            PreparedStatement getNewGardenIDPS = conn.prepareStatement(getNewGardenID);
+            getNewGardenIDPS.setString(1, Gname);
+            getNewGardenIDPS.setInt(2, gardenUser.getId());
+
+            ResultSet rs = getNewGardenIDPS.executeQuery();
+
+            int id = 0;
+
+            while(rs.next()) {
+                id = rs.getInt("id");
+            }
+
+            insertNewUserGarden(id, gardenUser.getId(), true );
         } catch (SQLException c){
 
             c.printStackTrace();
@@ -757,6 +773,9 @@ public class Database {
         int gardensid = 0;
         int userID = 0;
         String gardenLocation = null;
+        boolean edit = true;
+
+
 
         ArrayList<Plot> gardenPlots = new ArrayList<>();
 
@@ -767,6 +786,8 @@ public class Database {
             name = n.getString("name");
             userID = n.getInt("userid");
             gardenLocation = n.getString("location");
+
+
         }
 
 
@@ -837,9 +858,9 @@ public class Database {
         String nameFromDatabase = "";
 
         while(rs1.next()){
-            nameFromDatabase = rs1.getString("name");
+            nameFromDatabase = rs1.getString("name").trim();
             System.out.println(nameFromDatabase + " " + userName);
-            if(nameFromDatabase==userName){
+            if(nameFromDatabase.equals(userName)){
                 System.out.println("FALSE");
                 userNameNotUsed = false;
                 System.out.println("User Name Already in Use");
@@ -953,6 +974,93 @@ public class Database {
 
     }
 
+    public static boolean userNameNotExist(String userName){
+
+        boolean nameExists = true;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+        try {
+            String checkuserNameString = "SELECT name FROM users";
+            PreparedStatement checkUserName = conn.prepareStatement(checkuserNameString);
+
+            ResultSet rs1 = checkUserName.executeQuery();
+            String nameFromDatabase = "";
+
+            while (rs1.next()) {
+                nameFromDatabase = rs1.getString("name").trim();
+                System.out.println(nameFromDatabase + " " + userName);
+                if (nameFromDatabase.equals(userName)) {
+                    System.out.println("FALSE");
+                    nameExists = false;
+                    System.out.println("User Name Already in Use");
+                    break;
+                }
+            }
+
+            conn.close();
+        }catch(SQLException e){
+
+        }
+
+
+        return nameExists;
+
+    }
+
+    public static void insertNewUserGarden(int gardenid, int userid, boolean edit){
+
+        System.out.println("Insert new Garden Running");
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        try {
+            String insertGardenUserString = "INSERT INTO gardenusers Values(?, ? ,?);";
+
+            PreparedStatement insertGardenUserPS = conn.prepareStatement(insertGardenUserString);
+            insertGardenUserPS.setInt(1, gardenid);
+            insertGardenUserPS.setInt(2, userid);
+            insertGardenUserPS.setBoolean(3, edit);
+
+            insertGardenUserPS.executeUpdate();
+
+            conn.close();
+        } catch (SQLException e){
+
+            e.printStackTrace();
+        }
+
+    }
+
+
+
     /**
      * Main method used for testing in development
      * @param args
@@ -965,6 +1073,8 @@ public class Database {
        // System.out.println(one.equals(two));
 
         try {
+
+            insertUserNameANDPassword("Stephen", "something", "something");
            // System.out.println(userNameExists("MyUserName"));
             //System.out.println(createUser("MyUserName").getPassword());
 //            User test = createUser("PekingBroth");
@@ -980,7 +1090,9 @@ public class Database {
 //                   System.out.println(np.getName());
 //               }
 
-           createGarden(2);
+           //createGarden(2);
+
+           insertNewUserGarden(2, 2 , true);
 
 
 

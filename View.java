@@ -194,6 +194,16 @@ public class View  extends Application{
                     System.out.println("*"+ gardenName+"*");
                     String theGardenLocation = potentialLoctions.getValue().trim();
 
+                    if(gardenName.length() >20){
+
+                        Alert noText = new Alert(Alert.AlertType.ERROR);
+                        noText.setContentText("GARDEN NAME TOO LONG");
+                        noText.show();
+
+                        gardenNameText.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+
+                    }
+
                     if(possibleLocations.containsKey(theGardenLocation)){
                         allOK=true;
 
