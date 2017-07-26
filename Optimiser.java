@@ -31,7 +31,7 @@ public class Optimiser  {
 
      public static String maxMin = "minimize";
 
-     public static String objectiveFunction = "sum(x-y.*v)";
+     public static String objectiveFunction = "sum(x-y)";
 
 
 
@@ -323,7 +323,7 @@ public class Optimiser  {
             Plot a = this.getGarden().getPlots().get(i);
 
             for(int j = 0; j < this.getDays(); j ++){
-                priortyMatrix[i][j]= a.getPlotPriorityValue(j, this.dateSelected);
+                priortyMatrix[i][j]= 1;// a.getPlotPriorityValue(j, this.dateSelected);
                // System.out.print(priortyMatrix[i][j] + " ");
             }
            // System.out.println("\n");
@@ -460,6 +460,8 @@ public class Optimiser  {
             // get solution and print out = JOM `
 
             DoubleMatrixND sol = op.getPrimalSolution("y");
+
+            System.out.println( "Optimal cost is " + op.getOptimalCost());
             double total = 0.0;
            // System.out.println("SOLUTION SOLUTION ================================================================");
             for (int a1 = 0; a1 < this.garden.getPlots().size(); a1++) {
@@ -667,6 +669,21 @@ public class Optimiser  {
 
         System.out.println("The total for this drought iteration is " + total);
         return lowerMatrix;
+    }
+
+    /**
+     * create zero matrix
+     * @param
+     * @return
+     */
+    public double[][] createZeroMatrix() {
+        double[][] zeroMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
+        for(int i = 0; i < this.getGarden().getPlots().size(); i++){
+            for(int j = 0 ; j < this.getDays(); j++){
+                zeroMatrix[i][j]=0;
+            }
+        }
+        return zeroMatrix;
     }
 
 
@@ -926,7 +943,7 @@ public class Optimiser  {
 //
             double[][] temp = test.createOptimalMatrix();
             double total = 0;
-            out.write( "Days = " + test.getDays() + "Water avialbe= " + test.getWaterAvailable());
+            out.write( "Days = " + test.getDays() + " Water available= " + test.getWaterAvailable());
             out.newLine();
 
             out.write("Optimal Matrix X made up of base OptimalWater Need * Number of Plant * Soil Multiplication * Env Multiplications ");

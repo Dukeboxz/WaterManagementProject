@@ -997,6 +997,7 @@ public class Database {
     public static boolean userNameNotExist(String userName){
 
         boolean nameExists = true;
+        ;
 
         try {
             Class.forName("org.postgresql.Driver");

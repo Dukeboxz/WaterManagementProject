@@ -85,11 +85,48 @@ public class View  extends Application{
         int we = user.getId();
 
 
+        ToggleGroup gardenPermissions = new ToggleGroup();
+
+        RadioButton viewAndEdit = new RadioButton("Show gardens I can edit");
+        RadioButton justView = new RadioButton("Show gardens I can only view");
+        viewAndEdit.setToggleGroup(gardenPermissions);
+        justView.setToggleGroup(gardenPermissions);
+        viewAndEdit.setSelected(true);
 
         for(Garden g : gardenList){
-            usersGardens.getItems().add(g.getName());
-            ;
+
+            if(g.getUserEditRights()==true) {
+                usersGardens.getItems().add(g.getName());
+            }
+
         }
+
+        viewAndEdit.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if(t1==false){
+                    usersGardens.getItems().clear();
+                    for(Garden g : gardenList){
+                        if(g.getUserEditRights()==false){
+                            usersGardens.getItems().add(g.getName());
+                        }
+                    }
+                } else {
+                    if(!usersGardens.getItems().isEmpty()) {
+                        usersGardens.getItems().clear();
+                    }
+                    for(Garden g : gardenList){
+                        if(g.getUserEditRights()==true){
+                            usersGardens.getItems().add(g.getName());
+                        }
+                    }
+                }
+            }
+        });
+
+
+
+
 
 
         load.setOnAction(new EventHandler<ActionEvent>() {
@@ -115,14 +152,16 @@ public class View  extends Application{
             }
         });
         gardenGrid.setAlignment(Pos.CENTER);
-        gardenGrid.setVgap(2.0 );
-        gardenGrid.setHgap(1.0);
+        gardenGrid.setVgap(10 );
+        gardenGrid.setHgap(10);
         gardenGrid.setPadding(new javafx.geometry.Insets(10, 10, 50, 10));
         gardenGrid.add(gardenLabel, 0, 1);
         gardenGrid.add(createNewGarden, 0, 2);
-        gardenGrid.add(usersGardens, 0, 4);
+        gardenGrid.add(viewAndEdit, 0, 4);
+        gardenGrid.add(justView, 1, 4);
+        gardenGrid.add(usersGardens, 0, 5);
         gardenGrid.add(selectGarden, 0, 3);
-        gardenGrid.add(load, 0, 5);
+        gardenGrid.add(load, 0, 6);
 
         stage.setScene(garden);
     }
@@ -355,12 +394,15 @@ public class View  extends Application{
         if(includeWeatherToggle.isSelected()){
 
             dateSelected= LocalDate.now();
+            System.out.println("SHOULD NOT HAPPEN");
 
         } else {
 
             dateSelected=optimiseStartDate.getValue();
 
         }
+
+
 
         includeWeatherToggle.setSelected(false);
 
@@ -393,9 +435,11 @@ public class View  extends Application{
                 int days = Integer.parseInt(dayLabel.getText());
                 //double water = Double.parseDouble(waterLabel.getText());
                 double water = Double.parseDouble(waterText.getText());
+                LocalDate theDate = optimiseStartDate.getValue();
 
 
-                Optimiser opObject = new Optimiser(g, days, water,dateSelected, weatherActive);
+
+                Optimiser opObject = new Optimiser(g, days, water,theDate, weatherActive);
                 optimisationScene(opObject, stage);
 
             }
@@ -416,6 +460,11 @@ public class View  extends Application{
 
 
         javafx.scene.control.Button addPlot = new javafx.scene.control.Button("Add Plot");
+
+        if(g.userEditRights=false){
+            addPlot.setVisible(false);
+        }
+
         addPlot.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -427,6 +476,7 @@ public class View  extends Application{
             }
         });
         javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Linked User to Garden");
+        linkUserButton.setWrapText(true);
         linkUserButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -435,7 +485,7 @@ public class View  extends Application{
         });
 
         gardenPlotPane.add(addPlot, 1, counter);
-        gardenPlotPane.add(linkUserButton, 3, counter);
+        gardenPlotPane.add(linkUserButton, 4,10 );
 
 
 
@@ -570,6 +620,20 @@ public class View  extends Application{
             }
         });
 
+        javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit Plot ");
+        if(p.userEditRights==false){
+            editPlot.setVisible(false);
+        }
+
+        editPlot.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+            }
+        });
+
+
+
         plotViewPane.add(plotNameLabel, 1, 1);
         plotViewPane.add(plotNameText, 2, 1);
         plotViewPane.add(plantTypeLabel, 1, 2);
@@ -582,9 +646,20 @@ public class View  extends Application{
         plotViewPane.add(priorityText, 2, 5);
 
         plotViewPane.add(back, 5, 7);
+        plotViewPane.add(editPlot, 1,7);
+
 
 
         s.setScene(plotViewScene);
+
+    }
+
+    /**
+     * set up scene that allows user to edit the plot
+     */
+    public static void editPlotScene(Plot pl, Stage s, User u , Garden p ) {
+
+     s.setTitle("Edit Plot");
 
     }
 
@@ -600,6 +675,10 @@ public class View  extends Application{
 
 
         GridPane opGrid = new GridPane();
+
+        opGrid.setHgap(50);
+       // opGrid.setVgap(5);
+
 
         final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
         final NumberAxis yAxis = new NumberAxis();
@@ -665,7 +744,7 @@ public class View  extends Application{
 
         }
         plotCounter++;
-
+        int columnCounter = 1;
         for(Map.Entry<String, ArrayList<Double>> entry : optimalPerPlot.entrySet()){
             String thePlotName = entry.getKey();
             XYChart.Series newOptimalSeries = new XYChart.Series();
@@ -678,7 +757,11 @@ public class View  extends Application{
             }
 
             RadioButton newButton = new RadioButton("Show Optimal for plot: " + thePlotName);
-            opGrid.add(newButton, Math.floorMod(plotCounter, 4), 6 + Math.floorDiv(plotCounter, 4));
+            newButton.setWrapText(true);
+
+            System.out.println(" column counter before is " + columnCounter);
+            opGrid.add(newButton, Math.floorMod(columnCounter++, 4), 6 + Math.floorDiv(plotCounter, 4));
+            System.out.println("The column counter after is " + columnCounter);
             plotCounter++;
             newButton.setSelected(false);
             newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -707,6 +790,7 @@ public class View  extends Application{
             }
 
             RadioButton newBasicButton = new RadioButton("Show Basic for plot: " + thePlotName);
+            newBasicButton.setWrapText(true);
             opGrid.add(newBasicButton, Math.floorMod(plotCounter, 4),  6 + Math.floorDiv(plotCounter, 4));
             plotCounter++;
             newBasicButton.setSelected(false);
@@ -1092,17 +1176,23 @@ public class View  extends Application{
             public void handle(ActionEvent actionEvent) {
                 String theUserName = loginEntryField.getText();
                 try{
-                    if(  true) {
-                        System.out.println();
+                    if( Database.userNameNotExist(loginEntryField.getText())) {
+
+                        Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
+                        userAlreadyExistsAlert.setContentText("Not Valid User");
+                        userAlreadyExistsAlert.show();
+
+
+
+
+                    } else {
+
+                        System.out.println(loginEntryField.getText());
+                        System.out.println(Database.userNameExists(loginEntryField.getText()));
                         User temp = Database.createUser(theUserName);
 
                         setGardenScene(s, temp);
 
-
-                    } else {
-                        Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
-                        userAlreadyExistsAlert.setContentText("Not Valid User");
-                        userAlreadyExistsAlert.show();
                     }
                 }
                 catch(SQLException e) {
@@ -1221,7 +1311,7 @@ public class View  extends Application{
                     }catch (SQLException e){
                         Alert entryFailureAlert = new Alert(Alert.AlertType.WARNING);
                         entryFailureAlert.show();
-
+                        e.printStackTrace();
                     }
                 }
             }
