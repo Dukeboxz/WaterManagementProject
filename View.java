@@ -677,7 +677,7 @@ public class View  extends Application{
         GridPane opGrid = new GridPane();
 
         opGrid.setHgap(50);
-       // opGrid.setVgap(5);
+       opGrid.setVgap(5);
 
 
         final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
@@ -712,6 +712,7 @@ public class View  extends Application{
         Map<String, ArrayList<Double>> optimalPerPlot = o.createOptimalMap();
         Map<String, ArrayList<Double>> basicPerPlot = o.returnBasicInMap();
         int plotCounter = 0;
+        int colCounter = 0;
         for(Map.Entry<String, ArrayList<Double>> entry: optimisedInMap.entrySet()){
             String thePlotName = entry.getKey();
             System.out.println(entry.getKey());
@@ -719,15 +720,21 @@ public class View  extends Application{
             newDecisionSeries.setName(thePlotName);
             int counter = 0;
             for(Double d : entry.getValue()){
-                System.out.print(d + " ");
+
                 newDecisionSeries.getData().add(new XYChart.Data<>(counter, d));
                 counter++;
 
             }
             waterChart.getData().add(newDecisionSeries);
             RadioButton newButton = new RadioButton(" Show " + thePlotName);
-           opGrid.add(newButton, Math.floorMod(plotCounter, 4), 6 +  Math.floorDiv(plotCounter, 4));
-           plotCounter++;
+            newButton.setWrapText(true);
+            if(colCounter> 5){
+                colCounter=1;
+                plotCounter++;
+            }
+           opGrid.add(newButton, colCounter, 6 +  plotCounter);
+            colCounter++;
+
            newButton.setSelected(true);
            newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
                @Override
@@ -743,8 +750,10 @@ public class View  extends Application{
 
 
         }
+        System.out.println("PC aget optimal = " + plotCounter);
         plotCounter++;
-        int columnCounter = 1;
+
+        int columnCounter = 0;
         for(Map.Entry<String, ArrayList<Double>> entry : optimalPerPlot.entrySet()){
             String thePlotName = entry.getKey();
             XYChart.Series newOptimalSeries = new XYChart.Series();
@@ -760,9 +769,13 @@ public class View  extends Application{
             newButton.setWrapText(true);
 
             System.out.println(" column counter before is " + columnCounter);
-            opGrid.add(newButton, Math.floorMod(columnCounter++, 4), 6 + Math.floorDiv(plotCounter, 4));
-            System.out.println("The column counter after is " + columnCounter);
-            plotCounter++;
+            if(columnCounter > 5){
+                columnCounter=0;
+                plotCounter++;
+            }
+            opGrid.add(newButton, columnCounter, 6 + plotCounter);
+            columnCounter++;
+
             newButton.setSelected(false);
             newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
                 @Override
@@ -777,7 +790,7 @@ public class View  extends Application{
         }
 
         plotCounter++;
-
+        columnCounter=0;
         for(Map.Entry<String, ArrayList<Double>> entry: basicPerPlot.entrySet()) {
             String thePlotName = entry.getKey();
             XYChart.Series newBasicSeries = new XYChart.Series();
@@ -791,8 +804,12 @@ public class View  extends Application{
 
             RadioButton newBasicButton = new RadioButton("Show Basic for plot: " + thePlotName);
             newBasicButton.setWrapText(true);
-            opGrid.add(newBasicButton, Math.floorMod(plotCounter, 4),  6 + Math.floorDiv(plotCounter, 4));
-            plotCounter++;
+            if(columnCounter>5){
+                columnCounter=0;
+                plotCounter++;
+            }
+            opGrid.add(newBasicButton, columnCounter,  6 + plotCounter);
+            columnCounter++;
             newBasicButton.setSelected(false);
             newBasicButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
                 @Override
@@ -843,33 +860,39 @@ public class View  extends Application{
 
         ColumnConstraints col = new ColumnConstraints();
 
-        col.setPercentWidth(25);
-        opGrid.getColumnConstraints().addAll(col, col, col , col);
 
-        opGrid.add(waterChart, 0, 0,4, 4);
+        col.setPercentWidth(20);
+        opGrid.getColumnConstraints().addAll(col, col, col , col, col);
+
+        opGrid.add(waterChart, 0, 0,5, 4);
         opGrid.add(showOptimal, 1, 5);
         opGrid.add(showUsage, 2, 5);
 
         plotCounter++;
 
+
         Slider dayChooseSlide = new Slider();
         dayChooseSlide.setPadding(new javafx.geometry.Insets( 20 , 20 , 20 , 20));
         dayChooseSlide.setMax(o.getDays());
-        opGrid.add(dayChooseSlide, 0, plotCounter++, 4, 1);
+        opGrid.add(dayChooseSlide, 0, plotCounter+ 6, 5, 1);
 
-        javafx.scene.control.Label size = new javafx.scene.control.Label(String.valueOf(optimisedInMap.size()));
-        opGrid.add(size, 0, plotCounter++);
+        plotCounter++;
+        System.out.println(plotCounter + 6);
+
 
         ArrayList<javafx.scene.control.Label> labels = new ArrayList<>();
 
         for(Map.Entry<String, ArrayList<Double>> entry:optimisedInMap.entrySet()){
 
             javafx.scene.control.Label plotText = new javafx.scene.control.Label("water needed in " + entry.getKey());
-            opGrid.add(plotText, 0, plotCounter++);
+            plotText.setWrapText(true);
+            opGrid.add(plotText, 0, plotCounter +6);
             javafx.scene.control.Label plotLabel = new javafx.scene.control.Label();
             plotLabel.setId(entry.getKey());
             labels.add(plotLabel);
-            opGrid.add(plotLabel, 2, plotCounter++);
+            opGrid.add(plotLabel, 2, plotCounter +6);
+            plotCounter++;
+            System.out.println(plotCounter);
         }
 
 
@@ -892,7 +915,7 @@ public class View  extends Application{
         });
 
 
-        Scene opScene = new Scene(opGrid, 1000, 600);
+        Scene opScene = new Scene(opGrid, 1000, 800);
 
 
 
