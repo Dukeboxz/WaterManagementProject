@@ -219,9 +219,23 @@ public class Plot implements  Comparable<Plot>{
         return this.priority;
     }
 
+    public void setPriority(double priorityvalue){
+        this.priority=priorityvalue;
+    }
+
     public String getName() {
         return this.name;
     }
+
+    public void setName(String newName){
+        this.name=newName;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+
 
 
 

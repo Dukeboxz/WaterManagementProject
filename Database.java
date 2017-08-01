@@ -1117,6 +1117,196 @@ public class Database {
         return theID;
     }
 
+    /**
+     * Method that returns map of plants based on their plant type
+     */
+    public static Map<String, Plant> returnPlantsInMap(int plantType){
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+
+
+        Map<String, Plant> theMap = new TreeMap<>();
+
+        try {
+            String returnPlantinMapString = "SELECT * FROM plants WHERE type=?;";
+
+            PreparedStatement returnPlantinMapStringPS = conn.prepareStatement(returnPlantinMapString);
+            returnPlantinMapStringPS.setInt(1, plantType);
+
+            String plantName = null;
+            int plantId = 0;
+
+            ResultSet rs = returnPlantinMapStringPS.executeQuery();
+            while(rs.next()){
+                plantName = rs.getString("name");
+                plantId = rs.getInt("id");
+
+                Plant newPlant = createPlant(plantId);
+
+                theMap.put(plantName, newPlant);
+
+            }
+
+            conn.close();
+
+        } catch (SQLException e) {
+
+        }
+
+        return theMap;
+
+    }
+
+    /**
+     * Method that returns plant types in Map datastructure
+     */
+
+    public static Map<Integer, String> getPlantTypesInMap() {
+
+        Map<Integer, String> theMap = new TreeMap<>();
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        try{
+
+            String getPlantTypesInMapString = "SELECT * FROM planttypes;";
+            PreparedStatement getPlantTypesInMapPS = conn.prepareStatement(getPlantTypesInMapString);
+
+            String name = null;
+            int id = 0;
+
+            ResultSet rs = getPlantTypesInMapPS.executeQuery();
+
+            while(rs.next()){
+                id = rs.getInt("id");
+                name = rs.getString("name");
+
+                theMap.put(id, name);
+            }
+
+            conn.close();
+
+        }catch(SQLException e){
+
+        }
+
+        return theMap;
+
+    }
+
+    public static void updatePlot(int plotId, String plotName, double size, int plantid,  LocalDate datePlanted, double priority ){
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        try {
+
+            String updatePlotString = "UPDATE plots set name=?, size=?, plantid=?, day_planted=?, month_planted=?, year_planted=? , priority=? WHERE id=?;";
+            PreparedStatement updatePlotPS = conn.prepareStatement(updatePlotString);
+            updatePlotPS.setString(1, plotName);
+            updatePlotPS.setDouble(2, size);
+            updatePlotPS.setInt(3, plantid);
+            updatePlotPS.setInt(4, datePlanted.getDayOfMonth());
+            updatePlotPS.setInt(5, datePlanted.getMonthValue());
+            updatePlotPS.setInt(6, datePlanted.getYear());
+            updatePlotPS.setDouble(7, priority);
+            updatePlotPS.setInt(8, plotId);
+
+            updatePlotPS.executeUpdate();
+
+            conn.close();
+
+        } catch(SQLException e){
+
+        }
+
+    }
+
+    public static boolean userNameAndPasswordCheck(String userName, String thePassword){
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        boolean areCorrect=false;
+
+        try {
+          String userNameAndPasswordString = "SELECT * FROM users WHERE name=? AND password=?;";
+            PreparedStatement userNameAndPasswordPS = conn.prepareStatement(userNameAndPasswordString);
+            userNameAndPasswordPS.setString(1, userName);
+            userNameAndPasswordPS.setString(2, thePassword);
+
+            ResultSet rs = userNameAndPasswordPS.executeQuery();
+
+
+
+
+            if(!rs.next()) {
+                areCorrect=false;
+
+            } else {
+                areCorrect=true;
+            }
+        } catch(SQLException e){
+
+        }
+
+        return areCorrect;
+    }
+
 
 
 
@@ -1126,11 +1316,13 @@ public class Database {
      */
     public static void main(String[] args) {
 
-        String one = "Stephen";
-        String two = "Stephen";
+      Map<String, Plant> mapTest = returnPlantsInMap(2);
 
-        // System.out.println(one.equals(two));
+      mapTest.forEach((k,v)-> System.out.println(k + " the nampe = " + v.getName()));
 
+        System.out.println(userNameAndPasswordCheck("u04sjj" , "mypassword"));
+        System.out.println(userNameAndPasswordCheck("stephen" , "123456"));
+        System.out.println(userNameAndPasswordCheck("RogerIsHere" , "stephenwashere"));
 
 
 
@@ -1151,7 +1343,7 @@ public class Database {
 
             //createGarden(2);
 
-            System.out.println(getUserIDBasedOnName("User Name"));
+          //  System.out.println(getUserIDBasedOnName("User Name"));
 
 
             // System.out.println(u.getPassword());

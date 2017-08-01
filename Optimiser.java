@@ -31,7 +31,7 @@ public class Optimiser  {
 
      public static String maxMin = "minimize";
 
-     public static String objectiveFunction = "sum(x-y)";
+     public static String objectiveFunction = "sum(sum(x) - sum(y))";///"sum( sum(x-y) *(sum((x-y)/n)))" ;
 
 
 
@@ -323,7 +323,10 @@ public class Optimiser  {
             Plot a = this.getGarden().getPlots().get(i);
 
             for(int j = 0; j < this.getDays(); j ++){
-                priortyMatrix[i][j]= 1;// a.getPlotPriorityValue(j, this.dateSelected);
+
+                        priortyMatrix[i][j] = a.getPlotPriorityValue(j, this.dateSelected);
+
+
                // System.out.print(priortyMatrix[i][j] + " ");
             }
            // System.out.println("\n");
@@ -390,18 +393,24 @@ public class Optimiser  {
     //
 
     // method that undertakes optimisation and returns solution using JOM methods
-    public double[][] optimize(){
+    public double[][] optimize(int x){
 
-
+            if(x==0){
+                x=5;
+            }
 
             // create optimisation problem object - JOM
             OptimizationProblem op = new OptimizationProblem();
+
+            double[][] lb = this.createZeroMatrix(x);
+
+
 
         if(this.withWeather==false) {
 
             // add decision variable with lower and upper limit based on optimal and basic levels - JOM
             op.addDecisionVariable("y", false, new int[]{this.getGarden().getPlots().size(), this.getDays()},
-                    new DoubleMatrixND(this.createBasicMatrix()), new DoubleMatrixND(this.createOptimalMatrix()));
+                    new DoubleMatrixND(lb), new DoubleMatrixND(this.createOptimalMatrix()));
 
             // input parameter basic level matrix - JOM
             op.setInputParameter("z", new DoubleMatrixND(this.createBasicMatrix()));
@@ -412,6 +421,20 @@ public class Optimiser  {
             op.setInputParameter("w", new DoubleMatrixND(this.decisionMatrix()));
 
             op.setInputParameter("v", new DoubleMatrixND(this.createPriorityMatrix()));
+
+            int n = this.getDays()*this.getGarden().getPlots().size();
+
+           op.setInputParameter("n", n);
+
+           op.setInputParameter("test", new DoubleMatrixND(this.createTestMatrix()));
+
+
+
+
+
+        //    op.setInputParameter("av", "sum(x-y)/n");
+
+
 
 
         } else {
@@ -443,13 +466,21 @@ public class Optimiser  {
         op.addConstraint(expression, "a");
 
 
+
         // set an initial solution using a decison matrix - JOM
-       // op.setInitialSolution("y", new DoubleMatrixND(this.decisionMatrix()));
+        op.setInitialSolution("y", new DoubleMatrixND(this.createOptimalMatrix()));
 
 
         // call solver - JOM
         double[][] solMatrix = new double[this.garden.getPlots().size()][this.getDays()];
         try {
+
+//            op.solve("ipopt", "solverLibraryName", "libipopt.so");
+//
+//            if (!op.solutionIsOptimal()) throw new RuntimeException("Not optimal solution");
+
+
+
             op.solve("glpk", "solverLibraryName", "libglpk.so.36");
 
             if (!op.solutionIsOptimal()) throw new RuntimeException("Not optimal solution");
@@ -457,14 +488,25 @@ public class Optimiser  {
             String result = SolverTester.check_glpk("libglpk.so.36");
             System.out.println(" the result is " + result);
 
+
+            // check solver
+//            String result = SolverTester.check_ipopt("libjipopt.so.0.0.0");
+//            System.out.println(" the result is " + result);
+
+
             // get solution and print out = JOM `
 
             DoubleMatrixND sol = op.getPrimalSolution("y");
+            System.out.println(op.getObjectiveFunction());
 
-            System.out.println( "Optimal cost is " + op.getOptimalCost());
+            System.out.println(op.solutionIsFeasible());
+
+
+
             double total = 0.0;
            // System.out.println("SOLUTION SOLUTION ================================================================");
             for (int a1 = 0; a1 < this.garden.getPlots().size(); a1++) {
+
                 for (int b1 = 0; b1 < this.getDays(); b1++) {
 
                     double temp = sol.get(new int[]{a1, b1});
@@ -485,13 +527,17 @@ public class Optimiser  {
 
 
         } catch(JOMException e){
+            e.printStackTrace();
             System.out.println("Cannot give a solution ");
             //JOptionPane.showMessageDialog(null, "Cannot find solution reducing basic by 5%");
 
-            solMatrix=optimizeForDrought(5);
+            if(x < 90) {
+                solMatrix = optimize(x + 5);
+            }
 
 
         }
+
 
         finally {
 
@@ -547,6 +593,7 @@ public class Optimiser  {
 
         }
 
+        int n = this.getDays()* this.getGarden().getPlots().size();
         // set objective function - JOM
         op.setObjectiveFunction(maxMin, objectiveFunction);
 
@@ -661,13 +708,13 @@ public class Optimiser  {
 
                     double temp = currentBasicMatrix[i][j]*percentageLowerVariable;
                      lowerMatrix[i][j] = temp;
-                System.out.print(lowerMatrix[i][j] + " ");
+               // System.out.print(lowerMatrix[i][j] + " ");
                      total += temp;
             }
-            System.out.println("\n");
+           // System.out.println("\n");
         }
 
-        System.out.println("The total for this drought iteration is " + total);
+       // System.out.println("The total for this drought iteration is " + total);
         return lowerMatrix;
     }
 
@@ -676,14 +723,54 @@ public class Optimiser  {
      * @param
      * @return
      */
-    public double[][] createZeroMatrix() {
+    public double[][] createZeroMatrix(double x) {
+
+        double value = 1 - (x/100);
         double[][] zeroMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
+        double[][] optimal = this.createOptimalMatrix();
+        double[][] basic = this.createBasicMatrix();
+
+        double[][] priority = this.createPriorityMatrix();
         for(int i = 0; i < this.getGarden().getPlots().size(); i++){
             for(int j = 0 ; j < this.getDays(); j++){
-                zeroMatrix[i][j]=0;
+                double halfway = (optimal[i][j] - (optimal[i][j] * value)) /8;
+
+                zeroMatrix[i][j] =  basic[i][j] + (halfway * priority[i][j]);
             }
         }
         return zeroMatrix;
+    }
+
+    public double[][] createTestMatrix() {
+        double[][] test = new double[this.getGarden().getPlots().size()][this.getDays()];
+
+        for(int i = 0; i < this.getGarden().getPlots().size(); i++){
+            for(int j = 0 ; j < this.getDays(); j++){
+                if(i==0){
+                    test[i][j]=1;
+                } else if(i ==1 ){
+                    if(j < 7){
+                    test[i][j]=2;}
+                    else {
+                        test[i][j]=7;
+                    }
+
+                } else if(i==1){
+                    test[i][j]=2;
+                } else if(i == 2){
+                    test[i][j]=3;
+                } else if(i == 3){
+                    test[i][j]=4;
+                } else {
+                    test[i][j]=5;
+                }
+            }
+        }
+
+
+
+
+        return test;
     }
 
 
@@ -691,7 +778,7 @@ public class Optimiser  {
 
     public double[][] optimizeForDrought(int x ){
 
-        System.out.println("drought optimisation running");
+        //System.out.println("drought optimisation running");
 
         // create optimisation problem object - JOM
         OptimizationProblem op = new OptimizationProblem();
@@ -753,13 +840,13 @@ public class Optimiser  {
             if (!op.solutionIsOptimal()) throw new RuntimeException("Not optimal solution");
             // check solver
             String result = SolverTester.check_glpk("libglpk.so.36");
-            System.out.println(" the result is " + result);
+           // System.out.println(" the result is " + result);
 
             // get solution and print out = JOM `
 
             DoubleMatrixND sol = op.getPrimalSolution("y");
             double total = 0.0;
-            System.out.println("SOLUTION SOLUTION ================================================================");
+          //  System.out.println("SOLUTION SOLUTION ================================================================");
             for (int a1 = 0; a1 < this.garden.getPlots().size(); a1++) {
                 for (int b1 = 0; b1 < this.getDays(); b1++) {
 
@@ -773,15 +860,15 @@ public class Optimiser  {
 
 
             }
-            System.out.println("solution total is " + total);
-            System.out.println("====================================================================================");
+           // System.out.println("solution total is " + total);
+          //  System.out.println("====================================================================================");
 
 
         } catch(JOMException e){
 
 
 
-            System.out.println("Cannot give a solution Running drought with basic reduced " + x + " percent");
+            //System.out.println("Cannot give a solution Running drought with basic reduced " + x + " percent");
             if(x < 100) {
                 solMatrix = optimizeForDrought(x + 5);
             } else {
@@ -805,7 +892,7 @@ public class Optimiser  {
 
 
 
-        System.out.println("drought optimisation running");
+        //System.out.println("drought optimisation running");
         Map<String, ArrayList<Double>> theMap = new TreeMap<>();
 
         // create optimisation problem object - JOM
@@ -932,12 +1019,12 @@ public class Optimiser  {
 
 
 
-            Optimiser test = new Optimiser(testGarden, 20,  10000, LocalDate.now(), false);
+            Optimiser test = new Optimiser(testGarden, 10,  4000, LocalDate.now(), false);
 
             //Optimiser test2 = new Optimiser(testGarden, 31, 9000, LocalDate.now(), true);
 
 
-            System.out.println(testGarden.getPlots().get(0).getPlant().getSt1_br());
+          //  System.out.println(testGarden.getPlots().get(0).getPlant().getSt1_br());
             BufferedWriter out = new BufferedWriter(new FileWriter("matrix.txt"));
 
 //
@@ -979,7 +1066,7 @@ public class Optimiser  {
             out.newLine();
             out.write("The Optimal Matrix total is " + total);
             out.newLine();
-            System.out.println("The optinmal matrix total is " + total );
+            //System.out.println("The optinmal matrix total is " + total );
             out.newLine();
 
             out.write("Basic Matrix Z made up of basicWater need * Number of Plants * soil Multiplication * Environment Multiplication");
@@ -991,7 +1078,7 @@ public class Optimiser  {
                 for (int j = 0; j <  test.getDays(); j++){
 
                     stagePriority =  test.getGarden().getPlots().get(i).getStagePriority(j,LocalDate.now().plusDays(j));
-                    System.out.print(" " + temp2[i][j] +  " ");
+                   // System.out.print(" " + temp2[i][j] +  " ");
 
                     out.write(String.format("|%6.2f", temp2[i][j]));
 
@@ -999,7 +1086,7 @@ public class Optimiser  {
                     dayToal+= temp2[i][j];
                    // System.out.print(dayToal + " ");
                 }
-               System.out.println("\n");
+              // System.out.println("\n");
                 out.newLine();
 
                //decisionPoints[i]= dayToal;
@@ -1007,27 +1094,54 @@ public class Optimiser  {
 
             }
             out.write("basic matrix total is " + dayToal);
+//            out.newLine();
+//            out.write("New Basic with 10%");
+//            double[][] lowerBasic = test.createZeroMatrix(10);
+//            out.newLine();
+//
+//            double lowerBasicTotal = 0;
+//            for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
+//
+//                for (int j = 0; j <  test.getDays(); j++){
+//
+//                    // System.out.print(temp3[i][j] + " ");
+//
+//                    lowerBasicTotal+= lowerBasic[i][j];
+//                    out.write(String.format("|%6.2f", lowerBasic[i][j]));
+//                    // System.out.print(dayToal + " ");
+//                }
+//                //System.out.println("\n");
+//                out.newLine();
+//
+//                // decisionPoints[i]= dayToal;
+//
+//
+//            }
+//            out.write("The lower basic total is " + lowerBasicTotal);
+//            out.newLine();
+
+
 
             out.newLine();
 //
-         System.out.println("solution total with weather is " + dayToal);
+        // System.out.println("solution total with weather is " + dayToal);
 
             out.newLine();
             out.write("Solution Matrix Y  Object Function =" + maxMin + " " + objectiveFunction);
             out.newLine();
-            double[][] temp3 = test.optimize();
+            double[][] temp3 = test.optimize(0);
             double basicToal = 0;
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
 
                 for (int j = 0; j <  test.getDays(); j++){
 
-                    System.out.print(temp3[i][j] + " ");
+                   // System.out.print(temp3[i][j] + " ");
 
                     basicToal+= temp3[i][j];
                     out.write(String.format("|%6.2f", temp3[i][j]));
                     // System.out.print(dayToal + " ");
                 }
-                System.out.println("\n");
+                //System.out.println("\n");
                 out.newLine();
 
                 // decisionPoints[i]= dayToal;
@@ -1049,7 +1163,7 @@ public class Optimiser  {
 
 
 
-            System.out.println("The basic with  total is " + basicToal);
+            //System.out.println("The basic with  total is " + basicToal);
             out.newLine();
             out.write("Difference  between Optimal and Decision ");
             out.newLine();
@@ -1066,12 +1180,12 @@ public class Optimiser  {
             }
             for(int i = 0 ; i < test.getGarden().getPlots().size(); i++){
                 for(int j = 0 ; j < test.getDays(); j++){
-                    System.out.print(less[i][j] + " ");
+              //      System.out.print(less[i][j] + " ");
                     out.write(String.format("|%6.2f", less[i][j]));
 
                 }
                 out.newLine();
-                System.out.println("\n");
+                //System.out.println("\n");
             }
             out.newLine();
 
@@ -1274,11 +1388,11 @@ public class Optimiser  {
 
 
 
-            double[] byDay = test.decisionByDay(test.optimize());
-
-            for(double d : byDay){
-                System.out.printf("|%6.2f", d);
-            }
+//            double[] byDay = test.decisionByDay(test.optimize());
+//
+//            for(double d : byDay){
+//              //  System.out.printf("|%6.2f", d);
+//            }
 
             out.newLine();
 
@@ -1286,21 +1400,21 @@ public class Optimiser  {
             out.write("MAP VALUES ");
             out.newLine();
 
-            Map<String, ArrayList<Double>> mapper = test.optimizeForMap();
-            System.out.println(mapper.isEmpty());
-           for(Map.Entry<String, ArrayList<Double>> entry: mapper.entrySet()) {
-               ArrayList<Double> list = entry.getValue();
-
-
-               out.write(entry.getKey());
-               out.newLine();
-               for(Double value: list){
-
-                   out.write(String.format("|%6.2f", value));
-               }
-                out.newLine();
-
-           }
+//            Map<String, ArrayList<Double>> mapper = test.optimizeForMap();
+//            System.out.println(mapper.isEmpty());
+//           for(Map.Entry<String, ArrayList<Double>> entry: mapper.entrySet()) {
+//               ArrayList<Double> list = entry.getValue();
+//
+//
+//               out.write(entry.getKey());
+//               out.newLine();
+//               for(Double value: list){
+//
+//                   out.write(String.format("|%6.2f", value));
+//               }
+//                out.newLine();
+//
+//           }
 
            out.newLine();
            out.write("Optimal Map");

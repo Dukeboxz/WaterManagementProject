@@ -14,9 +14,14 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import sun.reflect.generics.tree.Tree;
@@ -32,6 +37,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.awt.Color.getColor;
 import static java.awt.Color.red;
 
 
@@ -321,6 +327,8 @@ public class View  extends Application{
         Scene gardenPlotScene = new Scene(gardenPlotPane, 500, 500);
         stage.setTitle("Optimse Your Water Supply");
         ArrayList<Plot> gPlots = g.getPlots();
+
+
         int counter = 1;
 
         for(int i = 0; i < g.getPlots().size(); i++){
@@ -461,7 +469,8 @@ public class View  extends Application{
 
         javafx.scene.control.Button addPlot = new javafx.scene.control.Button("Add Plot");
 
-        if(g.userEditRights=false){
+
+        if(g.getUserEditRights()==false){
             addPlot.setVisible(false);
         }
 
@@ -583,7 +592,7 @@ public class View  extends Application{
         s.setTitle(pl.getName());
 
         GridPane plotViewPane = new GridPane();
-        Scene plotViewScene = new Scene(plotViewPane, 500, 600);
+        Scene plotViewScene = new Scene(plotViewPane, 500, 500);
         javafx.scene.control.Label plotNameLabel = new javafx.scene.control.Label("Plot Name:");
         javafx.scene.control.Label plotNameText = new javafx.scene.control.Label(pl.getName());
         javafx.scene.control.Label plantTypeLabel = new javafx.scene.control.Label("Planted with:");
@@ -620,8 +629,12 @@ public class View  extends Application{
             }
         });
 
+
+
         javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit Plot ");
-        if(p.userEditRights==false){
+
+
+        if(p.getUserEditRights()==false){
             editPlot.setVisible(false);
         }
 
@@ -629,6 +642,7 @@ public class View  extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
 
+                editPlotScene(pl, s, u, p);
             }
         });
 
@@ -646,7 +660,7 @@ public class View  extends Application{
         plotViewPane.add(priorityText, 2, 5);
 
         plotViewPane.add(back, 5, 7);
-        plotViewPane.add(editPlot, 1,7);
+        plotViewPane.add(editPlot, 2, 7);
 
 
 
@@ -660,6 +674,196 @@ public class View  extends Application{
     public static void editPlotScene(Plot pl, Stage s, User u , Garden p ) {
 
      s.setTitle("Edit Plot");
+
+        // create alternate page to edit plot details
+
+        GridPane editPlotPane = new GridPane();
+        Scene editPlotScene = new Scene(editPlotPane, 500, 500 );
+
+        javafx.scene.control.Label editPlotName = new javafx.scene.control.Label("Plot Name");
+        javafx.scene.control.TextField plotNameTextField = new javafx.scene.control.TextField();
+        plotNameTextField.setText(pl.getName());
+
+        ComboBox plantTypes = new ComboBox();
+
+        javafx.scene.control.Label editPlantedLabel = new javafx.scene.control.Label("Planted with:");
+        Map<Integer, String> mapOfPlantTypes = Database.getPlantTypesInMap();
+        int planttypeCounter = 0;
+        for(Map.Entry<Integer, String> entry : mapOfPlantTypes.entrySet()){
+            plantTypes.getItems().add(planttypeCounter, entry.getValue());
+
+        }
+
+        Map<String, Plant> mapOfPlants = new TreeMap<>();
+        ComboBox plantsOfType = new ComboBox();
+        plantsOfType.setValue(pl.getPlant().getName());
+
+        plantTypes.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String type = plantTypes.getValue().toString();
+
+                plantsOfType.getItems().clear();
+                mapOfPlantTypes.forEach((k,v) -> {
+
+                    if(type.equals(v)){
+                        int typeId =k;
+                        Map<String, Plant> plantMap = Database.returnPlantsInMap(typeId);
+
+
+
+                        if(plantsOfType.getItems().isEmpty()){
+                            mapOfPlants.clear();
+                            for(Map.Entry<String, Plant> entry : plantMap.entrySet()){
+                                plantsOfType.getItems().add(entry.getKey());
+                                mapOfPlants.put(entry.getKey(), entry.getValue());
+                            }
+                        } else {
+                            mapOfPlants.clear();
+                            plantsOfType.getItems().clear();
+                            for(Map.Entry<String, Plant> entry : plantMap.entrySet()){
+                                plantsOfType.getItems().add(entry.getKey());
+                                mapOfPlants.put(entry.getKey(), entry.getValue());
+                            }
+
+                        }
+
+                    }
+                });
+            }
+        });
+
+
+
+        javafx.scene.control.Label editPlantedOn = new javafx.scene.control.Label("Planted On: ");
+        DatePicker theDatePlanted = new DatePicker(pl.getDatePlanted());
+
+
+        javafx.scene.control.Label editSizeLabel = new javafx.scene.control.Label("Size of plot: ");
+        javafx.scene.control.TextField sizeField = new javafx.scene.control.TextField(Double.toString(pl.getSize()));
+        ToggleGroup size = new ToggleGroup();
+        RadioButton sqm = new RadioButton("sqm");
+        sqm.setSelected(true);
+        sqm.setToggleGroup(size);
+        RadioButton sqft = new RadioButton("sqft");
+        sqft.setToggleGroup(size);
+
+
+        javafx.scene.control.Label plotPriorityEditLabel = new javafx.scene.control.Label("Priority of plot:");
+        Map<Double, String> priorityMap = new TreeMap<>();
+        priorityMap.put(3.0, "High");
+        priorityMap.put(2.0, "Medium");
+        priorityMap.put(1.0, "Low");
+
+        ComboBox thePrioirty = new ComboBox();
+        int counter = 0;
+        for(Map.Entry entry : priorityMap.entrySet()){
+            thePrioirty.getItems().add(counter, entry.getValue());
+            if(entry.getKey().equals(pl.getPriority())){
+                thePrioirty.getSelectionModel().select(counter);
+            }
+            counter++;
+        }
+
+        javafx.scene.control.Button editPlotBackButton = new javafx.scene.control.Button("Back");
+
+        editPlotBackButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                plotView(pl,s, u , p);
+            }
+        });
+
+        javafx.scene.control.Button saveEditButton = new javafx.scene.control.Button("Save Edit");
+
+        saveEditButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if(plotNameTextField.getText().length() < 1 || plantsOfType.getValue().equals(null) || sizeField.getText().length() <=0){
+
+                } else{
+                    String newPlotName = plotNameTextField.getText();
+                    String plantName = plantsOfType.getValue().toString();
+                    Plant thePlant = null;
+                    for(Map.Entry<String, Plant> entry : mapOfPlants.entrySet()){
+                        if(entry.getKey().equals(plantName)) {
+                            thePlant=entry.getValue();
+                        }
+                    }
+
+                    double newPlotSize = Double.parseDouble(sizeField.getText());
+
+                    newPlotSize= (sqm.isSelected()==true)? newPlotSize : newPlotSize*0.092903;
+                    newPlotSize= (newPlotSize < 1) ? 1 : newPlotSize;
+
+                    LocalDate theLocalDate = theDatePlanted.getValue();
+
+                    String thePriorityString = thePrioirty.getValue().toString();
+                    double priorityValue = 0;
+                    for(Map.Entry<Double, String> entry : priorityMap.entrySet()){
+                        if(entry.getValue().equals(thePriorityString)){
+                            priorityValue=entry.getKey();
+                        }
+                    }
+
+                    int id = pl.getId();
+                    int numberOfPlants = (int)newPlotSize* thePlant.getNumberPerMeter();
+
+                    for(Plot gPlots : p.getPlots()){
+                        if(id==gPlots.getId()){
+                            gPlots.setName(newPlotName);
+                            pl.setName(newPlotName);
+                            gPlots.setPlant(thePlant);
+                            pl.setPlant(thePlant);
+                            gPlots.setSize(newPlotSize);
+                            pl.setSize(newPlotSize);
+                            gPlots.setNoOfPlants(numberOfPlants);
+                            pl.setNoOfPlants(numberOfPlants);
+                            gPlots.setPriority(priorityValue);
+                            pl.setPriority(priorityValue);
+
+                        }
+                    }
+                    System.out.println("New Plot name= " + newPlotName + "\n" +
+                            "The new plant= " + thePlant.getName() + "\n" +
+                            " The new planted date= " + theLocalDate + "\n" +
+                            "New size of Plot= " + newPlotSize + "\n" +
+                            "New plot priority= " + priorityValue);
+
+                    //  Database.updatePlot(pl.getId(), newPlotName,newPlotSize,  thePlant.getid(), theLocalDate, priorityValue);
+
+                    plotView(pl, s, u, p);
+                }
+            }
+        });
+
+
+
+
+
+
+        editPlotPane.add(editPlotName, 1, 1);
+        editPlotPane.add(plotNameTextField, 2, 1);
+        editPlotPane.add(editPlantedLabel, 1, 2 );
+
+        editPlotPane.add(plantTypes, 2, 2);
+        editPlotPane.add(plantsOfType, 3, 2, 2, 1);
+        editPlotPane.add(editPlantedOn, 1, 3);
+        editPlotPane.add(theDatePlanted, 2,3);
+        editPlotPane.add(editSizeLabel, 1, 4);
+        editPlotPane.add(sizeField, 2, 4);
+        editPlotPane.add(sqm, 3 ,4);
+        editPlotPane.add(sqft, 4, 4);
+        editPlotPane.add(plotPriorityEditLabel, 1, 5);
+        editPlotPane.add(thePrioirty, 2, 5);
+        editPlotPane.add(editPlotBackButton, 2, 6);
+        editPlotPane.add(saveEditButton, 4, 6);
+
+
+
+       s.setScene(editPlotScene);
+
+
 
     }
 
@@ -700,7 +904,7 @@ public class View  extends Application{
 
         }
 
-        double[] arg = o.decisionByDay(o.optimize());
+        double[] arg = o.decisionByDay(o.optimize(0));
         XYChart.Series decionUse = new XYChart.Series();
         decionUse.setName("Water to use");
         for(int i = 0; i < arg.length; i++){
@@ -1193,28 +1397,35 @@ public class View  extends Application{
 
         javafx.scene.control.Label loginLabel = new javafx.scene.control.Label("LOGIN");
         javafx.scene.control.TextField loginEntryField = new javafx.scene.control.TextField("userName");
+        javafx.scene.control.Label password = new javafx.scene.control.Label("Password");
+        PasswordField thePasswordField = new PasswordField();
         javafx.scene.control.Button loginButton = new javafx.scene.control.Button("Login");
         loginButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 String theUserName = loginEntryField.getText();
+                String thePassword =  thePasswordField.getText();
                 try{
-                    if( Database.userNameNotExist(loginEntryField.getText())) {
-
-                        Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
-                        userAlreadyExistsAlert.setContentText("Not Valid User");
-                        userAlreadyExistsAlert.show();
-
-
-
-
-                    } else {
+                    if( Database.userNameAndPasswordCheck(theUserName, thePassword)) {
 
                         System.out.println(loginEntryField.getText());
                         System.out.println(Database.userNameExists(loginEntryField.getText()));
                         User temp = Database.createUser(theUserName);
 
                         setGardenScene(s, temp);
+
+
+
+
+
+                    } else {
+
+
+                        Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
+                        userAlreadyExistsAlert.setContentText("Not Valid User");
+                        userAlreadyExistsAlert.show();
+
+
 
                     }
                 }
@@ -1225,12 +1436,23 @@ public class View  extends Application{
             }
         });
 
-
+        loginPageGrid.setGridLinesVisible(true);
         loginPageGrid.setAlignment(Pos.CENTER);
-        loginPageGrid.setPadding(new javafx.geometry.Insets(200, 50, 200 ,50 ));
+        loginPageGrid.setHgap(5);
+        loginPageGrid.setVgap(5);
+        ColumnConstraints col = new ColumnConstraints();
+        col.setPercentWidth(60);
+        ColumnConstraints outCol = new ColumnConstraints();
+        RowConstraints row = new RowConstraints();
+        row.setPercentHeight(25);
+        loginPageGrid.getColumnConstraints().addAll(outCol, col, outCol);
+
+        loginPageGrid.setPadding(new javafx.geometry.Insets(5  , 5, 5 ,5 ));
         loginPageGrid.add(loginLabel,1,0);
         loginPageGrid.add(loginEntryField, 1,1);
-        loginPageGrid.add(loginButton, 1, 2);
+        loginPageGrid.add(password, 1, 2);
+        loginPageGrid.add(thePasswordField, 1, 3);
+        loginPageGrid.add(loginButton, 1, 4);
 
         s.setTitle("LOGIN");
         s.setScene(loginEntry);
@@ -1244,29 +1466,43 @@ public class View  extends Application{
     @Override
     public void start(Stage primaryStage) {
 
-
-        theStage = primaryStage;
-
+        System.setProperty("javafx.userAgentStylesheetUrl1", "caspian");
 
 
+        welcomePage(primaryStage);
+
+
+
+
+
+    }
+
+    public static void welcomePage(Stage primaryStage) {
 
         //welcome Page
         GridPane welcomePage = new GridPane();
-        Scene welcomePageScene = new Scene(welcomePage, 500 , 500);
+        Scene welcomePageScene = new Scene(welcomePage, 300 , 200);
+        //primaryStage.setResizable(false);
 
-        // user Entry
-        GridPane grid = new GridPane();
-        Scene userEntry = new Scene(grid, 500, 300 );
-
-
+        welcomePage.setStyle("-fx-background-image: url(" +
+                "/res/cougette.jpg" + ")");
 
 
+        primaryStage.setTitle("Welcome");
 
         // Welcome Page set up
         welcomePage.setAlignment(Pos.CENTER);
-        welcomePage.setPadding(new javafx.geometry.Insets(50, 50, 50, 50));
+        welcomePage.setVgap(10);
+        welcomePage.setHgap(10);
+       welcomePage.setPadding(new javafx.geometry.Insets(2, 2, 2, 2));
+
+
         javafx.scene.control.Label welcome = new javafx.scene.control.Label();
-        welcome.setText("Welcome to the Garden App");
+        welcome.setText("Welcome ");
+        welcome.setWrapText(true);
+        welcome.setTextFill(Color.WHITE);
+        welcome.setFont(Font.font("Verdanna", FontWeight.BOLD, 20));
+
         javafx.scene.control.Button login = new javafx.scene.control.Button("Login");
 
         javafx.scene.control.Button newUser = new javafx.scene.control.Button("Create New User");
@@ -1274,7 +1510,7 @@ public class View  extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
 
-                theStage.setScene(userEntry);
+                newUserEntry(primaryStage);
             }
         });
         login.setOnAction(new EventHandler<ActionEvent>() {
@@ -1284,9 +1520,33 @@ public class View  extends Application{
                 login(primaryStage);
             }
         });
-        welcomePage.add(welcome, 1,0);
-        welcomePage.add(login,  1,1);
-        welcomePage.add(newUser, 1,2);
+
+        login.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        newUser.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        ColumnConstraints col = new ColumnConstraints();
+        col.setPercentWidth(60);
+        ColumnConstraints outCol = new ColumnConstraints();
+        outCol.setPercentWidth(20);
+        welcomePage.getColumnConstraints().addAll(outCol, col, outCol);
+        RowConstraints row = new RowConstraints();
+        row.setPercentHeight(20);
+        welcomePage.getRowConstraints().addAll(row, row, row, row, row);
+
+
+
+//        BackgroundImage welcomePageImage = new BackgroundImage(new Image("/res/cougette.jpg", 300, 300, true, true),
+//                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
+//
+//
+//        Background welcomeBackground = new Background(welcomePageImage);
+
+
+
+       // welcomePage.setBackground(new Background(welcomePageImage));
+        welcomePage.add(welcome, 1,1, 2,1 );
+        welcomePage.add(login,  1,2, 1, 1);
+        welcomePage.add(newUser, 1,3, 1, 1);
 
 
 
@@ -1294,49 +1554,84 @@ public class View  extends Application{
 
 
 
-        // new user entry scene
+
+
+
+        primaryStage.setScene(welcomePageScene);
+        primaryStage.show();
+    }
+
+    public  static void newUserEntry(Stage s) {
+
+        GridPane grid = new GridPane();
+        Scene newUserScene = new Scene(grid, 400 , 400);
+
+
         javafx.scene.control.TextField user = new javafx.scene.control.TextField("User Name");
         javafx.scene.control.TextField emailentry = new javafx.scene.control.TextField("email");
-        javafx.scene.control.TextField pass = new javafx.scene.control.TextField("Password");
+        PasswordField pass = new PasswordField();
+        pass.setPromptText("Password at least 6 characters");
         javafx.scene.control.Button submit = new javafx.scene.control.Button("Submit");
 
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                userName = user.getText();
-                email = emailentry.getText();
-                password = pass.getText();
-
-                if(userName.length() < 6){
-                    Alert userNameAlert = new Alert(Alert.AlertType.ERROR);
-                    userNameAlert.setContentText("User Name not long enough");
-                    userNameAlert.showAndWait();
-
-                } else if(password.length() < 6) {
-                    Alert passwordAlter = new Alert(Alert.AlertType.ERROR);
-                    passwordAlter.setContentText("Password is not long enough");
-                    passwordAlter.showAndWait();
-
-                } else{
-                    try{
-                        Database.insertUserNameANDPassword(userName, email, password);
-                        Alert inputSuccess = new Alert((Alert.AlertType.CONFIRMATION));
-                        inputSuccess.setContentText("Data Entered Successfully");
-
-                        User temp = Database.createUser(userName);
-                        theStage.setTitle("Garden");
-                        setGardenScene(theStage, temp );
+                String userName = user.getText();
+                 String email = emailentry.getText().trim();
+                 String password = pass.getText();
 
 
-                        //theStage.setScene(garden);
+                if(Database.userNameNotExist(userName.trim())) {
 
 
-                    }catch (SQLException e){
-                        Alert entryFailureAlert = new Alert(Alert.AlertType.WARNING);
-                        entryFailureAlert.show();
-                        e.printStackTrace();
+                    if (userName.length() < 6) {
+                        Alert userNameAlert = new Alert(Alert.AlertType.ERROR);
+                        userNameAlert.setContentText("User Name not long enough");
+                        userNameAlert.showAndWait();
+
+                    } else if (password.length() < 6) {
+                        Alert passwordAlter = new Alert(Alert.AlertType.ERROR);
+                        passwordAlter.setContentText("Password is not long enough");
+                        passwordAlter.showAndWait();
+
+
+                    } else if (!email.toUpperCase().matches("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}")) {
+                        Alert emailBadFormat = new Alert(Alert.AlertType.ERROR);
+                        emailBadFormat.setContentText("Email not correct format");
+                        emailBadFormat.show();
+                    } else {
+                        try {
+                            Database.insertUserNameANDPassword(userName, email, password);
+                            Alert inputSuccess = new Alert((Alert.AlertType.CONFIRMATION));
+                            inputSuccess.setContentText("Data Entered Successfully");
+
+                            User temp = Database.createUser(userName);
+
+                            setGardenScene(s, temp);
+
+
+                            //theStage.setScene(garden);
+
+
+                        } catch (SQLException e) {
+                            Alert entryFailureAlert = new Alert(Alert.AlertType.WARNING);
+                            entryFailureAlert.show();
+                            e.printStackTrace();
+                        }
                     }
+                } else {
+                    Alert nameExists = new Alert(Alert.AlertType.WARNING);
+                    nameExists.setContentText("Name Already Exists");
+                    nameExists.show();
                 }
+            }
+        });
+
+        javafx.scene.control.Button backButton = new javafx.scene.control.Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                welcomePage(s);
             }
         });
 
@@ -1346,16 +1641,13 @@ public class View  extends Application{
         grid.add(emailentry, 0, 1);
         grid.add(pass, 0, 2);
         grid.add(submit, 0, 3);
+        grid.add(backButton, 1, 3);
 
 
 
+        s.setScene(newUserScene);
 
 
-
-
-        theStage.setTitle("New User Entry");
-        theStage.setScene(welcomePageScene);
-        theStage.show();
     }
 
     // main method with launch method to start javafx
