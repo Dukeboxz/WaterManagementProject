@@ -23,7 +23,7 @@ import java.util.TreeSet;
 public class WeatherData {
 
     public static String createURL(String town){
-        String url = "http://api.wunderground.com/api/88d7a239ed54d0d5/geolookup/conditions/forecast10day/q/UK/" + town + ".json";
+        String url = "http://api.wunderground.com/api/88d7a239ed54d0d5/geolookup/conditions/forecast10day/q/zmw:" + town + ".json";
 
         return url;
     }
@@ -78,7 +78,7 @@ public class WeatherData {
 
     public static ArrayList<WeatherObject> getWeatherData(String town){
 
-        String url = createURL(town);
+        String url =  createURL(town);
 
         ArrayList<WeatherObject> tenDaysOfWeather = new ArrayList<>();
 
@@ -178,13 +178,17 @@ public class WeatherData {
 
     public static void main(String[] args) {
 
-        ArrayList<WeatherObject> test = getWeatherData("chesterfield");
+        Garden testGarden = Database.createGarden(2, true);
+
+        System.out.println("*" + testGarden.getLocation() + "*");
+
+        ArrayList<WeatherObject> test = getWeatherData(testGarden.getLocation().trim());
 
         for(WeatherObject a : test){
             System.out.println(a.getHighTemp());
         }
 
-        TreeMap test2 = getPotentialLocations("ches");
+       // TreeMap test2 = getPotentialLocations("ches");
     }
 
 }

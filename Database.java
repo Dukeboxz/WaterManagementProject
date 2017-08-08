@@ -798,7 +798,7 @@ public class Database {
                 gardensid = n.getInt("id");
                 name = n.getString("name");
                 userID = n.getInt("userid");
-                gardenLocation = n.getString("location");
+                gardenLocation = n.getString("location_reference");
 
 
             }

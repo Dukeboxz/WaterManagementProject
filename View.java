@@ -1,9 +1,7 @@
-import com.jom.DoubleMatrixND;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
@@ -14,32 +12,18 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import sun.reflect.generics.tree.Tree;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.Button;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.TextField;
-import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
 import static java.awt.Color.getColor;
-import static java.awt.Color.red;
 
 
 /**
@@ -400,6 +384,8 @@ public class View  extends Application{
         gardenPlotPane.setHgap(5);
         gardenPlotPane.setVgap(5);
 
+        gardenPlotScene.getStylesheets().add("/res/StyleSheet.css");
+
 
         ArrayList<Plot> gPlots = g.getPlots();
 
@@ -409,28 +395,47 @@ public class View  extends Application{
         javafx.scene.control.Label plotsLabel = new javafx.scene.control.Label("PLOTS");
         plotsLabel.setTextFill(Color.WHITE);
         gardenPlotPane.add(plotsLabel, 0, 1);
-        for(int i = 0; i < 8; i++){
-            javafx.scene.control.Button plotButton = new javafx.scene.control.Button(g.getPlots().get(i).getName());
-            plotButton.setWrapText(true);
-            gardenPlotPane.add(plotButton, 0, i+2);
-            plotButton.setMaxWidth(Double.MAX_VALUE);
-            counter++;
+        int noOfPlots = g.getPlots().size() < 8 ? g.getPlots().size() : 8;
 
-            plotButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    for(Plot p : gPlots){
-                        if(plotButton.getText().equals(p.getName())){
-                            plotView(p, stage, user, g );
+        if(!g.getPlots().isEmpty()) {
+            for (int i = 0; i < noOfPlots; i++) {
+                javafx.scene.control.Button plotButton = new javafx.scene.control.Button(g.getPlots().get(i).getName());
+                plotButton.setWrapText(true);
+                plotButton.setId("plot"+i);
+                gardenPlotPane.add(plotButton, 0, i + 2);
+                plotButton.setMaxWidth(Double.MAX_VALUE);
+                counter++;
+
+                plotButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        for (Plot p : gPlots) {
+                            if (plotButton.getText().equals(p.getName())) {
+                                plotView(p, stage, user, g);
+                            }
                         }
-                    }
 
-                }
-            });
+                    }
+                });
+            }
         }
-        javafx.scene.control.Button showFurtherPlots = new javafx.scene.control.Button();
-        if(g.getPlots().size() >= 8){
+        javafx.scene.control.Button showFurtherPlots = new javafx.scene.control.Button("show further plots");
+        if(g.getPlots().size() >= 7){
                 showFurtherPlots.setVisible(true);
+        } else {
+            showFurtherPlots.setVisible(false);
+        }
+        showFurtherPlots.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+            }
+        });
+
+        ObservableList a = gardenPlotPane.getChildren();
+        System.out.println("The size is " + a.isEmpty());
+        for(Object t : a) {
+            System.out.println("The T is " + t.toString());
         }
 
         Slider waterSlider = new Slider();
@@ -575,6 +580,9 @@ public class View  extends Application{
         gardenPlotPane.add(includeWeatherToggle, 1 , 5);
         gardenPlotPane.add(optimiseStartDate, 1, 6);
         gardenPlotPane.add(optimise, 1, 9);
+        gardenPlotPane.add(showFurtherPlots, 0, 10);
+        showFurtherPlots.setMaxWidth(Double.MAX_VALUE);
+        showFurtherPlots.setId("green");
 
 
 
@@ -992,8 +1000,9 @@ public class View  extends Application{
 
         GridPane opGrid = new GridPane();
 
-        opGrid.setHgap(50);
+        opGrid.setHgap(5);
        opGrid.setVgap(5);
+
 
 
         final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
@@ -1176,13 +1185,16 @@ public class View  extends Application{
 
 
 
-
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(9);
 
         ColumnConstraints col = new ColumnConstraints();
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(16);
 
 
         col.setPercentWidth(20);
-        opGrid.getColumnConstraints().addAll(col, col, col , col, col);
+        opGrid.getColumnConstraints().addAll(col, col2, col2, col2, col2, col2);
 
         opGrid.add(waterChart, 0, 0,5, 4);
         opGrid.add(showOptimal, 1, 5);
@@ -1202,17 +1214,28 @@ public class View  extends Application{
 
         ArrayList<javafx.scene.control.Label> labels = new ArrayList<>();
 
+        int theRowCounter = 0;
+        int rowIndex = plotCounter +6;
+        int theColumnConter = 0;
+
         for(Map.Entry<String, ArrayList<Double>> entry:optimisedInMap.entrySet()){
 
             javafx.scene.control.Label plotText = new javafx.scene.control.Label("water needed in " + entry.getKey());
             plotText.setWrapText(true);
-            opGrid.add(plotText, 0, plotCounter +6);
+
+
+            if(theRowCounter > 2){
+                theRowCounter=0;
+                theColumnConter+=2;
+            }
+            opGrid.add(plotText, theColumnConter, rowIndex + theRowCounter);
             javafx.scene.control.Label plotLabel = new javafx.scene.control.Label();
             plotLabel.setId(entry.getKey());
             labels.add(plotLabel);
-            opGrid.add(plotLabel, 2, plotCounter +6);
-            plotCounter++;
-            System.out.println(plotCounter);
+            opGrid.add(plotLabel, columnCounter+1, rowIndex + theRowCounter);
+
+            theRowCounter++;
+
         }
 
 
@@ -1235,7 +1258,7 @@ public class View  extends Application{
         });
 
 
-        Scene opScene = new Scene(opGrid, 1000, 800);
+        Scene opScene = new Scene(opGrid, 1000, 1000);
 
 
 

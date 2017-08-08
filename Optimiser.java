@@ -101,7 +101,7 @@ public class Optimiser {
 
 
         Map<String, ArrayList<Double>> theMap = new TreeMap<>();
-        ArrayList<WeatherObject> weather = WeatherData.getWeatherData(this.getGarden().getLocation().trim());
+
 
         if (withWeather == false) {
 
@@ -121,6 +121,7 @@ public class Optimiser {
                 theMap.put(theName, theArrayList);
             }
         } else {
+            ArrayList<WeatherObject> weather = WeatherData.getWeatherData(this.getGarden().getLocation().trim());
             for (int i = 0; i < this.getGarden().getPlots().size(); i++) {
                 Plot a = this.garden.getPlots().get(i);
                 String theName = a.getName();
