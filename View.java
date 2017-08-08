@@ -16,6 +16,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -65,6 +66,20 @@ public class View  extends Application{
 
         GridPane gardenGrid = new GridPane();
         Scene garden = new Scene(gardenGrid ,500, 500);
+       // gardenGrid.setStyle("-fx-background-image: url(" +"/res/cougette.jpg" +  ")");
+        gardenGrid.setVgap(5);
+        gardenGrid.setHgap(5);
+        gardenGrid.setGridLinesVisible(true);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(10);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(35);
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(15);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(10);
+        gardenGrid.getRowConstraints().addAll(row2, row1, row1, row1, row1, row1, row1);
+        gardenGrid.getColumnConstraints().addAll(col1, col2, col1, col2, col1);
 
         java.util.List<Garden> gardenList = Database.getUsersGardens(user.getId());
 
@@ -75,9 +90,12 @@ public class View  extends Application{
         javafx.scene.control.Label gardenLabel = new javafx.scene.control.Label();
         String  a = " Welcome  " + user.getName().trim() + "\n" + " please select your garden or create a new one ";
         gardenLabel.setText(a);
+        gardenLabel.setTextFill(Color.WHITE);
         javafx.scene.control.Label selectGarden = new javafx.scene.control.Label("Existing Garden");
+        selectGarden.setTextFill(Color.WHITE);
         javafx.scene.control.Button load = new javafx.scene.control.Button("Load");
         javafx.scene.control.Button createNewGarden = new javafx.scene.control.Button("Create new Garden");
+
 
         createNewGarden.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -88,47 +106,72 @@ public class View  extends Application{
 
 
         ComboBox usersGardens = new ComboBox();
-        int we = user.getId();
+        usersGardens.setMaxSize(Double.MAX_VALUE, 50);
+        usersGardens.setVisibleRowCount(7);
+        ComboBox gardensCanView = new ComboBox();
+        gardensCanView.setMaxSize(Double.MAX_VALUE, 50);
+        gardensCanView.setVisible(false);
+
 
 
         ToggleGroup gardenPermissions = new ToggleGroup();
 
         RadioButton viewAndEdit = new RadioButton("Show gardens I can edit");
+        viewAndEdit.setWrapText(true);
+        viewAndEdit.setTextFill(Color.WHITE);
         RadioButton justView = new RadioButton("Show gardens I can only view");
+        justView.setWrapText(true);
+        justView.setTextFill(Color.WHITE);
         viewAndEdit.setToggleGroup(gardenPermissions);
         justView.setToggleGroup(gardenPermissions);
         viewAndEdit.setSelected(true);
+
+
 
         for(Garden g : gardenList){
 
             if(g.getUserEditRights()==true) {
                 usersGardens.getItems().add(g.getName());
+            } else {
+                gardensCanView.getItems().add(g.getName());
             }
 
         }
-
         viewAndEdit.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
                 if(t1==false){
-                    usersGardens.getItems().clear();
-                    for(Garden g : gardenList){
-                        if(g.getUserEditRights()==false){
-                            usersGardens.getItems().add(g.getName());
-                        }
-                    }
-                } else {
-                    if(!usersGardens.getItems().isEmpty()) {
-                        usersGardens.getItems().clear();
-                    }
-                    for(Garden g : gardenList){
-                        if(g.getUserEditRights()==true){
-                            usersGardens.getItems().add(g.getName());
-                        }
-                    }
+                    usersGardens.setVisible(false);
+                    gardensCanView.setVisible(true);
+                } else{
+                    usersGardens.setVisible(true);
+                    gardensCanView.setVisible(false);
                 }
             }
         });
+
+//        viewAndEdit.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+//                if(t1==false){
+//                    usersGardens.getItems().clear();
+//                    for(Garden g : gardenList){
+//                        if(g.getUserEditRights()==false){
+//                            usersGardens.getItems().add(g.getName());
+//                        }
+//                    }
+//                } else {
+//                    if(!usersGardens.getItems().isEmpty()) {
+//                        usersGardens.getItems().clear();
+//                    }
+//                    for(Garden g : gardenList){
+//                        if(g.getUserEditRights()==true){
+//                            usersGardens.getItems().add(g.getName());
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
 
 
@@ -136,38 +179,56 @@ public class View  extends Application{
 
 
         load.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
+
             public void handle(ActionEvent actionEvent) {
 
-                if(usersGardens.getSelectionModel().isEmpty()){
-                    Alert noGarden = new Alert(Alert.AlertType.ERROR);
-                    noGarden.setContentText("Please select a garden");
-                  usersGardens.setStyle("-fx-border-width: 2.5; -fx-border-color: red");
-                } else {
-                    String chosenGarden = usersGardens.getValue().toString();
-                    for(Garden h : gardenList){
-                        if(h.getName().equals(chosenGarden)){
-                            setGardenAndPlotScene(stage, user, h);
+                if(viewAndEdit.isSelected()) {
+                    if (usersGardens.getSelectionModel().isEmpty()) {
+                        Alert noGarden = new Alert(Alert.AlertType.ERROR);
+                        noGarden.setContentText("Please select a garden");
+                        usersGardens.setStyle("-fx-border-width: 2.5; -fx-border-color: red");
+                    } else {
+                        String chosenGarden = usersGardens.getValue().toString();
+                        for (Garden h : gardenList) {
+                            if (h.getName().equals(chosenGarden)) {
+                                setGardenAndPlotScene(stage, user, h);
+                            }
                         }
+
+                    }
+                } else {
+                    if (gardensCanView.getSelectionModel().isEmpty()) {
+                        Alert noGarden = new Alert(Alert.AlertType.ERROR);
+                        noGarden.setContentText("Please select a garden");
+                        usersGardens.setStyle("-fx-border-width: 2.5; -fx-border-color: red");
+                    } else {
+                        String chosenGarden = gardensCanView.getValue().toString();
+                        for (Garden h : gardenList) {
+                            if (h.getName().equals(chosenGarden)) {
+                                setGardenAndPlotScene(stage, user, h);
+                            }
+                        }
+
+
                     }
 
                 }
-
-
 
             }
         });
         gardenGrid.setAlignment(Pos.CENTER);
         gardenGrid.setVgap(10 );
         gardenGrid.setHgap(10);
-        gardenGrid.setPadding(new javafx.geometry.Insets(10, 10, 50, 10));
-        gardenGrid.add(gardenLabel, 0, 1);
-        gardenGrid.add(createNewGarden, 0, 2);
-        gardenGrid.add(viewAndEdit, 0, 4);
-        gardenGrid.add(justView, 1, 4);
-        gardenGrid.add(usersGardens, 0, 5);
-        gardenGrid.add(selectGarden, 0, 3);
-        gardenGrid.add(load, 0, 6);
+        gardenGrid.setPadding(new javafx.geometry.Insets(2, 2, 2, 2));
+        gardenGrid.add(gardenLabel, 1, 1);
+        gardenGrid.add(createNewGarden, 1, 2);
+        gardenGrid.add(viewAndEdit, 1, 4);
+
+        gardenGrid.add(usersGardens, 1, 5);
+        gardenGrid.add(justView, 3,4);
+        gardenGrid.add(gardensCanView,3, 5);
+        gardenGrid.add(selectGarden, 1, 3);
+        gardenGrid.add(load, 1, 6);
 
         stage.setScene(garden);
     }
@@ -280,6 +341,8 @@ public class View  extends Application{
                     Database.createNewGarden(gardenName, user, location, locationRef);
 
                     Garden createdGarden = Database.userGardenReturn(gardenName, user);
+                  //  createdGarden.setUserEditRights(true);
+
                     setGardenAndPlotScene(s,user,createdGarden );
 
 
@@ -323,17 +386,34 @@ public class View  extends Application{
      */
     public static void setGardenAndPlotScene(Stage stage, User user, Garden g ){
 
+
+
         GridPane gardenPlotPane = new GridPane();
         Scene gardenPlotScene = new Scene(gardenPlotPane, 500, 500);
-        stage.setTitle("Optimse Your Water Supply");
+
+        gardenPlotPane.setStyle("-fx-background-image: url(" + "/res/wildFlowers.jpg" + ")");
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(20);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(60);
+        gardenPlotPane.getColumnConstraints().addAll(col1, col2, col1);
+        gardenPlotPane.setHgap(5);
+        gardenPlotPane.setVgap(5);
+
+
         ArrayList<Plot> gPlots = g.getPlots();
 
 
         int counter = 1;
 
-        for(int i = 0; i < g.getPlots().size(); i++){
+        javafx.scene.control.Label plotsLabel = new javafx.scene.control.Label("PLOTS");
+        plotsLabel.setTextFill(Color.WHITE);
+        gardenPlotPane.add(plotsLabel, 0, 1);
+        for(int i = 0; i < 8; i++){
             javafx.scene.control.Button plotButton = new javafx.scene.control.Button(g.getPlots().get(i).getName());
-            gardenPlotPane.add(plotButton, 1, i+1);
+            plotButton.setWrapText(true);
+            gardenPlotPane.add(plotButton, 0, i+2);
+            plotButton.setMaxWidth(Double.MAX_VALUE);
             counter++;
 
             plotButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -347,6 +427,10 @@ public class View  extends Application{
 
                 }
             });
+        }
+        javafx.scene.control.Button showFurtherPlots = new javafx.scene.control.Button();
+        if(g.getPlots().size() >= 8){
+                showFurtherPlots.setVisible(true);
         }
 
         Slider waterSlider = new Slider();
@@ -366,12 +450,16 @@ public class View  extends Application{
         daySlider.setShowTickLabels(true);
 
         javafx.scene.control.Label dayLabel = new javafx.scene.control.Label();
+        dayLabel.setTextFill(Color.WHITE);
         dayLabel.setText(Double.toString(1));
         javafx.scene.control.Label dayTitle = new javafx.scene.control.Label("Number of days");
+        dayTitle.setTextFill(Color.WHITE);
 
         javafx.scene.control.Label waterLabel = new javafx.scene.control.Label();
+        waterLabel.setTextFill(Color.WHITE);
         waterLabel.setText(Double.toString(waterSlider.getValue()));
         javafx.scene.control.Label waterTitle = new javafx.scene.control.Label("Amount of water");
+        waterTitle.setWrapText(true);
 
         daySlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -396,6 +484,7 @@ public class View  extends Application{
 
         //  include weather toggle and its impact on date picker
         RadioButton includeWeatherToggle = new RadioButton("Include Weather");
+       includeWeatherToggle.setMaxWidth(200);
 
         LocalDate dateSelected;
 
@@ -436,34 +525,57 @@ public class View  extends Application{
         } else {
             weatherActive= true;
         }
-
+        optimise.setMaxWidth(Double.MAX_VALUE);
+        optimise.setMaxHeight(Double.MAX_VALUE);
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 int days = Integer.parseInt(dayLabel.getText());
-                //double water = Double.parseDouble(waterLabel.getText());
-                double water = Double.parseDouble(waterText.getText());
-                LocalDate theDate = optimiseStartDate.getValue();
 
+                if(!waterText.getText().equals(null) & waterText.getText().matches("[0-9]{1,13}(\\.[0-9]*)?")) {
+                    double water = Double.parseDouble(waterText.getText());
+                    if (days > 1 & water > 0) {
+                        //double water = Double.parseDouble(waterLabel.getText());
 
+                        LocalDate theDate = optimiseStartDate.getValue();
 
-                Optimiser opObject = new Optimiser(g, days, water,theDate, weatherActive);
-                optimisationScene(opObject, stage);
+                        Optimiser opObject = new Optimiser(g, days, water,theDate, weatherActive);
+                        optimisationScene(opObject, stage);
+                    }
+
+                } else {
+                    Alert noWaterEntered = new Alert(Alert.AlertType.WARNING);
+                    noWaterEntered.setContentText("Please enter valid water type");
+                    noWaterEntered.show();
+                }
+
 
             }
         });
 
 
         //gardenPlotPane.add(waterSlider, 2, 2, 2, 1);
+        gardenPlotPane.setGridLinesVisible(true);
 
-        gardenPlotPane.add(daySlider, 2, 4, 3, 1);
-        gardenPlotPane.add(waterText, 2,2);
-        gardenPlotPane.add(waterTitle, 3, 2);
+        gardenPlotPane.add(waterText, 1,3);
+        gardenPlotPane.add(waterTitle, 1, 2);
+
+        gardenPlotPane.add(daySlider, 1, 4, 2, 1);
+
         //gardenPlotPane.add(waterLabel, 3, 2);
-        gardenPlotPane.add(dayLabel, 5, 4);
-        gardenPlotPane.add(includeWeatherToggle, 2 , 5);
-        gardenPlotPane.add(optimiseStartDate, 2, 6);
-        gardenPlotPane.add(optimise, 2, 10);
+        gardenPlotPane.add(dayLabel, 1, 4);
+        gardenPlotPane.add(dayTitle, 1, 4);
+
+
+        gardenPlotPane.setHalignment(dayTitle, HPos.LEFT);
+        gardenPlotPane.setHalignment(dayLabel, HPos.RIGHT);
+
+
+
+        gardenPlotPane.add(includeWeatherToggle, 1 , 5);
+        gardenPlotPane.add(optimiseStartDate, 1, 6);
+        gardenPlotPane.add(optimise, 1, 9);
+
 
 
 
@@ -484,7 +596,7 @@ public class View  extends Application{
                 }
             }
         });
-        javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Linked User to Garden");
+        javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Link Anther User to this Garden");
         linkUserButton.setWrapText(true);
         linkUserButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -493,12 +605,12 @@ public class View  extends Application{
             }
         });
 
-        gardenPlotPane.add(addPlot, 1, counter);
-        gardenPlotPane.add(linkUserButton, 4,10 );
+        gardenPlotPane.add(addPlot, 1, 8);
+        gardenPlotPane.add(linkUserButton, 2,8 );
 
 
 
-        stage.setTitle("Garden ");
+        stage.setTitle("Optimise Water Supply");
         stage.setScene(gardenPlotScene);
 
 
@@ -898,13 +1010,20 @@ public class View  extends Application{
         double[] opP = o.getOptimisationPoints();
         for(int i = 0 ; i < opP.length; i++){
 
-            System.out.println("The day is " + i  + " and the value is " + opP[i]);
+
             optimalUse.getData().add(new XYChart.Data<>(i, opP[i]));
 
 
         }
 
-        double[] arg = o.decisionByDay(o.optimize(0));
+
+
+
+        Map<String, ArrayList<Double>> optimisedInMap = o.optimizeForMap();
+        Map<String, ArrayList<Double>> optimalPerPlot = o.getOptimalMap();
+        Map<String, ArrayList<Double>> basicPerPlot = o.getBasicMap();
+
+        double[] arg = o.decisionByDay(optimisedInMap);
         XYChart.Series decionUse = new XYChart.Series();
         decionUse.setName("Water to use");
         for(int i = 0; i < arg.length; i++){
@@ -912,9 +1031,6 @@ public class View  extends Application{
         }
 
 
-        Map<String, ArrayList<Double>> optimisedInMap = o.optimizeForMap();
-        Map<String, ArrayList<Double>> optimalPerPlot = o.createOptimalMap();
-        Map<String, ArrayList<Double>> basicPerPlot = o.returnBasicInMap();
         int plotCounter = 0;
         int colCounter = 0;
         for(Map.Entry<String, ArrayList<Double>> entry: optimisedInMap.entrySet()){
@@ -1392,13 +1508,54 @@ public class View  extends Application{
 
         GridPane loginPageGrid = new GridPane();
         Scene loginEntry = new Scene(loginPageGrid, 500, 300);
+        loginPageGrid.setStyle("-fx-background-image: url(" + "/res/wildFlowers.jpg"+")");
+
+
 
         // login Entry set up
 
         javafx.scene.control.Label loginLabel = new javafx.scene.control.Label("LOGIN");
+        loginLabel.setStyle("-fx-font-size: 100%");
+        loginLabel.setTextFill(Color.WHITE);
+        
+
         javafx.scene.control.TextField loginEntryField = new javafx.scene.control.TextField("userName");
         javafx.scene.control.Label password = new javafx.scene.control.Label("Password");
+        password.setTextFill(Color.WHITE);
+        password.setStyle("-fx-font-size: 120%");
         PasswordField thePasswordField = new PasswordField();
+        thePasswordField.setPromptText("Password");
+       thePasswordField.setOnKeyPressed( e -> {
+           if(e.getCode()== KeyCode.ENTER){
+               String theUserName = loginEntryField.getText();
+               String thePassword =  thePasswordField.getText();
+               if( Database.userNameAndPasswordCheck(theUserName, thePassword)) {
+
+
+                   try {
+                       User temp = Database.createUser(theUserName);
+
+                       setGardenScene(s, temp);
+
+
+                   } catch (SQLException f){
+
+                   }
+
+
+               } else {
+
+
+                   Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
+                   userAlreadyExistsAlert.setContentText("Not Valid User");
+                   userAlreadyExistsAlert.show();
+
+
+
+               }
+           }
+       });
+
         javafx.scene.control.Button loginButton = new javafx.scene.control.Button("Login");
         loginButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -1436,16 +1593,27 @@ public class View  extends Application{
             }
         });
 
+        javafx.scene.control.Button backButton = new javafx.scene.control.Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                welcomePage(s);
+            }
+        });
+
         loginPageGrid.setGridLinesVisible(true);
+        loginPageGrid.setPadding(new javafx.geometry.Insets(2, 2,2, 2));
         loginPageGrid.setAlignment(Pos.CENTER);
         loginPageGrid.setHgap(5);
         loginPageGrid.setVgap(5);
         ColumnConstraints col = new ColumnConstraints();
         col.setPercentWidth(60);
         ColumnConstraints outCol = new ColumnConstraints();
+        outCol.setPercentWidth(20);
         RowConstraints row = new RowConstraints();
-        row.setPercentHeight(25);
+        row.setPercentHeight(20);
         loginPageGrid.getColumnConstraints().addAll(outCol, col, outCol);
+        loginPageGrid.getRowConstraints().addAll(row, row, row, row, row);
 
         loginPageGrid.setPadding(new javafx.geometry.Insets(5  , 5, 5 ,5 ));
         loginPageGrid.add(loginLabel,1,0);
@@ -1453,7 +1621,16 @@ public class View  extends Application{
         loginPageGrid.add(password, 1, 2);
         loginPageGrid.add(thePasswordField, 1, 3);
         loginPageGrid.add(loginButton, 1, 4);
+        loginButton.setAlignment(Pos.CENTER_LEFT);
 
+
+
+        loginPageGrid.add(backButton, 1, 4);
+
+       GridPane.setHalignment(backButton, HPos.RIGHT);
+
+       backButton.setMaxSize(140, Double.MAX_VALUE);
+       loginButton.setMaxSize(140, Double.MAX_VALUE);
         s.setTitle("LOGIN");
         s.setScene(loginEntry);
     }
@@ -1517,7 +1694,8 @@ public class View  extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
 
-                login(primaryStage);
+                LoginView newLoginView = new LoginView(primaryStage);
+                newLoginView.launchLogin();
             }
         });
 
@@ -1564,7 +1742,23 @@ public class View  extends Application{
     public  static void newUserEntry(Stage s) {
 
         GridPane grid = new GridPane();
-        Scene newUserScene = new Scene(grid, 400 , 400);
+        Scene newUserScene = new Scene(grid, 400 , 500);
+
+        grid.setStyle("-fx-background-image: url(" + "/res/greenHouse.jpg" + ")");
+        s.setTitle("New User Entry");
+        grid.setHgap(5);
+        grid.setVgap(5);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(60);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(20);
+        RowConstraints outer = new RowConstraints();
+        outer.setPercentHeight(10);
+        RowConstraints inner = new RowConstraints();
+        inner.setPercentHeight(20);
+        grid.getColumnConstraints().addAll(col2, col1, col2);
+        grid.getRowConstraints().addAll(outer, inner, inner, inner, inner, outer);
+
 
 
         javafx.scene.control.TextField user = new javafx.scene.control.TextField("User Name");
@@ -1636,12 +1830,21 @@ public class View  extends Application{
         });
 
         grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new javafx.geometry.Insets(50, 50, 50, 50));
-        grid.add(user,0,0);
-        grid.add(emailentry, 0, 1);
-        grid.add(pass, 0, 2);
-        grid.add(submit, 0, 3);
-        grid.add(backButton, 1, 3);
+        grid.setPadding(new javafx.geometry.Insets(2, 2, 2, 2));
+        grid.add(user,1,1);
+        user.setMaxSize(Double.MAX_VALUE, 50);
+        grid.add(emailentry, 1, 2);
+        emailentry.setMaxSize(Double.MAX_VALUE, 50);
+        grid.add(pass, 1, 3);
+        pass.setMaxSize(Double.MAX_VALUE, 50);
+        grid.add(submit, 1, 4);
+        submit.setMaxHeight(40);
+        grid.add(backButton, 1, 4);
+        submit.setMaxHeight(40);
+
+        grid.setHalignment(backButton, HPos.RIGHT);
+
+        ;
 
 
 

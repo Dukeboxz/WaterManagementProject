@@ -642,46 +642,40 @@ public class Database {
         } catch(SQLException e) {
 
         }
+
         int gardenid = 0;
         String gardenName = null;
         int gardenUserID = 0;
         ArrayList<Plot> plots = new ArrayList<>();
         String gardenLocation = null;
         boolean edit =false;
-
+        Garden theGarden=null;
         try{
-        String userGardenReturnString = "Select * FROM garden WHERE name=? and id=?;";
-        PreparedStatement userGardenReturnPS = conn.prepareStatement(userGardenReturnString);
+
+
+        String UserGardenReturnString = "SELECT * FROM garden WHERE name=? AND userid=?;";
+        PreparedStatement userGardenReturnPS = conn.prepareStatement(UserGardenReturnString);
         userGardenReturnPS.setString(1, name);
         userGardenReturnPS.setInt(2, gardenUser.getId());
 
+        ResultSet rs = userGardenReturnPS.executeQuery();
 
+        while(rs.next()){
+            gardenid = rs.getInt("id");
 
-        ResultSet rs =  userGardenReturnPS.executeQuery();
-
-         gardenid = rs.getInt("id");
-         gardenName = rs.getString("name");
-        gardenUserID = rs.getInt("userid");
-          gardenLocation = rs.getString("location");
-
-
-          String userGardenReturnEdit = "SELECT * FROM gardenusers where gardenid=? AND userid=?;";
-          PreparedStatement userGardenReturnEditPS = conn.prepareStatement(userGardenReturnEdit);
-          userGardenReturnEditPS.setInt(1, gardenid);
-          userGardenReturnEditPS.setInt(2, gardenUser.getId());
-
-          ResultSet rsOther = userGardenReturnEditPS.executeQuery();
-
-          edit = rsOther.getBoolean("editrights");
-
-        conn.close();
+        }
+        theGarden = createGarden(gardenid, true);
 
         }
         catch(SQLException e){
 
-            }
+        }
 
-            return new Garden(gardenid, gardenName, plots,  gardenUserID, gardenLocation, edit);
+
+
+
+
+        return theGarden;
     }
 
     /**
@@ -752,7 +746,7 @@ public class Database {
      * @return
      * @throws SQLException
      */
-    public static Garden createGarden(int gardenID, boolean edit) throws SQLException{
+    public static Garden createGarden(int gardenID, boolean edit) {
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -772,6 +766,14 @@ public class Database {
             System.out.println("Connection ");
         }
 
+
+        String name=null;
+        int gardensid = 0;
+        int userID = 0;
+        String gardenLocation = null;
+        ArrayList<Plot> gardenPlots = new ArrayList<>();
+
+        try {
         String createGardenString = "SELECT id FROM plots WHERE gardenid=?";
         PreparedStatement createGarden = conn.prepareStatement(createGardenString);
         createGarden.setInt(1,gardenID);
@@ -780,58 +782,60 @@ public class Database {
         PreparedStatement gardenname = conn.prepareStatement(gardenNameString);
         gardenname.setInt(1, gardenID);
 
-        ResultSet r = createGarden.executeQuery();
-        ResultSet n = gardenname.executeQuery();
-
-        String name=null;
-        int gardensid = 0;
-        int userID = 0;
-        String gardenLocation = null;
 
 
 
 
-        ArrayList<Plot> gardenPlots = new ArrayList<>();
 
 
 
-        while(n.next()){
-             gardensid = n.getInt("id");
-            name = n.getString("name");
-            userID = n.getInt("userid");
-            gardenLocation = n.getString("location");
+
+            ResultSet r = createGarden.executeQuery();
+            ResultSet n = gardenname.executeQuery();
 
 
-        }
+            while (n.next()) {
+                gardensid = n.getInt("id");
+                name = n.getString("name");
+                userID = n.getInt("userid");
+                gardenLocation = n.getString("location");
 
 
-        while(r.next()){
-
-           int plotid = r.getInt("id");
-
-            Plot nextPlot = createPlotBasedOnId(plotid);
-
-            gardenPlots.add(nextPlot);
+            }
 
 
-        }
+            while (r.next()) {
 
-        System.out.println("Not sorted");
-        for(Plot p : gardenPlots){
-            System.out.println(p.getName() + " id  " + p.id);
-        }
+                int plotid = r.getInt("id");
 
-        Collections.sort(gardenPlots);
+                Plot nextPlot = createPlotBasedOnId(plotid);
 
-        System.out.println("after sort");
-        for(Plot p : gardenPlots){
-            System.out.println(p.getName() + " id " + p.id);
+                gardenPlots.add(nextPlot);
+
+
+            }
+
+            System.out.println("Not sorted");
+            for (Plot p : gardenPlots) {
+                System.out.println(p.getName() + " id  " + p.id);
+            }
+
+            Collections.sort(gardenPlots);
+
+            System.out.println("after sort");
+            for (Plot p : gardenPlots) {
+                System.out.println(p.getName() + " id " + p.id);
+            }
+
+            conn.close();
+        }catch(SQLException e){
+
         }
 
 
         Garden newGarden = new Garden(gardensid, name, gardenPlots, userID, gardenLocation, edit);
 
-        conn.close();
+
 
         return newGarden;
 
@@ -1316,16 +1320,21 @@ public class Database {
      */
     public static void main(String[] args) {
 
-      Map<String, Plant> mapTest = returnPlantsInMap(2);
+        try {
+            User a = createUser("Stephen");
+            createNewGarden("TestGarden4", a, "Birmingham", "00000.54.03534");
+            Garden test = userGardenReturn("TestGarden3", a);
 
-      mapTest.forEach((k,v)-> System.out.println(k + " the nampe = " + v.getName()));
+            System.out.println(test.getUserEditRights());
 
-        System.out.println(userNameAndPasswordCheck("u04sjj" , "mypassword"));
-        System.out.println(userNameAndPasswordCheck("stephen" , "123456"));
-        System.out.println(userNameAndPasswordCheck("RogerIsHere" , "stephenwashere"));
-
+            System.out.println(test.getName());
+            System.out.println(test.getUserEditRights());
 
 
+
+        } catch(SQLException e){
+
+        }
             // System.out.println(userNameExists("MyUserName"));
             //System.out.println(createUser("MyUserName").getPassword());
 //            User test = createUser("PekingBroth");

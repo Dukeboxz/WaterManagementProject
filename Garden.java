@@ -44,4 +44,8 @@ public class Garden {
 
     public boolean getUserEditRights() { return  this.userEditRights;}
 
+    public void setUserEditRights(boolean edit) {
+        this.userEditRights=edit;
+    }
+
 }
