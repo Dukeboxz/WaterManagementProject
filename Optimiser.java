@@ -289,6 +289,19 @@ public class Optimiser {
         return priortyMatrix;
     }
 
+    public double[][] createzeroMatrix() {
+        double[][] zeroMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
+
+        for(int i = 0 ; i < zeroMatrix.length; i++){
+            for(int j = 0 ; j < zeroMatrix[0].length; j++){
+                zeroMatrix[i][j] = 0;
+            }
+        }
+
+
+        return zeroMatrix;
+    }
+
 
     // test of resturning map
 
@@ -298,9 +311,26 @@ public class Optimiser {
         double[][] basic = this.createBasicMatrix();
         double[][] priority = this.createPriorityMatrix();
         Map<String, ArrayList<Double>> solutionMap = new TreeMap<>();
+        double[][] solutionMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
 
-        MatLabFunction theFunction = new MatLabFunction(optimal, basic, priority, this.getWaterAvailable());
-        double[][] solutionMatrix = theFunction.callMatLabFunction();
+        double basicTotal = 0;
+        for(int i = 0 ; i < basic.length; i++){
+            for(int j = 0 ; j < basic[0].length; j++){
+                basicTotal+=basic[i][j];
+            }
+        }
+
+        if(basicTotal > this.getWaterAvailable()){
+
+            double[][] zero = this.createzeroMatrix();
+            MatLabFunction theFunction = new MatLabFunction(optimal, zero, priority, this.getWaterAvailable());
+            solutionMatrix = theFunction.callMatLabFunction();
+
+        } else {
+
+            MatLabFunction theFunction = new MatLabFunction(optimal, basic, priority, this.getWaterAvailable());
+            solutionMatrix = theFunction.callMatLabFunction();
+        }
 
         int rowCounter = 0;
         for (Map.Entry<String, ArrayList<Double>> entry : this.getOptimalMap().entrySet()) {
@@ -350,6 +380,20 @@ public class Optimiser {
        return totals;
     }
 
+    public double[] getBasicPoints() {
+        double[][]basicMatrix = this.createBasicMatrix();
+        double[] totals = new double[this.getDays()];
+        for(int i = 0; i < basicMatrix[0].length; i++){
+            double dayTotal = 0;
+            for(int j = 0 ; j < basicMatrix.length; j++){
+                dayTotal+=basicMatrix[j][i];
+            }
+            totals[i]=dayTotal;
+        }
+
+        return totals;
+    }
+
 
     /**
      * Main method used for testing
@@ -359,31 +403,41 @@ public class Optimiser {
     public static void main(String[] args) {
 
 
-        Garden testGarden = Database.createGarden(2, true);
+        Garden testGarden = Database.createGarden(20, true);
 
-        Optimiser optimiserTest = new Optimiser(testGarden, 10 , 4500, LocalDate.now(), false);
+        Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false);
+        Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true);
 
         double[][] testMatrix = optimiserTest.createOptimalMatrix();
+        double[][] basicMatrix = optimiserTest.createBasicMatrix();
+        double[][] weatherOptimal = optimiserWithWeather.createOptimalMatrix();
+        double[][] weatherBasic = optimiserWithWeather.createBasicMatrix();
+
+
         Map<String, ArrayList<Double>> testMap = optimiserTest.optimizeForMap();
+        Map<String, ArrayList<Double>> testWeatherMap = optimiserWithWeather.optimizeForMap();
 
-
-        for(int i = 0 ; i < testMatrix.length; i++){
-            for(int j = 0 ; j < testMatrix[0].length; j++){
+        double Optotal = 0;
+        for (int i = 0; i < testMatrix.length; i++) {
+            for (int j = 0; j < testMatrix[0].length; j++) {
                 System.out.printf("|%6.2f", testMatrix[i][j]);
+                Optotal += testMatrix[i][j];
             }
 
             System.out.println("\n");
         }
+        System.out.println("Optimal= " + Optotal);
 
-        System.out.println();
-
-        for(Map.Entry<String, ArrayList<Double>> entry : testMap.entrySet()){
-            System.out.println(entry.getKey());
-            ArrayList<Double> temp = entry.getValue();
-            for(Double d: temp){
-                System.out.printf("|%6.2f", d);
+        double OptotalWithWeather = 0;
+        for (int i = 0; i < testMatrix.length; i++) {
+            for (int j = 0; j < testMatrix[0].length; j++) {
+                System.out.printf("|%6.2f", weatherOptimal[i][j]);
+                Optotal += weatherOptimal[i][j];
             }
+
             System.out.println("\n");
         }
+        System.out.println("Opt with weather= " + OptotalWithWeather);
+
     }
 }

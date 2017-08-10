@@ -6,4 +6,27 @@
     -fx-background-insets: 0, 1;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
     -fx-text-fill: #395306;
+    -fx-wrap-text: true;
+}
+.label {
+
+    -fx-text-fill:white;
+    -fx-font-weight: 500;
+    -fx-font-size: 100%;
+    -fx-opacity: 80%;
+    -fx-fit-to-height: true;
+    -fx-fit-to-width: true;
+    -fx-font-size: 150%;
+
+}
+#gardengrid {
+    -fx-background-image: url( "/res/wildFlowers.jpg");
+
+
+}
+
+#plotScroler {
+    -fx-background-color: #a9ff00;
+    -fx-fit-to-width: true;
+
 }

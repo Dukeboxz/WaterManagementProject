@@ -20,6 +20,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -48,12 +49,17 @@ public class View  extends Application{
      */
     public static void setGardenScene(Stage stage, User user) throws SQLException {
 
+
         GridPane gardenGrid = new GridPane();
+        gardenGrid.setId("gardengrid");
         Scene garden = new Scene(gardenGrid ,500, 500);
-       // gardenGrid.setStyle("-fx-background-image: url(" +"/res/cougette.jpg" +  ")");
+
+
+       gardenGrid.getStylesheets().add("/res/StyleSheet.css");
+
         gardenGrid.setVgap(5);
         gardenGrid.setHgap(5);
-        gardenGrid.setGridLinesVisible(true);
+        gardenGrid.setGridLinesVisible(false);
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setPercentWidth(10);
         ColumnConstraints col2 = new ColumnConstraints();
@@ -65,6 +71,7 @@ public class View  extends Application{
         gardenGrid.getRowConstraints().addAll(row2, row1, row1, row1, row1, row1, row1);
         gardenGrid.getColumnConstraints().addAll(col1, col2, col1, col2, col1);
 
+
         java.util.List<Garden> gardenList = Database.getUsersGardens(user.getId());
 
         stage.setTitle("Garden Selection ");
@@ -74,9 +81,12 @@ public class View  extends Application{
         javafx.scene.control.Label gardenLabel = new javafx.scene.control.Label();
         String  a = " Welcome  " + user.getName().trim() + "\n" + " please select your garden or create a new one ";
         gardenLabel.setText(a);
-        gardenLabel.setTextFill(Color.WHITE);
+        gardenLabel.setWrapText(true);
+        gardenLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+       // gardenLabel.setTextFill(Color.WHITE);
         javafx.scene.control.Label selectGarden = new javafx.scene.control.Label("Existing Garden");
-        selectGarden.setTextFill(Color.WHITE);
+       // selectGarden.setTextFill(Color.WHITE);
+        selectGarden.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         javafx.scene.control.Button load = new javafx.scene.control.Button("Load");
         javafx.scene.control.Button createNewGarden = new javafx.scene.control.Button("Create new Garden");
 
@@ -90,10 +100,10 @@ public class View  extends Application{
 
 
         ComboBox usersGardens = new ComboBox();
-        usersGardens.setMaxSize(Double.MAX_VALUE, 50);
+        usersGardens.setMaxSize(Double.MAX_VALUE, 40);
         usersGardens.setVisibleRowCount(7);
         ComboBox gardensCanView = new ComboBox();
-        gardensCanView.setMaxSize(Double.MAX_VALUE, 50);
+        gardensCanView.setMaxSize(Double.MAX_VALUE, 40);
         gardensCanView.setVisible(false);
 
 
@@ -102,10 +112,12 @@ public class View  extends Application{
 
         RadioButton viewAndEdit = new RadioButton("Show gardens I can edit");
         viewAndEdit.setWrapText(true);
+        viewAndEdit.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         viewAndEdit.setTextFill(Color.WHITE);
         RadioButton justView = new RadioButton("Show gardens I can only view");
         justView.setWrapText(true);
         justView.setTextFill(Color.WHITE);
+        justView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         viewAndEdit.setToggleGroup(gardenPermissions);
         justView.setToggleGroup(gardenPermissions);
         viewAndEdit.setSelected(true);
@@ -204,7 +216,7 @@ public class View  extends Application{
         gardenGrid.setVgap(10 );
         gardenGrid.setHgap(10);
         gardenGrid.setPadding(new javafx.geometry.Insets(2, 2, 2, 2));
-        gardenGrid.add(gardenLabel, 1, 1);
+        gardenGrid.add(gardenLabel, 1, 1, 3, 1);
         gardenGrid.add(createNewGarden, 1, 2);
         gardenGrid.add(viewAndEdit, 1, 4);
 
@@ -375,12 +387,19 @@ public class View  extends Application{
         GridPane gardenPlotPane = new GridPane();
         Scene gardenPlotScene = new Scene(gardenPlotPane, 500, 500);
 
-        gardenPlotPane.setStyle("-fx-background-image: url(" + "/res/wildFlowers.jpg" + ")");
+        gardenPlotPane.setStyle("-fx-background-image: url(" + "/res/waterGrass.jpg" + ")");
         ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(20);
+        col1.setPercentWidth(30);
         ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(60);
-        gardenPlotPane.getColumnConstraints().addAll(col1, col2, col1);
+        col2.setPercentWidth(50);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(20);
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(10);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(20);
+        gardenPlotPane.getColumnConstraints().addAll(col1, col2, col3);
+        gardenPlotPane.getRowConstraints().addAll(row1, row1, row1, row1, row1, row1, row1, row2, row1);
         gardenPlotPane.setHgap(5);
         gardenPlotPane.setVgap(5);
 
@@ -393,18 +412,37 @@ public class View  extends Application{
         int counter = 1;
 
         javafx.scene.control.Label plotsLabel = new javafx.scene.control.Label("PLOTS");
-        plotsLabel.setTextFill(Color.WHITE);
+        plotsLabel.setTextFill(Color.BLACK);
         gardenPlotPane.add(plotsLabel, 0, 1);
-        int noOfPlots = g.getPlots().size() < 8 ? g.getPlots().size() : 8;
+
+
+
+
+        VBox thePlots = new VBox();
+
+        thePlots.setSpacing(5);
+
+        ScrollPane scroller = new ScrollPane();
+        scroller.setContent(thePlots);
+        scroller.setFitToHeight(false);
+        scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroller.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroller.setId("plotScroler");
+        gardenPlotPane.add(scroller, 0, 2, 1, 3);
+
+
 
         if(!g.getPlots().isEmpty()) {
-            for (int i = 0; i < noOfPlots; i++) {
+            for (int i = 0; i < g.getPlots().size(); i++) {
                 javafx.scene.control.Button plotButton = new javafx.scene.control.Button(g.getPlots().get(i).getName());
                 plotButton.setWrapText(true);
-                plotButton.setId("plot"+i);
-                gardenPlotPane.add(plotButton, 0, i + 2);
+                plotButton.setId("green");
+
+
+
                 plotButton.setMaxWidth(Double.MAX_VALUE);
-                counter++;
+                plotButton.setMinHeight(20);
+
 
                 plotButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
@@ -417,26 +455,12 @@ public class View  extends Application{
 
                     }
                 });
+                thePlots.getChildren().add(plotButton);
             }
         }
-        javafx.scene.control.Button showFurtherPlots = new javafx.scene.control.Button("show further plots");
-        if(g.getPlots().size() >= 7){
-                showFurtherPlots.setVisible(true);
-        } else {
-            showFurtherPlots.setVisible(false);
-        }
-        showFurtherPlots.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
 
-            }
-        });
 
-        ObservableList a = gardenPlotPane.getChildren();
-        System.out.println("The size is " + a.isEmpty());
-        for(Object t : a) {
-            System.out.println("The T is " + t.toString());
-        }
+
 
         Slider waterSlider = new Slider();
         waterSlider.setMin(0.0);
@@ -455,13 +479,17 @@ public class View  extends Application{
         daySlider.setShowTickLabels(true);
 
         javafx.scene.control.Label dayLabel = new javafx.scene.control.Label();
-        dayLabel.setTextFill(Color.WHITE);
+        dayLabel.setTextFill(Color.BLACK);
         dayLabel.setText(Double.toString(1));
         javafx.scene.control.Label dayTitle = new javafx.scene.control.Label("Number of days");
-        dayTitle.setTextFill(Color.WHITE);
+        dayTitle.setTextFill(Color.BLACK);
+//        dayLabel.setAlignment(Pos.BASELINE_RIGHT);
+//        dayTitle.setAlignment(Pos.BASELINE_LEFT);
+
+
 
         javafx.scene.control.Label waterLabel = new javafx.scene.control.Label();
-        waterLabel.setTextFill(Color.WHITE);
+        waterLabel.setTextFill(Color.BLACK);
         waterLabel.setText(Double.toString(waterSlider.getValue()));
         javafx.scene.control.Label waterTitle = new javafx.scene.control.Label("Amount of water");
         waterTitle.setWrapText(true);
@@ -489,7 +517,9 @@ public class View  extends Application{
 
         //  include weather toggle and its impact on date picker
         RadioButton includeWeatherToggle = new RadioButton("Include Weather");
+        includeWeatherToggle.setTextFill(Color.BLACK);
        includeWeatherToggle.setMaxWidth(200);
+       includeWeatherToggle.setStyle("-fx-font-size: 150%");
 
         LocalDate dateSelected;
 
@@ -562,10 +592,10 @@ public class View  extends Application{
         //gardenPlotPane.add(waterSlider, 2, 2, 2, 1);
         gardenPlotPane.setGridLinesVisible(true);
 
-        gardenPlotPane.add(waterText, 1,3);
-        gardenPlotPane.add(waterTitle, 1, 2);
+        gardenPlotPane.add(waterText, 1,2);
+        gardenPlotPane.add(waterTitle, 1, 1);
 
-        gardenPlotPane.add(daySlider, 1, 4, 2, 1);
+        gardenPlotPane.add(daySlider, 1, 3, 2, 1);
 
         //gardenPlotPane.add(waterLabel, 3, 2);
         gardenPlotPane.add(dayLabel, 1, 4);
@@ -579,10 +609,8 @@ public class View  extends Application{
 
         gardenPlotPane.add(includeWeatherToggle, 1 , 5);
         gardenPlotPane.add(optimiseStartDate, 1, 6);
-        gardenPlotPane.add(optimise, 1, 9);
-        gardenPlotPane.add(showFurtherPlots, 0, 10);
-        showFurtherPlots.setMaxWidth(Double.MAX_VALUE);
-        showFurtherPlots.setId("green");
+        gardenPlotPane.add(optimise, 1, 8);
+
 
 
 
@@ -604,7 +632,7 @@ public class View  extends Application{
                 }
             }
         });
-        javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Link Anther User to this Garden");
+        javafx.scene.control.Button linkUserButton = new javafx.scene.control.Button(" Link Another User to this Garden");
         linkUserButton.setWrapText(true);
         linkUserButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -613,8 +641,8 @@ public class View  extends Application{
             }
         });
 
-        gardenPlotPane.add(addPlot, 1, 8);
-        gardenPlotPane.add(linkUserButton, 2,8 );
+        gardenPlotPane.add(addPlot, 1, 7);
+        gardenPlotPane.add(linkUserButton, 2,7);
 
 
 
@@ -623,6 +651,7 @@ public class View  extends Application{
 
 
     }
+
 
     public static void linkUserView(Stage stage, User user, Garden g){
 
@@ -712,16 +741,39 @@ public class View  extends Application{
         s.setTitle(pl.getName());
 
         GridPane plotViewPane = new GridPane();
-        Scene plotViewScene = new Scene(plotViewPane, 500, 500);
+        Scene plotViewScene = new Scene(plotViewPane, 400, 200);
+        plotViewPane.setStyle("-fx-background-color: #75d153");
+
+
+        plotViewPane.setHgap(5);
+        plotViewPane.setVgap(5);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(35);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(10);
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(10);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(15);
+        RowConstraints row3 = new RowConstraints();
+        row3.setPercentHeight(5);
+
+        plotViewPane.getColumnConstraints().addAll(col2, col1, col2, col1,  col2);
+        plotViewPane.getRowConstraints().addAll(row1, row2, row2, row2, row2, row2,row3, row2, row3);
+
         javafx.scene.control.Label plotNameLabel = new javafx.scene.control.Label("Plot Name:");
         javafx.scene.control.Label plotNameText = new javafx.scene.control.Label(pl.getName());
+        plotNameText.setWrapText(true);
         javafx.scene.control.Label plantTypeLabel = new javafx.scene.control.Label("Planted with:");
         javafx.scene.control.Label plantTypeText = new javafx.scene.control.Label(pl.getPlant().getName());
+        plantTypeText.setWrapText(true);
+        plantTypeText.setMinWidth(Region.USE_PREF_SIZE);
         javafx.scene.control.Label plantedLabel = new javafx.scene.control.Label("Planted On: ");
         javafx.scene.control.Label plantedLabelText = new javafx.scene.control.Label(pl.getDatePlanted().toString());
         javafx.scene.control.Label sizeOfPlotLabel = new javafx.scene.control.Label("The size of plot ");
 
         javafx.scene.control.Label sizeofPlotText = new javafx.scene.control.Label(Double.toString(pl.getSize()) + "sqm");
+
 
         String priority;
         double pValue = pl.getPriority();
@@ -769,18 +821,18 @@ public class View  extends Application{
 
 
         plotViewPane.add(plotNameLabel, 1, 1);
-        plotViewPane.add(plotNameText, 2, 1);
+        plotViewPane.add(plotNameText, 3, 1);
         plotViewPane.add(plantTypeLabel, 1, 2);
-        plotViewPane.add(plantTypeText, 2, 2);
+        plotViewPane.add(plantTypeText, 3, 2);
         plotViewPane.add(plantedLabel, 1, 3);
-        plotViewPane.add(plantedLabelText, 2, 3);
+        plotViewPane.add(plantedLabelText, 3, 3);
         plotViewPane.add(sizeOfPlotLabel, 1, 4);
-        plotViewPane.add(sizeofPlotText, 2, 4);
+        plotViewPane.add(sizeofPlotText, 3, 4);
         plotViewPane.add(priorityLabel, 1 , 5);
-        plotViewPane.add(priorityText, 2, 5);
+        plotViewPane.add(priorityText, 3, 5);
 
-        plotViewPane.add(back, 5, 7);
-        plotViewPane.add(editPlot, 2, 7);
+        plotViewPane.add(back, 1, 7);
+        plotViewPane.add(editPlot, 3, 7);
 
 
 
@@ -797,8 +849,34 @@ public class View  extends Application{
 
         // create alternate page to edit plot details
 
+
+
         GridPane editPlotPane = new GridPane();
-        Scene editPlotScene = new Scene(editPlotPane, 500, 500 );
+        Scene editPlotScene = new Scene(editPlotPane, 400, 400 );
+        editPlotPane.setStyle("-fx-background-color: #75d153");
+
+        editPlotPane.setVgap(5);
+        editPlotPane.setHgap(5);
+
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        ColumnConstraints col2 = new ColumnConstraints();
+        ColumnConstraints col3 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        col2.setPercentWidth(2);
+        col3.setPercentWidth(3);
+        editPlotPane.getColumnConstraints().addAll(col2, col1, col3, col1, col3, col1,col2);
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(10);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(15);
+        RowConstraints row3 = new RowConstraints();
+        row3.setPercentHeight(5);
+
+        editPlotPane.getRowConstraints().addAll(row1, row2, row2, row2, row2, row2,row3, row2, row3);
+
+
+
 
         javafx.scene.control.Label editPlotName = new javafx.scene.control.Label("Plot Name");
         javafx.scene.control.TextField plotNameTextField = new javafx.scene.control.TextField();
@@ -861,6 +939,7 @@ public class View  extends Application{
 
         javafx.scene.control.Label editSizeLabel = new javafx.scene.control.Label("Size of plot: ");
         javafx.scene.control.TextField sizeField = new javafx.scene.control.TextField(Double.toString(pl.getSize()));
+
         ToggleGroup size = new ToggleGroup();
         RadioButton sqm = new RadioButton("sqm");
         sqm.setSelected(true);
@@ -870,6 +949,7 @@ public class View  extends Application{
 
 
         javafx.scene.control.Label plotPriorityEditLabel = new javafx.scene.control.Label("Priority of plot:");
+        plotPriorityEditLabel.setWrapText(true);
         Map<Double, String> priorityMap = new TreeMap<>();
         priorityMap.put(3.0, "High");
         priorityMap.put(2.0, "Medium");
@@ -901,15 +981,46 @@ public class View  extends Application{
             public void handle(ActionEvent actionEvent) {
                 if(plotNameTextField.getText().length() < 1 || plantsOfType.getValue().equals(null) || sizeField.getText().length() <=0){
 
-                } else{
+                   if(plotNameTextField.getText().length() < 1){
+                       Alert enterName = new Alert(Alert.AlertType.ERROR);
+                       enterName.setContentText("Please Enter Name");
+                       enterName.show();
+                       plotNameTextField.setStyle("-fx-border-color: Red");
+                   }
+                   if(plantsOfType.getValue().equals(null)){
+                       Alert enterPlant = new Alert(Alert.AlertType.ERROR);
+                       enterPlant.setContentText("Please choose plant");
+                       plantsOfType.setStyle("-fx-border-color: Red");
+                   }
+                   if(sizeField.getText().length() <1){
+                       Alert noSize = new Alert(Alert.AlertType.ERROR);
+                       noSize.setContentText("Please enter relevant size");
+                       noSize.show();
+                   }
+
+                }
+
+                else{
                     String newPlotName = plotNameTextField.getText();
-                    String plantName = plantsOfType.getValue().toString();
+
+                    String plantName = plantsOfType.getValue().toString().trim();
+                    System.out.println(plantName);
                     Plant thePlant = null;
-                    for(Map.Entry<String, Plant> entry : mapOfPlants.entrySet()){
-                        if(entry.getKey().equals(plantName)) {
-                            thePlant=entry.getValue();
+                    if(plantName.equals(pl.getPlant().getName().trim())){
+                        thePlant=pl.getPlant();
+
+                    } else {
+                        for (Map.Entry<String, Plant> entry : mapOfPlants.entrySet()) {
+                            System.out.println("*" + entry.getKey().toString() + "*");
+                            if (entry.getKey().toString().trim().equals(plantName)) {
+                                thePlant = entry.getValue();
+
+                            }
                         }
                     }
+//                    Alert testAlert = new Alert(Alert.AlertType.INFORMATION);
+//                    testAlert.setContentText(newPlotName + "*" + plantsOfType.getValue().toString().trim()+"*" + " " +"*" + pl.getPlant().getName()+"*");
+//                    testAlert.show();
 
                     double newPlotSize = Double.parseDouble(sizeField.getText());
 
@@ -919,6 +1030,7 @@ public class View  extends Application{
                     LocalDate theLocalDate = theDatePlanted.getValue();
 
                     String thePriorityString = thePrioirty.getValue().toString();
+
                     double priorityValue = 0;
                     for(Map.Entry<Double, String> entry : priorityMap.entrySet()){
                         if(entry.getValue().equals(thePriorityString)){
@@ -927,7 +1039,10 @@ public class View  extends Application{
                     }
 
                     int id = pl.getId();
-                    int numberOfPlants = (int)newPlotSize* thePlant.getNumberPerMeter();
+                    int numberOfPlants = 1;
+
+                      numberOfPlants = (int) newPlotSize * thePlant.getNumberPerMeter();
+
 
                     for(Plot gPlots : p.getPlots()){
                         if(id==gPlots.getId()){
@@ -948,9 +1063,10 @@ public class View  extends Application{
                             "The new plant= " + thePlant.getName() + "\n" +
                             " The new planted date= " + theLocalDate + "\n" +
                             "New size of Plot= " + newPlotSize + "\n" +
-                            "New plot priority= " + priorityValue);
+                            "New plot priority= " + priorityValue + "\n" +
+                             "The plant id= " + thePlant.getid());
 
-                    //  Database.updatePlot(pl.getId(), newPlotName,newPlotSize,  thePlant.getid(), theLocalDate, priorityValue);
+                     Database.updatePlot(pl.getId(), newPlotName,newPlotSize,  thePlant.getid(), theLocalDate, priorityValue);
 
                     plotView(pl, s, u, p);
                 }
@@ -963,21 +1079,23 @@ public class View  extends Application{
 
 
         editPlotPane.add(editPlotName, 1, 1);
-        editPlotPane.add(plotNameTextField, 2, 1);
+        editPlotPane.add(plotNameTextField, 3, 1);
         editPlotPane.add(editPlantedLabel, 1, 2 );
 
-        editPlotPane.add(plantTypes, 2, 2);
-        editPlotPane.add(plantsOfType, 3, 2, 2, 1);
+        editPlotPane.add(plantTypes, 3, 2);
+        editPlotPane.add(plantsOfType, 5, 2, 2, 1);
         editPlotPane.add(editPlantedOn, 1, 3);
-        editPlotPane.add(theDatePlanted, 2,3);
+        editPlotPane.add(theDatePlanted, 3,3);
         editPlotPane.add(editSizeLabel, 1, 4);
-        editPlotPane.add(sizeField, 2, 4);
-        editPlotPane.add(sqm, 3 ,4);
-        editPlotPane.add(sqft, 4, 4);
+        editPlotPane.add(sizeField, 3, 4);
+        editPlotPane.add(sqm, 5 ,4);
+        editPlotPane.setHalignment(sqm, HPos.LEFT);
+        editPlotPane.add(sqft, 5, 4);
+        editPlotPane.setHalignment(sqft, HPos.RIGHT);
         editPlotPane.add(plotPriorityEditLabel, 1, 5);
-        editPlotPane.add(thePrioirty, 2, 5);
-        editPlotPane.add(editPlotBackButton, 2, 6);
-        editPlotPane.add(saveEditButton, 4, 6);
+        editPlotPane.add(thePrioirty, 3, 5);
+        editPlotPane.add(editPlotBackButton, 1, 7);
+        editPlotPane.add(saveEditButton, 3, 7);
 
 
 
@@ -1005,7 +1123,7 @@ public class View  extends Application{
 
 
 
-        final NumberAxis xAxis = new NumberAxis(0, o.getDays(), 1);
+        final NumberAxis xAxis = new NumberAxis(0, o.getDays() -1, 1);
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Days");
         yAxis.setLabel("Water inches^3");
@@ -1017,6 +1135,10 @@ public class View  extends Application{
         XYChart.Series optimalUse = new XYChart.Series();
         optimalUse.setName("Optimal");
         double[] opP = o.getOptimisationPoints();
+        double optimalTotal = 0;
+        for(int i = 0 ; i < opP.length; i++){
+            optimalTotal+=opP[i];
+        }
         for(int i = 0 ; i < opP.length; i++){
 
 
@@ -1033,18 +1155,39 @@ public class View  extends Application{
         Map<String, ArrayList<Double>> basicPerPlot = o.getBasicMap();
 
         double[] arg = o.decisionByDay(optimisedInMap);
+        double decisionTotal = 0;
+
+        for(int i = 0 ; i < arg.length; i++){
+            decisionTotal+=arg[i];
+        }
+
+        double waterLeft = (o.getWaterAvailable() - optimalTotal) < 0 ? 0 :(o.getWaterAvailable()-optimalTotal);
         XYChart.Series decionUse = new XYChart.Series();
         decionUse.setName("Water to use");
         for(int i = 0; i < arg.length; i++){
             decionUse.getData().add(new XYChart.Data<>(i , arg[i]));
         }
 
+        double[] basicPoints = o.getBasicPoints();
+        XYChart.Series basicPointsSeries = new XYChart.Series();
+        basicPointsSeries.setName("Basic");
+        for(int i = 0; i < basicPoints.length; i++){
+            basicPointsSeries.getData().add(new XYChart.Data<>(i, basicPoints[i]));
+        }
+
 
         int plotCounter = 0;
         int colCounter = 0;
+
+        ButtonBar descionVariables = new ButtonBar();
+        descionVariables.setButtonMinWidth(40);
+        ScrollPane decisionScroler = new ScrollPane(descionVariables);
+        decisionScroler.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        decisionScroler.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        opGrid.add(decisionScroler, 0,6, 6, 1 );
         for(Map.Entry<String, ArrayList<Double>> entry: optimisedInMap.entrySet()){
             String thePlotName = entry.getKey();
-            System.out.println(entry.getKey());
+
             XYChart.Series newDecisionSeries = new XYChart.Series();
             newDecisionSeries.setName(thePlotName);
             int counter = 0;
@@ -1057,12 +1200,7 @@ public class View  extends Application{
             waterChart.getData().add(newDecisionSeries);
             RadioButton newButton = new RadioButton(" Show " + thePlotName);
             newButton.setWrapText(true);
-            if(colCounter> 5){
-                colCounter=1;
-                plotCounter++;
-            }
-           opGrid.add(newButton, colCounter, 6 +  plotCounter);
-            colCounter++;
+
 
            newButton.setSelected(true);
            newButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -1076,12 +1214,22 @@ public class View  extends Application{
                }
            });
 
-
+           descionVariables.getButtons().add(newButton);
 
         }
         System.out.println("PC aget optimal = " + plotCounter);
         plotCounter++;
 
+        ButtonBar optimalButttonBar = new ButtonBar();
+        optimalButttonBar.setButtonMinWidth(40);
+
+
+        optimalButttonBar.setMaxHeight(Double.MAX_VALUE);
+        ScrollPane scroler = new ScrollPane(optimalButttonBar);
+        scroler.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroler.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+       // scroler.setPadding(new Insets(10 , 10 ,10 , 10));
+       opGrid.add(scroler, 0 , 8 , 6,1 );
         int columnCounter = 0;
         for(Map.Entry<String, ArrayList<Double>> entry : optimalPerPlot.entrySet()){
             String thePlotName = entry.getKey();
@@ -1102,7 +1250,8 @@ public class View  extends Application{
                 columnCounter=0;
                 plotCounter++;
             }
-            opGrid.add(newButton, columnCounter, 6 + plotCounter);
+            optimalButttonBar.getButtons().add(newButton);
+           // opGrid.add(newButton, columnCounter, 6 + plotCounter);
             columnCounter++;
 
             newButton.setSelected(false);
@@ -1118,8 +1267,14 @@ public class View  extends Application{
             });
         }
 
-        plotCounter++;
-        columnCounter=0;
+
+
+        ButtonBar basicButtonBar = new ButtonBar();
+        basicButtonBar.setButtonMinWidth(40);
+        ScrollPane basicScrollPane = new ScrollPane(basicButtonBar);
+        basicScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        basicScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        opGrid.add(basicScrollPane, 0 ,10, 6, 1);
         for(Map.Entry<String, ArrayList<Double>> entry: basicPerPlot.entrySet()) {
             String thePlotName = entry.getKey();
             XYChart.Series newBasicSeries = new XYChart.Series();
@@ -1133,12 +1288,7 @@ public class View  extends Application{
 
             RadioButton newBasicButton = new RadioButton("Show Basic for plot: " + thePlotName);
             newBasicButton.setWrapText(true);
-            if(columnCounter>5){
-                columnCounter=0;
-                plotCounter++;
-            }
-            opGrid.add(newBasicButton, columnCounter,  6 + plotCounter);
-            columnCounter++;
+            basicButtonBar.getButtons().add(newBasicButton);
             newBasicButton.setSelected(false);
             newBasicButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
                 @Override
@@ -1154,12 +1304,15 @@ public class View  extends Application{
 
         waterChart.getData().add(optimalUse);
         waterChart.getData().add(decionUse);
+        waterChart.getData().add(basicPointsSeries);
 
 
         RadioButton showOptimal = new RadioButton("show Optimal");
         showOptimal.setSelected(true);
         RadioButton showUsage = new RadioButton("Show Total Water Usage");
         showUsage.setSelected(true);
+        RadioButton showBasic = new RadioButton("Show Basic");
+        showBasic.setSelected(true);
 
         showOptimal.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -1183,6 +1336,17 @@ public class View  extends Application{
             }
         });
 
+        showBasic.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if(t1==false){
+                    waterChart.getData().remove(basicPointsSeries);
+                } else {
+                    waterChart.getData().add(basicPointsSeries);
+                }
+            }
+        });
+
 
 
         RowConstraints row1 = new RowConstraints();
@@ -1199,23 +1363,24 @@ public class View  extends Application{
         opGrid.add(waterChart, 0, 0,5, 4);
         opGrid.add(showOptimal, 1, 5);
         opGrid.add(showUsage, 2, 5);
+        opGrid.add(showBasic, 3, 5);
 
-        plotCounter++;
+
 
 
         Slider dayChooseSlide = new Slider();
         dayChooseSlide.setPadding(new javafx.geometry.Insets( 20 , 20 , 20 , 20));
-        dayChooseSlide.setMax(o.getDays());
-        opGrid.add(dayChooseSlide, 0, plotCounter+ 6, 5, 1);
+        dayChooseSlide.setMax(o.getDays()-1);
+        opGrid.add(dayChooseSlide, 0, 11, 5, 1);
 
-        plotCounter++;
+
         System.out.println(plotCounter + 6);
 
 
         ArrayList<javafx.scene.control.Label> labels = new ArrayList<>();
 
         int theRowCounter = 0;
-        int rowIndex = plotCounter +6;
+        int rowIndex = 12;
         int theColumnConter = 0;
 
         for(Map.Entry<String, ArrayList<Double>> entry:optimisedInMap.entrySet()){
@@ -1224,7 +1389,7 @@ public class View  extends Application{
             plotText.setWrapText(true);
 
 
-            if(theRowCounter > 2){
+            if(theRowCounter > 5){
                 theRowCounter=0;
                 theColumnConter+=2;
             }
@@ -1232,11 +1397,18 @@ public class View  extends Application{
             javafx.scene.control.Label plotLabel = new javafx.scene.control.Label();
             plotLabel.setId(entry.getKey());
             labels.add(plotLabel);
-            opGrid.add(plotLabel, columnCounter+1, rowIndex + theRowCounter);
+            opGrid.add(plotLabel, theColumnConter+1, rowIndex + theRowCounter);
 
             theRowCounter++;
 
+
+
         }
+        Label waterLeftLabel = new Label( " Water left= " + waterLeft);
+        waterLeftLabel.setWrapText(true);
+        opGrid.add(waterLeftLabel, 1, 15);
+
+
 
 
 
@@ -1247,8 +1419,9 @@ public class View  extends Application{
                 for(Map.Entry<String, ArrayList<Double>> entry : optimisedInMap.entrySet()){
                     for(javafx.scene.control.Label l : labels){
                         if(l.getId().equals(entry.getKey())){
-
-                            l.setText(entry.getValue().get(n).toString());
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            double value = entry.getValue().get(n);
+                            l.setText(df.format(value));
                         }
                     }
 
@@ -1531,8 +1704,10 @@ public class View  extends Application{
 
         GridPane loginPageGrid = new GridPane();
         Scene loginEntry = new Scene(loginPageGrid, 500, 300);
+        loginPageGrid.gridLinesVisibleProperty().setValue(false);
+        loginPageGrid.setGridLinesVisible(false);
         loginPageGrid.setStyle("-fx-background-image: url(" + "/res/wildFlowers.jpg"+")");
-
+        System.out.println(loginPageGrid.isGridLinesVisible());
 
 
         // login Entry set up
@@ -1624,7 +1799,7 @@ public class View  extends Application{
             }
         });
 
-        loginPageGrid.setGridLinesVisible(true);
+
         loginPageGrid.setPadding(new javafx.geometry.Insets(2, 2,2, 2));
         loginPageGrid.setAlignment(Pos.CENTER);
         loginPageGrid.setHgap(5);
