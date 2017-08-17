@@ -2,6 +2,7 @@ import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 import waterOp.Water;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 public class MatLabFunction {
@@ -45,6 +46,19 @@ public class MatLabFunction {
 
     public double[][] callMatLabFunction() {
 
+//        try {
+//            System.setProperty("java.library.path", "/home/stephen/IdeaProjects/MSCproject/out/artifacts/lib/libmwmclmcrrt.so.9.2");
+//            Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+//            fieldSysPath.setAccessible(true);
+//            fieldSysPath.set(null, null);
+//        }catch (NoSuchFieldException e){
+//
+//        } catch (IllegalAccessException f){
+//
+//        }
+
+        System.out.println(System.getProperty("java.library.path"));
+
         Object[] input = new Object[4];
         Object[] output = new Object[this.getOptimalMatrix().length*this.getOptimalMatrix()[0].length];
         double[][] solutionMatrix = new double[this.getOptimalMatrix().length][this.getOptimalMatrix()[0].length];
@@ -74,7 +88,7 @@ public class MatLabFunction {
 
         Garden testGarden = Database.createGarden(2, true);
 
-        Optimiser optimiserTest = new Optimiser(testGarden, 10 , 4500, LocalDate.now(), false);
+        Optimiser optimiserTest = new Optimiser(testGarden, 10 , 4500, LocalDate.now(), false, true);
 
        MatLabFunction functionTest = new MatLabFunction(optimiserTest.createOptimalMatrix(), optimiserTest.createBasicMatrix(), optimiserTest.createPriorityMatrix(), optimiserTest.getWaterAvailable());
 

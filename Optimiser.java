@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.MyAlgorithm;
 import com.jom.*;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
@@ -28,6 +29,7 @@ public class Optimiser {
     private double waterAvailable;
     LocalDate dateSelected;
     boolean withWeather;
+    boolean mathmaticalAlgorithm;
     Map<String, ArrayList<Double>> optimalMap;
     Map<String, ArrayList<Double>> basicMap;
 
@@ -38,7 +40,8 @@ public class Optimiser {
                      int days,
                      double water,
                      LocalDate selectedDate,
-                     boolean withWeather) {
+                     boolean withWeather,
+                     boolean mattAlgorithm) {
 
         this.garden = garden;
         this.days = days;
@@ -47,6 +50,7 @@ public class Optimiser {
         this.withWeather = withWeather;
         this.optimalMap = createOptimalMap(this.withWeather);
         this.basicMap = createBasicMap(this.withWeather);
+        this.mathmaticalAlgorithm = mattAlgorithm;
     }
 
 
@@ -313,23 +317,31 @@ public class Optimiser {
         Map<String, ArrayList<Double>> solutionMap = new TreeMap<>();
         double[][] solutionMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
 
-        double basicTotal = 0;
-        for(int i = 0 ; i < basic.length; i++){
-            for(int j = 0 ; j < basic[0].length; j++){
-                basicTotal+=basic[i][j];
+        if(this.mathmaticalAlgorithm==true) {
+
+            double basicTotal = 0;
+            for (int i = 0; i < basic.length; i++) {
+                for (int j = 0; j < basic[0].length; j++) {
+                    basicTotal += basic[i][j];
+                }
             }
-        }
 
-        if(basicTotal > this.getWaterAvailable()){
 
-            double[][] zero = this.createzeroMatrix();
-            MatLabFunction theFunction = new MatLabFunction(optimal, zero, priority, this.getWaterAvailable());
-            solutionMatrix = theFunction.callMatLabFunction();
+            if (basicTotal > this.getWaterAvailable()) {
 
+                double[][] zero = this.createzeroMatrix();
+                MatLabFunction theFunction = new MatLabFunction(optimal, zero, priority, this.getWaterAvailable());
+                solutionMatrix = theFunction.callMatLabFunction();
+
+            } else {
+
+                MatLabFunction theFunction = new MatLabFunction(optimal, basic, priority, this.getWaterAvailable());
+                solutionMatrix = theFunction.callMatLabFunction();
+            }
         } else {
+            MyAlgorithm newClass = new MyAlgorithm(optimal, basic, priority, this.getWaterAvailable());
 
-            MatLabFunction theFunction = new MatLabFunction(optimal, basic, priority, this.getWaterAvailable());
-            solutionMatrix = theFunction.callMatLabFunction();
+            solutionMatrix = newClass.optimize();
         }
 
         int rowCounter = 0;
@@ -402,11 +414,13 @@ public class Optimiser {
      */
     public static void main(String[] args) {
 
+        System.out.println(System.getProperty("java.library.path"));
+
 
         Garden testGarden = Database.createGarden(20, true);
 
-        Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false);
-        Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true);
+        Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false, true);
+        Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true, true);
 
         double[][] testMatrix = optimiserTest.createOptimalMatrix();
         double[][] basicMatrix = optimiserTest.createBasicMatrix();

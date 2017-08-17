@@ -10,7 +10,7 @@
 }
 .label {
 
-    -fx-text-fill:white;
+
     -fx-font-weight: 500;
     -fx-font-size: 100%;
     -fx-opacity: 80%;
@@ -20,7 +20,7 @@
 
 }
 #gardengrid {
-    -fx-background-image: url( "/res/wildFlowers.jpg");
+    -fx-background-image: url( "/res/Classic-KellyGreen.jpg");
 
 
 }
@@ -30,3 +30,4 @@
     -fx-fit-to-width: true;
 
 }
+

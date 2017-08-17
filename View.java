@@ -79,13 +79,13 @@ public class View  extends Application{
 
         // Garden Selection Page
         javafx.scene.control.Label gardenLabel = new javafx.scene.control.Label();
-        String  a = " Welcome  " + user.getName().trim() + "\n" + " please select your garden or create a new one ";
+        String  a = " Welcome" + user.getName() + "  please select your garden  or create a new one ";
         gardenLabel.setText(a);
         gardenLabel.setWrapText(true);
         gardenLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-       // gardenLabel.setTextFill(Color.WHITE);
+       gardenLabel.setTextFill(Color.WHITE);
         javafx.scene.control.Label selectGarden = new javafx.scene.control.Label("Existing Garden");
-       // selectGarden.setTextFill(Color.WHITE);
+       selectGarden.setTextFill(Color.WHITE);
         selectGarden.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         javafx.scene.control.Button load = new javafx.scene.control.Button("Load");
         javafx.scene.control.Button createNewGarden = new javafx.scene.control.Button("Create new Garden");
@@ -238,12 +238,39 @@ public class View  extends Application{
 
         s.setTitle("Add New Garden");
         GridPane addGardenPane = new GridPane();
-        Scene addGardenScene = new Scene(addGardenPane, 600 , 500);
+        Scene addGardenScene = new Scene(addGardenPane, 500 , 500);
+
+        addGardenPane.setStyle("-fx-background-image: url(" + "/res/Classic-KellyGreen.jpg" + ")");
+
+        addGardenPane.setHgap(5);
+        addGardenPane.setVgap(5);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(5);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(40);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(10);
+
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(5);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(30);
+
+        addGardenPane.getColumnConstraints().addAll(col1, col2, col3, col2, col3, col1);
+        addGardenPane.getRowConstraints().addAll(row1, row2, row2, row2, row1);
+
 
         javafx.scene.control.Label createGardenLabel = new javafx.scene.control.Label("Garden Name");
+        createGardenLabel.setTextFill(Color.WHITE);
+        createGardenLabel.setStyle("-fx-font-size: 150%");
         javafx.scene.control.TextField gardenNameText = new javafx.scene.control.TextField();
 
         javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden Type first 3 letters");
+        locationLabel.setWrapText(true);
+        locationLabel.setTextFill(Color.WHITE);
+
+        locationLabel.setStyle("-fx-font-size: 150%");
 
 
         ComboBox<String> potentialLoctions = new ComboBox();
@@ -360,12 +387,14 @@ public class View  extends Application{
 
         addGardenPane.setAlignment(Pos.CENTER);
         addGardenPane.add(createGardenLabel, 1, 1);
-        addGardenPane.add(gardenNameText, 2, 1);
-        addGardenPane.add(createNewGardenButton, 1, 4);
-        addGardenPane.add(locationLabel, 1, 3   );
-        addGardenPane.add(potentialLoctions, 2, 3);
+        addGardenPane.add(gardenNameText, 3, 1);
 
-        addGardenPane.add(backButon, 3, 4);
+        addGardenPane.add(locationLabel, 1, 2   );
+        addGardenPane.add(potentialLoctions, 3, 2);
+
+
+        addGardenPane.add(createNewGardenButton, 3, 3);
+        addGardenPane.add(backButon, 1, 3);
 
 
         s.setScene(addGardenScene);
@@ -480,7 +509,7 @@ public class View  extends Application{
 
         javafx.scene.control.Label dayLabel = new javafx.scene.control.Label();
         dayLabel.setTextFill(Color.BLACK);
-        dayLabel.setText(Double.toString(1));
+        dayLabel.setText(Integer.toString(1));
         javafx.scene.control.Label dayTitle = new javafx.scene.control.Label("Number of days");
         dayTitle.setTextFill(Color.BLACK);
 //        dayLabel.setAlignment(Pos.BASELINE_RIGHT);
@@ -560,28 +589,82 @@ public class View  extends Application{
         } else {
             weatherActive= true;
         }
+
+        Tooltip mathmaticalTip = new Tooltip();
+        mathmaticalTip.setText("Selecting this option will run a mathmatical algorithm through matlab.  To use it you must have matlab installed on your system");
+        mathmaticalTip.wrapTextProperty().setValue(true);
+
+        Tooltip simpleTip = new Tooltip();
+        simpleTip.setText("This uses simple algorithm.  Select this if you do not have access to matlab. ");
+
+
+
+
         optimise.setMaxWidth(Double.MAX_VALUE);
-        optimise.setMaxHeight(Double.MAX_VALUE);
+        optimise.setMaxHeight(50);
+
+        ToggleGroup algorithms = new ToggleGroup();
+        RadioButton math = new RadioButton("Use mathmatical algorithm");
+        math.wrapTextProperty().setValue(true);
+        math.setTooltip(mathmaticalTip);
+        math.setSelected(true);
+        math.setToggleGroup(algorithms);
+        math.setStyle("-fx-background-color: white");
+
+        RadioButton simple = new RadioButton("Use Simple Algorithm");
+        simple.setTooltip(simpleTip);
+        simple.setToggleGroup(algorithms);
+        simple.setWrapText(true);
+        simple.setStyle("-fx-background-color: white");
+
+
+
+        /// optimise action
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 int days = Integer.parseInt(dayLabel.getText());
+                if (g.getPlots().size() > 0) {
 
-                if(!waterText.getText().equals(null) & waterText.getText().matches("[0-9]{1,13}(\\.[0-9]*)?")) {
-                    double water = Double.parseDouble(waterText.getText());
-                    if (days > 1 & water > 0) {
-                        //double water = Double.parseDouble(waterLabel.getText());
-
-                        LocalDate theDate = optimiseStartDate.getValue();
-
-                        Optimiser opObject = new Optimiser(g, days, water,theDate, weatherActive);
-                        optimisationScene(opObject, stage);
+                    boolean mathmaticalValue = true;
+                    if(math.isSelected()){
+                        mathmaticalValue=true;
+                    } else {
+                        mathmaticalValue=false;
                     }
 
+                    if (days > 1) {
+
+                        if (!waterText.getText().equals(null) & waterText.getText().matches("[0-9]{1,13}(\\.[0-9]*)?")) {
+
+                            double water = Double.parseDouble(waterText.getText());
+                            if (days > 1 & water > 0) {
+                                //double water = Double.parseDouble(waterLabel.getText());
+
+                                LocalDate theDate = optimiseStartDate.getValue();
+
+                                Optimiser opObject = new Optimiser(g, days, water, theDate, weatherActive, mathmaticalValue);
+                                //optimisationScene(opObject, stage);
+                                OptimizationSceneView opPage = new OptimizationSceneView(opObject, stage);
+                                opPage.launchOptimizer();
+                            }
+
+                        } else {
+                            Alert noWaterEntered = new Alert(Alert.AlertType.WARNING);
+                            noWaterEntered.setContentText("Please enter valid water type");
+                            noWaterEntered.show();
+                        }
+                    } else {
+                        Alert notEnoughDaysAlert = new Alert(Alert.AlertType.ERROR);
+                        notEnoughDaysAlert.setContentText("Need more than one day for optimization");
+                        notEnoughDaysAlert.show();
+                    }
+
+
                 } else {
-                    Alert noWaterEntered = new Alert(Alert.AlertType.WARNING);
-                    noWaterEntered.setContentText("Please enter valid water type");
-                    noWaterEntered.show();
+                    Alert noPlots = new Alert(Alert.AlertType.ERROR);
+                    noPlots.setContentText("Please add plots to optimize");
+                    noPlots.show();
                 }
 
 
@@ -590,7 +673,7 @@ public class View  extends Application{
 
 
         //gardenPlotPane.add(waterSlider, 2, 2, 2, 1);
-        gardenPlotPane.setGridLinesVisible(true);
+        gardenPlotPane.setGridLinesVisible(false);
 
         gardenPlotPane.add(waterText, 1,2);
         gardenPlotPane.add(waterTitle, 1, 1);
@@ -609,7 +692,10 @@ public class View  extends Application{
 
         gardenPlotPane.add(includeWeatherToggle, 1 , 5);
         gardenPlotPane.add(optimiseStartDate, 1, 6);
-        gardenPlotPane.add(optimise, 1, 8);
+        gardenPlotPane.add(optimise, 1, 7);
+        gardenPlotPane.add(math, 1, 8);
+        gardenPlotPane.add(simple, 2, 8);
+
 
 
 
@@ -641,8 +727,8 @@ public class View  extends Application{
             }
         });
 
-        gardenPlotPane.add(addPlot, 1, 7);
-        gardenPlotPane.add(linkUserButton, 2,7);
+        gardenPlotPane.add(addPlot, 0, 5);
+        gardenPlotPane.add(linkUserButton, 0,7);
 
 
 
@@ -657,18 +743,44 @@ public class View  extends Application{
 
         stage.setTitle("Linked New User");
         GridPane linkedUserPane = new GridPane();
-        Scene linkedUserScene = new Scene(linkedUserPane, 400, 400);
+        Scene linkedUserScene = new Scene(linkedUserPane, 400, 300);
+
+        linkedUserPane.setHgap(5);
+        linkedUserPane.setVgap(10);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(5);
+        linkedUserPane.getColumnConstraints().addAll(col2, col1, col1, col1, col2);
+
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(20);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(10);
+        linkedUserPane.getRowConstraints().addAll(row2, row1, row1, row1, row1, row2);
+
+
+
+        linkedUserPane.setStyle("-fx-background-image: url(" + "/res/Classic-KellyGreen.jpg" +")");
 
         javafx.scene.control.Label addNewUserLabel = new javafx.scene.control.Label("Add UserName of User you would like to add to your garden");
+        addNewUserLabel.setTextFill(Color.WHITE);
+        addNewUserLabel.setWrapText(true);
 
         javafx.scene.control.Label nameLabel = new javafx.scene.control.Label("UserName");
+        nameLabel.setTextFill(Color.WHITE);
         javafx.scene.control.TextField userNameInput = new javafx.scene.control.TextField();
-        javafx.scene.control.Label permissionLabel = new javafx.scene.control.Label("What permissions would you like them to have?");
+        javafx.scene.control.Label permissionLabel = new javafx.scene.control.Label("Permission Rights");
+        permissionLabel.setTextFill(Color.WHITE);
+        permissionLabel.setWrapText(true);
 
         ToggleGroup permissions = new ToggleGroup();
 
         RadioButton viewAndEdit = new RadioButton("View and Edit");
+        viewAndEdit.setTextFill(Color.WHITE);
         RadioButton viewOnly = new RadioButton("View Only");
+        viewOnly.setTextFill(Color.WHITE);
         viewAndEdit.setToggleGroup(permissions);
         viewOnly.setToggleGroup(permissions);
         viewOnly.setSelected(true);
@@ -714,18 +826,15 @@ public class View  extends Application{
         });
 
 
-        linkedUserPane.setHgap(5);
-        linkedUserPane.setVgap(5);
-        ColumnConstraints a = new ColumnConstraints();
 
-        linkedUserPane.add(addNewUserLabel, 1,1,4,1);
+        linkedUserPane.add(addNewUserLabel, 1,1,3,1);
         linkedUserPane.add(nameLabel, 1, 2);
-        linkedUserPane.add(userNameInput, 3, 2);
-        linkedUserPane.add(permissionLabel, 1, 3, 2, 1);
-        linkedUserPane.add(viewAndEdit, 3, 3);
-        linkedUserPane.add(viewOnly ,4, 3);
-        linkedUserPane.add(linkUser, 1, 4);
-        linkedUserPane.add(back, 3, 4);
+        linkedUserPane.add(userNameInput, 2, 2, 2, 1);
+        linkedUserPane.add(permissionLabel, 1, 3, 1, 1);
+        linkedUserPane.add(viewAndEdit, 2, 3);
+        linkedUserPane.add(viewOnly ,3, 3);
+        linkedUserPane.add(linkUser, 2, 4);
+        linkedUserPane.add(back, 1, 4);
 
 
 
@@ -803,7 +912,7 @@ public class View  extends Application{
 
 
 
-        javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit Plot ");
+        javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit/Remove Plot ");
 
 
         if(p.getUserEditRights()==false){
@@ -1011,7 +1120,7 @@ public class View  extends Application{
 
                     } else {
                         for (Map.Entry<String, Plant> entry : mapOfPlants.entrySet()) {
-                            System.out.println("*" + entry.getKey().toString() + "*");
+
                             if (entry.getKey().toString().trim().equals(plantName)) {
                                 thePlant = entry.getValue();
 
@@ -1125,6 +1234,7 @@ public class View  extends Application{
 
         final NumberAxis xAxis = new NumberAxis(0, o.getDays() -1, 1);
         final NumberAxis yAxis = new NumberAxis();
+        yAxis.setLowerBound(0.1);
         xAxis.setLabel("Days");
         yAxis.setLabel("Water inches^3");
 
@@ -1133,7 +1243,7 @@ public class View  extends Application{
         waterChart.setTitle("Water Usage");
 
         XYChart.Series optimalUse = new XYChart.Series();
-        optimalUse.setName("Optimal");
+        optimalUse.setName("Desired");
         double[] opP = o.getOptimisationPoints();
         double optimalTotal = 0;
         for(int i = 0 ; i < opP.length; i++){
@@ -1163,7 +1273,7 @@ public class View  extends Application{
 
         double waterLeft = (o.getWaterAvailable() - optimalTotal) < 0 ? 0 :(o.getWaterAvailable()-optimalTotal);
         XYChart.Series decionUse = new XYChart.Series();
-        decionUse.setName("Water to use");
+        decionUse.setName("Optimal");
         for(int i = 0; i < arg.length; i++){
             decionUse.getData().add(new XYChart.Data<>(i , arg[i]));
         }
@@ -1217,7 +1327,7 @@ public class View  extends Application{
            descionVariables.getButtons().add(newButton);
 
         }
-        System.out.println("PC aget optimal = " + plotCounter);
+
         plotCounter++;
 
         ButtonBar optimalButttonBar = new ButtonBar();
@@ -1242,10 +1352,10 @@ public class View  extends Application{
                 counter++;
             }
 
-            RadioButton newButton = new RadioButton("Show Optimal for plot: " + thePlotName);
+            RadioButton newButton = new RadioButton("Show  desired for: " + thePlotName);
             newButton.setWrapText(true);
 
-            System.out.println(" column counter before is " + columnCounter);
+
             if(columnCounter > 5){
                 columnCounter=0;
                 plotCounter++;
@@ -1286,7 +1396,7 @@ public class View  extends Application{
                 counter++;
             }
 
-            RadioButton newBasicButton = new RadioButton("Show Basic for plot: " + thePlotName);
+            RadioButton newBasicButton = new RadioButton("Show Basic for: " + thePlotName);
             newBasicButton.setWrapText(true);
             basicButtonBar.getButtons().add(newBasicButton);
             newBasicButton.setSelected(false);
@@ -1307,9 +1417,9 @@ public class View  extends Application{
         waterChart.getData().add(basicPointsSeries);
 
 
-        RadioButton showOptimal = new RadioButton("show Optimal");
+        RadioButton showOptimal = new RadioButton("show Desired");
         showOptimal.setSelected(true);
-        RadioButton showUsage = new RadioButton("Show Total Water Usage");
+        RadioButton showUsage = new RadioButton("Show Optimal");
         showUsage.setSelected(true);
         RadioButton showBasic = new RadioButton("Show Basic");
         showBasic.setSelected(true);
@@ -1404,9 +1514,10 @@ public class View  extends Application{
 
 
         }
-        Label waterLeftLabel = new Label( " Water left= " + waterLeft);
+        DecimalFormat df = new DecimalFormat("#.##");
+        Label waterLeftLabel = new Label( " Water left= " + df.format(waterLeft));
         waterLeftLabel.setWrapText(true);
-        opGrid.add(waterLeftLabel, 1, 15);
+        opGrid.add(waterLeftLabel, 1, 18);
 
 
 
@@ -1453,23 +1564,44 @@ public class View  extends Application{
     public static void addPlot(Stage s, Garden g, User u) throws SQLException{
 
         GridPane addPlotPane = new GridPane();
-        Scene addPlotScene = new Scene(addPlotPane, 500, 600);
+        Scene addPlotScene = new Scene(addPlotPane, 400, 500);
         s.setTitle("Add Plot");
+        addPlotPane.setStyle("-fx-background-image: url(" + "/res/Classic-KellyGreen.jpg" + ")");
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(3);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(2);
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(10);
+
+        addPlotPane.getColumnConstraints().addAll(col2, col1, col3, col1, col3, col1, col2);
+        addPlotPane.getRowConstraints().addAll(row1, row1, row1, row1, row1, row1, row1, row1, row1, row1);
 
         javafx.scene.control.Label name = new javafx.scene.control.Label("Name");
+        name.setTextFill(Color.WHITE);
         javafx.scene.control.TextField nameField = new javafx.scene.control.TextField();
+        nameField.textProperty().addListener(((observableValue, s1, t1) -> {
+            if(t1.length() > 25) nameField.setText(s1); }));
 
         javafx.scene.control.Label howBigPlot = new javafx.scene.control.Label("How big is plot?");
+        howBigPlot.setWrapText(true);
+        howBigPlot.setTextFill(Color.WHITE);
         javafx.scene.control.TextField sizeValue = new javafx.scene.control.TextField();
         ToggleGroup areaValues = new ToggleGroup();
         RadioButton sqm = new RadioButton("Sqm");
         sqm.setToggleGroup(areaValues);
         sqm.setSelected(true);
+        sqm.setTextFill(Color.WHITE);
         RadioButton sqft = new RadioButton("Sqft");
         sqft.setToggleGroup(areaValues);
+        sqft.setTextFill(Color.WHITE);
 
 
         javafx.scene.control.Label environmentLabel = new javafx.scene.control.Label("Environment");
+        environmentLabel.setTextFill(Color.WHITE);
         ComboBox<String> environmentSelect = new ComboBox<>();
 
         environmentSelect.getItems().add(0, "Normal");
@@ -1479,6 +1611,7 @@ public class View  extends Application{
 
 
         javafx.scene.control.Label soilSelectTitle = new javafx.scene.control.Label("SoilType");
+        soilSelectTitle.setTextFill(Color.WHITE);
         HashMap obs = Database.getSoilVariables();
         ArrayList<SoilType> soilTypesList = Database.returnSoilTypeList();
 
@@ -1488,9 +1621,11 @@ public class View  extends Application{
         }
 
 
-        soilSelect.getSelectionModel().select(3);
+        soilSelect.getSelectionModel().select(2);
 
         javafx.scene.control.Label plotPrioirityTitle = new javafx.scene.control.Label("Importance of plot crop");
+        plotPrioirityTitle.setTextFill(Color.WHITE);
+        plotPrioirityTitle.setWrapText(true);
         ComboBox<String> plotPriorty = new ComboBox<>();
         plotPriorty.getItems().add(0, "High");
         plotPriorty.getItems().add(1, "Normal");
@@ -1499,25 +1634,29 @@ public class View  extends Application{
 
 
         javafx.scene.control.Label plantLabel = new javafx.scene.control.Label("What are you planting?");
+        plantLabel.setTextFill(Color.WHITE);
+        plantLabel.setWrapText(true);
         ComboBox<String> plantType = new ComboBox();
         ComboBox plant = new ComboBox();
+        plant.setValue("plant");
 
         plantType.getItems().add(0, "1 Vegetable");
         plantType.getItems().add(1, "2 Fruit");
         plantType.getItems().add(2, "3 Herbs");
         //plantType.getSelectionModel().select(0 );
 
-        HashMap<Integer, String> plantsInUser = new HashMap<>();
+        Map<String, Integer> plantsInUser = new TreeMap<>();
 
        plantType.setOnAction(new EventHandler<ActionEvent>() {
            @Override
            public void handle(ActionEvent actionEvent) {
                int type = Integer.parseInt(plantType.getValue().toString().substring(0,1));
                plantsInUser.clear();
-               HashMap<Integer, String> plantNames = Database.returnPlantDetails(type);
+               TreeMap<String, Integer> plantNames = Database.returnPlantDetails(type);
+
                plant.getItems().clear();
                plantNames.forEach((k,v)->{plantsInUser.put(k, v);
-               plant.getItems().add(v);});
+               plant.getItems().add(k);});
 
 
 
@@ -1527,6 +1666,8 @@ public class View  extends Application{
 
 
 
+        Label datePlantedLabel = new Label("Date planted");
+        datePlantedLabel.setTextFill(Color.WHITE);
         DatePicker plantedDate = new DatePicker(LocalDate.now());
 
 
@@ -1536,122 +1677,132 @@ public class View  extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
 
-//                PLot object =  (String name,
-//                double size,
-//                LocalDate datePlanted,
-//                Plant plant,
-//                int number,
-//                double soil,
-//                double environment,
-//                int priority
+
 
                 // name of plot
                 String ThePlotsName = nameField.getText();
-                // plot size
-                double thePlotSize;
-                if(sqm.isSelected()){
-                    thePlotSize= Double.parseDouble(sizeValue.getText());
-                } else {
-                    thePlotSize = Double.parseDouble(sizeValue.getText()) * 0.092903;
-                }
-                // date planted
-                LocalDate ThedatePlanted = plantedDate.getValue();
-                int day = ThedatePlanted.getDayOfMonth();
-                int month = ThedatePlanted.getMonthValue();
-                int year = ThedatePlanted.getYear();
+                if(ThePlotsName.length() > 0  & sizeValue.getText().matches("[0-9]{1,13}(\\.[0-9]*)?") & !plant.getValue().toString().equals("plant")) {
+                    // plot size
+                    double thePlotSize;
+                    if (sqm.isSelected()) {
+                        thePlotSize = Double.parseDouble(sizeValue.getText());
+                    } else {
+                        thePlotSize = Double.parseDouble(sizeValue.getText()) * 0.092903;
+                    }
+                    // date planted
+                    LocalDate ThedatePlanted = plantedDate.getValue();
+                    int day = ThedatePlanted.getDayOfMonth();
+                    int month = ThedatePlanted.getMonthValue();
+                    int year = ThedatePlanted.getYear();
 
-                // plant in plot
-                String selectedPlant = plant.getValue().toString();
-                int plantID = 0;
-                if(selectedPlant.equals(null)){
-                    Alert noPlantAlert = new Alert(Alert.AlertType.ERROR);
-                    noPlantAlert.setContentText("please select a plant");
-                } else {
-                    for (Map.Entry<Integer, String> entry : plantsInUser.entrySet()) {
-                        if(entry.getValue().equals(selectedPlant)){
-                            plantID = entry.getKey();
+                    // plant in plot
+                    String selectedPlant = plant.getValue().toString();
+                    int plantID = 0;
+                    if (selectedPlant.equals(null)) {
+                        Alert noPlantAlert = new Alert(Alert.AlertType.ERROR);
+                        noPlantAlert.setContentText("please select a plant");
+                    } else {
+                        for (Map.Entry<String, Integer> entry : plantsInUser.entrySet()) {
+                            if (entry.getKey().equals(selectedPlant)) {
+                                plantID = entry.getValue();
+                            } else {
+
+                            }
                         }
-                        else{
-                            System.out.println("Something went wrong");
+
+                    }
+                    Plant plotsPlant = new Plant();
+                    try {
+                        plotsPlant = Database.createPlant(plantID);
+                    } catch (SQLException e) {
+
+                    }
+                    // number of plants in plot
+                    int number = ((plotsPlant.getNumberPerMeter() * (int) thePlotSize) < 1) ? 1 : (plotsPlant.getNumberPerMeter() * (int) thePlotSize);
+
+
+                    // soil value
+                    String soilStringValue = soilSelect.getValue();
+                    double TheSoilValue = 0.0;
+                    int soilID = 0;
+                    for (SoilType st : soilTypesList) {
+                        if (st.getName().equals(soilStringValue)) {
+                            TheSoilValue = st.getValue();
+                            soilID = st.getId();
                         }
                     }
 
-                }
-                Plant plotsPlant = new Plant();
-                try {
-                     plotsPlant = Database.createPlant(plantID);
-                } catch(SQLException e){
 
-                }
-                // number of plants in plot
-                int number = ((plotsPlant.getNumberPerMeter()*(int)thePlotSize) < 1) ? 1 : (plotsPlant.getNumberPerMeter()*(int)thePlotSize);
+                    // environment value
+                    double theEnvironmentValue = 0.0;
+                    int environmentID = 0;
+                    if (environmentSelect.getValue().toString().equals("Polytunnel")) {
+                        theEnvironmentValue = 1.25;
+                        environmentID = 1;
+
+                    } else if (environmentSelect.getValue().toString().equals("Raised Beds")) {
+                        theEnvironmentValue = 1.05;
+                        environmentID = 2;
+                    } else {
+                        theEnvironmentValue = 1.0;
+                        environmentID = 3;
+                    }
+
+                    // priority
+                    int thePriorityValue = 0;
+                    int priorityID = 0;
+                    if (plotPriorty.getValue().toString().equals("High")) {
+                        thePriorityValue = 3;
+
+                    } else if (plotPriorty.getValue().toString().equals("Low")) {
+                        thePriorityValue = 1;
+                    } else {
+                        thePriorityValue = 2;
+                    }
+
+                    System.out.println( "plant id = " + plotsPlant.getid() + "/n"  + "The plot name is " + ThePlotsName + "\n" + "The plot size is " + thePlotSize + "\n" +
+                            "It was planted on " + ThedatePlanted + " Day= " + day + "month= " + month + "year= " + year + "\n" +
+                            "its size is " + thePlotSize + " the plant is " + plotsPlant.getName() + "\n" +
+                            " the number of plants is is " + number + "\n" + " the soil value is " + TheSoilValue + "\n" +
+                            " the environment value is " + theEnvironmentValue + "\n" + "the priority value is " + thePriorityValue
+                    );
 
 
-                // soil value
-                String soilStringValue = soilSelect.getValue();
-               double TheSoilValue = 0.0;
-               int soilID = 0;
-                for(SoilType st : soilTypesList){
-                    if(st.getName().equals(soilStringValue)){
-                        TheSoilValue=st.getValue();
-                        soilID = st.getId();
+                    if (Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.getGardenID(), soilID, environmentID, day, month, year, thePriorityValue) == true) {
+
+                        try {
+                            Plot theNewPlot = Database.createPlot(ThePlotsName, day, month, year);
+                            g.getPlots().add(theNewPlot);
+                            setGardenAndPlotScene(s, u, g);
+                        } catch (SQLException e) {
+
+                        }
+
+
+                    } else {
+                        Alert writeFailure = new Alert(Alert.AlertType.ERROR);
+                        writeFailure.setContentText("Failed To Write to Database ");
+                        writeFailure.show();
+                    }
+                } else {
+                    if(ThePlotsName.length() < 1) {
+                        Alert pleaseEnterName = new Alert(Alert.AlertType.ERROR);
+                        pleaseEnterName.setContentText("Please enter a plot name");
+                        pleaseEnterName.show();
+                    }
+                    else if(plant.getValue().equals("plant")){
+                        Alert noPlantSelect = new Alert(Alert.AlertType.ERROR);
+                        noPlantSelect.setContentText("Please select plant");
+                        noPlantSelect.show();
+                    }
+                    else {
+
+                        Alert enterRightData = new Alert(Alert.AlertType.ERROR);
+                        enterRightData.setContentText("Please enter valid size value");
+                        enterRightData.show();
+
                     }
                 }
-
-
-                // environment value
-                double theEnvironmentValue = 0.0;
-                int environmentID = 0;
-                if(environmentSelect.getValue().toString().equals("Polytunnel")){
-                    theEnvironmentValue= 1.25;
-                    environmentID = 1;
-
-                } else if(environmentSelect.getValue().toString().equals("Raised Beds")) {
-                    theEnvironmentValue = 1.05;
-                    environmentID = 2;
-                } else{
-                    theEnvironmentValue = 1.0;
-                    environmentID = 3;
-                }
-
-                // priority
-                int thePriorityValue = 0;
-                int priorityID = 0;
-                if(plotPriorty.getValue().toString().equals("High")){
-                    thePriorityValue = 3;
-
-                } else if(plotPriorty.getValue().toString().equals("Low")){
-                    thePriorityValue = 1;
-                } else {
-                    thePriorityValue = 2;
-                }
-
-                System.out.println("The plot name is " + ThePlotsName + "\n" + "The plot size is " + thePlotSize + "\n" +
-                 "It was planted on " + ThedatePlanted + " Day= " + day + "month= " + month + "year= " + year + "\n" +
-                "its size is " + thePlotSize + " the plant is " + plotsPlant.getName() + "\n" +
-                        " the number of plants is is " + number + "\n" +  " the soil value is " + TheSoilValue + "\n" +
-                        " the environment value is " + theEnvironmentValue + "\n" + "the priority value is " + thePriorityValue
-                );
-
-
-
-               if(Database.insertNewPlot(ThePlotsName, thePlotSize, plotsPlant.getid(), g.getGardenID(), soilID, environmentID, day, month, year, thePriorityValue )==true) {
-
-                   try {
-                       Plot theNewPlot = Database.createPlot(ThePlotsName, day, month, year);
-                       g.getPlots().add(theNewPlot);
-                       setGardenAndPlotScene(s, u, g);
-                   }catch(SQLException e){
-
-                   }
-
-
-               } else {
-                   Alert writeFailure = new Alert(Alert.AlertType.ERROR);
-                   writeFailure.setContentText("Failed To Write to Database ");
-                   writeFailure.show();
-               }
-
 
             }
         });
@@ -1667,31 +1818,34 @@ public class View  extends Application{
 
 
 
-        addPlotPane.add(name, 5, 1);
-        addPlotPane.add(nameField, 6, 1);
-        addPlotPane.add(environmentLabel, 5, 2);
-        addPlotPane.add(environmentSelect, 6, 2, 2, 1);
-        addPlotPane.add(soilSelectTitle, 5, 3);
-        addPlotPane.add(soilSelect, 6, 3);
+        addPlotPane.add(name, 1, 1);
+        addPlotPane.add(nameField, 3, 1);
+        addPlotPane.add(environmentLabel, 1, 2);
+        addPlotPane.add(environmentSelect, 3, 2, 3, 1);
+        addPlotPane.add(soilSelectTitle, 1, 3);
+        addPlotPane.add(soilSelect, 3, 3, 3, 1);
 
-        addPlotPane.add(plotPrioirityTitle, 5, 4);
-        addPlotPane.add(plotPriorty, 6, 4);
+        addPlotPane.add(plotPrioirityTitle, 1, 4);
+        addPlotPane.add(plotPriorty, 3, 4);
 
-        addPlotPane.add(plantLabel, 5, 5);
-        addPlotPane.add(plantType, 6, 5);
-        addPlotPane.add(plant, 7, 5);
+        addPlotPane.add(plantLabel, 1, 5);
+        addPlotPane.add(plantType, 3, 5);
+        addPlotPane.add(plant, 5, 5);
 
-        addPlotPane.add(plantedDate, 6, 7);
+        addPlotPane.add(datePlantedLabel, 1, 7);
+        addPlotPane.add(plantedDate, 3, 7);
 
-        addPlotPane.add( howBigPlot, 4, 8);
-        addPlotPane.add(sizeValue, 5, 8);
-        addPlotPane.add(sqft, 6 , 8);
-        addPlotPane.add(sqm, 7, 8);
+        addPlotPane.add( howBigPlot, 1, 8);
+        addPlotPane.add(sizeValue, 3, 8);
+        addPlotPane.add(sqft, 5 , 8);
+        addPlotPane.setHalignment(sqft, HPos.RIGHT);
+        addPlotPane.add(sqm, 5, 8);
+        addPlotPane.setHalignment(sqm, HPos.LEFT);
 
 
-        addPlotPane.add(addPlotButton, 5, 10    );
+        addPlotPane.add(addPlotButton, 3, 9    );
 
-        addPlotPane.add(backButton, 7, 12);
+        addPlotPane.add(backButton, 1, 9);
 
         s.setScene(addPlotScene);
     }
@@ -2052,7 +2206,11 @@ public class View  extends Application{
     }
 
     // main method with launch method to start javafx
-    public static  void main(String[] args) {
+    public static  void main(String[] args)
+
+    {
+       // System.setProperty("java.library.path","/home/stephen/IdeaProjects/MSCproject/out/artifacts/lib/libmwmclmcrrt.so.9.2" );
+        System.out.println(System.getProperty("java.library.path"));
         launch(args);
     }
 

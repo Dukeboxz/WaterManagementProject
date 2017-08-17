@@ -572,7 +572,7 @@ public class Database {
      * @param plantType
      * @return
      */
-    public static HashMap<Integer, String> returnPlantDetails(int plantType) {
+    public static TreeMap<String, Integer> returnPlantDetails(int plantType) {
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -590,9 +590,9 @@ public class Database {
 
         }
 
-        HashMap<Integer, String> plantDetails = new HashMap<>();
+        TreeMap<String, Integer> plantDetails = new TreeMap<>();
         try {
-            String returnPlantDetailsString = "SELECT id, name FROM plants where type=?;";
+            String returnPlantDetailsString = "SELECT id, name FROM plants where type=? ORDER BY name;";
             PreparedStatement returnPlantDetailsPS = conn.prepareStatement(returnPlantDetailsString);
             returnPlantDetailsPS.setInt(1, plantType);
 
@@ -602,7 +602,8 @@ public class Database {
             while(rs.next()){
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
-                plantDetails.put(id, name);
+                System.out.println(name);
+                plantDetails.put(name, id);
 
             }
 
