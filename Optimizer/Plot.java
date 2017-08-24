@@ -1,7 +1,8 @@
+package Optimizer;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 
 /**
  * Created by stephen on 14/06/17.

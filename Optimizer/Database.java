@@ -1,7 +1,4 @@
-import com.jom.DoubleMatrixND;
-import com.sun.org.apache.regexp.internal.RE;
-import com.sun.org.apache.xpath.internal.SourceTree;
-import javafx.application.Application;
+package Optimizer;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -25,7 +22,7 @@ public class Database {
     public static boolean userNameExists(String userName) throws  SQLException{
 
 
-        boolean doesExist = true;
+        boolean doesExist = false;
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -48,7 +45,7 @@ public class Database {
 
         try {
             ResultSet r = checkedUserName.executeQuery();
-            while(r.next()){
+            while(r.next() & doesExist==false){
                 userElemnt = r.getString("name");
 
                 userElemnt.trim();
@@ -56,7 +53,7 @@ public class Database {
 
 
                 if(userElemnt.equals(userName)){
-                    doesExist=false;
+                    doesExist=true;
                 }
             }
 
@@ -68,7 +65,7 @@ public class Database {
     }
 
     /**
-     * Create new User object based on name
+     * Create new Optimizer.User object based on name
      * @param name
      * @return
      * @throws SQLException
@@ -206,7 +203,7 @@ public class Database {
     }
 
     /**
-     * creates Plant object based on plant id
+     * creates Optimizer.Plant object based on plant id
      * @param plantid
      * @return
      * @throws SQLException
@@ -241,7 +238,7 @@ public class Database {
         ResultSet r = getPlants.executeQuery();
 
         String name = null;
-        int id=0, st1Days=0;
+        int id=0, type=0, st1Days=0;
         int  st2Days = 0, st3Days = 0, st4Days = 0, numPerMeter = 0;
         double st1OW = 0.0, st1BW= 0.0, st2OW = 0.0, st2BW= 0.0, st3OW = 0.0,
                 st3BW= 0.0, st4OW= 0.0, st4BW = 0.0;
@@ -253,6 +250,7 @@ public class Database {
 
             id = r.getInt("id");
             name = r.getString("name");
+            type = r.getInt("type");
             st1Days = r.getInt("st1_days");
             st1OW = r.getDouble("st1_ow");
             st1BW = r.getDouble("st1_bw");
@@ -270,9 +268,9 @@ public class Database {
 
         }
 
-        System.out.println(name + " " + st2Days + " " + st1OW +" " + st1BW);
 
-        Plant plant = new Plant(id, name, st1Days, st1OW, st1BW, st2Days, st2OW, st2BW, st3Days, st3OW, st3BW,
+
+        Plant plant = new Plant(id, name, type,  st1Days, st1OW, st1BW, st2Days, st2OW, st2BW, st3Days, st3OW, st3BW,
                 st4Days, st4OW, st4BW, numPerMeter);
 
         conn.close();
@@ -284,9 +282,80 @@ public class Database {
 
     }
 
+    public static Map<String, Plant> returnMapOfAllPlants() {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+        System.out.println("working");
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+        if(conn!=null) {
+            System.out.println("Connection ");
+        }
+
+        String returnPlantMapStrng = "SELECT * FROM plants;";
+
+        Map<String, Plant> thePlantMap = new TreeMap<>();
+
+        String name = null;
+        int id=0, type=0, st1Days=0;
+        int  st2Days = 0, st3Days = 0, st4Days = 0, numPerMeter = 0;
+        double st1OW = 0.0, st1BW= 0.0, st2OW = 0.0, st2BW= 0.0, st3OW = 0.0,
+                st3BW= 0.0, st4OW= 0.0, st4BW = 0.0;
+
+        try {
+            PreparedStatement returnPlantMapPS = conn.prepareStatement(returnPlantMapStrng);
+
+            ResultSet r = returnPlantMapPS.executeQuery();
+
+            while(r.next()){
+
+                id = r.getInt("id");
+                name = r.getString("name");
+                type = r.getInt("type");
+                st1Days = r.getInt("st1_days");
+                st1OW = r.getDouble("st1_ow");
+                st1BW = r.getDouble("st1_bw");
+                st2Days = r.getInt("st2_days");
+                st2OW= r.getDouble("st2_ow");
+                st2BW= r.getDouble("st2_bw");
+                st3Days= r.getInt("st3_days");
+                st3OW= r.getDouble("st3_ow");
+                st3BW= r.getDouble("st3_bw");
+                st4Days= r.getInt("st4_days");
+                st4OW = r.getDouble("st4_ow");
+                st4BW= r.getDouble("st4_bw");
+                numPerMeter= r.getInt("plants_persqm");
+
+
+                Plant plant = new Plant(id, name, type,  st1Days, st1OW, st1BW, st2Days, st2OW, st2BW, st3Days, st3OW, st3BW,
+                        st4Days, st4OW, st4BW, numPerMeter);
+
+
+                thePlantMap.put(name, plant);
+            }
+
+
+            conn.close();
+        } catch (SQLException e){
+
+        }
+
+        return thePlantMap;
+    }
+
 
     /**
-     * Create Plot object based on name and date
+     * Create Optimizer.Plot object based on name and date
      * @param
      * @return
      * @throws SQLException
@@ -381,7 +450,7 @@ public class Database {
     }
 
     /**
-     * Create Plot object based on name and date
+     * Create Optimizer.Plot object based on name and date
      * @param
      * @return
      * @throws SQLException
@@ -478,7 +547,7 @@ public class Database {
      * @return
      * @throws SQLException
      */
-    public static HashMap<String, Double> getSoilVariables() throws SQLException {
+    public static HashMap<String, Double> getSoilVariables()  {
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -496,32 +565,35 @@ public class Database {
         }
 
         HashMap<String, Double> soilNameAndValues = new HashMap<>();
+        try {
 
-        String getSoilVairablesString = "SELECT * FROM soiltype";
-        PreparedStatement getSoilVariablePS = conn.prepareStatement(getSoilVairablesString);
+            String getSoilVairablesString = "SELECT * FROM soiltype";
+            PreparedStatement getSoilVariablePS = conn.prepareStatement(getSoilVairablesString);
 
 
+            ResultSet rs = getSoilVariablePS.executeQuery();
 
-        ResultSet rs = getSoilVariablePS.executeQuery();
+            double correctValue = 0.0;
 
-        double correctValue = 0.0;
+            while (rs.next()) {
+                String name = rs.getString("name").trim();
+                double soilValue = rs.getDouble("value");
+                soilNameAndValues.put(name, soilValue);
 
-        while(rs.next()){
-            String name = rs.getString("name").trim();
-            double soilValue = rs.getDouble("value");
-            soilNameAndValues.put(name, soilValue);
 
+            }
+
+            conn.close();
+        } catch (SQLException e){
 
         }
-
-        conn.close();
 
         return soilNameAndValues;
     }
 
     /**
      * Method to return list of soilTypes objects
-     * @return List<SoilType></SoilType>
+     * @return List<Optimizer.SoilType></Optimizer.SoilType>
      */
     public static ArrayList<SoilType> returnSoilTypeList() {
 
@@ -887,7 +959,7 @@ public class Database {
             if(nameFromDatabase.equals(userName)){
                 System.out.println("FALSE");
                 userNameNotUsed = false;
-                System.out.println("User Name Already in Use");
+                System.out.println("Optimizer.User Name Already in Use");
                 break;
             }
         }
@@ -911,7 +983,7 @@ public class Database {
     }
     // Method for getting garden Names
 
-    public static List<Garden> getUsersGardens(int userID ) throws  SQLException{
+    public static List<Garden> getUsersGardens(int userID ) {
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -927,31 +999,36 @@ public class Database {
         } catch(SQLException e) {
 
         }
-
-        String getUserGardenNamesString = "SELECT * FROM gardenusers where userid = ?";
-        PreparedStatement getUsersGardenNames = conn.prepareStatement(getUserGardenNamesString);
-        getUsersGardenNames.setInt(1, userID);
-
-        ResultSet rs = getUsersGardenNames.executeQuery();
-
-
         ArrayList<Garden> nameList = new ArrayList<>();
+        try {
+            String getUserGardenNamesString = "SELECT * FROM gardenusers where userid = ?";
+            PreparedStatement getUsersGardenNames = conn.prepareStatement(getUserGardenNamesString);
+            getUsersGardenNames.setInt(1, userID);
 
-        while(rs.next()){
-            int id = rs.getInt("gardenid");
-            boolean edit = rs.getBoolean("editrights");
+            ResultSet rs = getUsersGardenNames.executeQuery();
 
-            nameList.add(createGarden(id, edit));
+
+
+
+            while (rs.next()) {
+                int id = rs.getInt("gardenid");
+                boolean edit = rs.getBoolean("editrights");
+
+                nameList.add(createGarden(id, edit));
+            }
+
+            conn.close();
+
+        }catch(SQLException e){
+
         }
 
-        conn.close();
         return nameList;
-
     }
 
     // method to insert new plot in database
     public static boolean insertNewPlot(String name, double size, int plantID, int gardenID, int soilTypeID, int environmentID,
-                              int dayPlanted, int monthPlanted, int yearPlanted,  int priority) {
+                              int dayPlanted, int monthPlanted, int yearPlanted,  double priority) {
 
         boolean inserted = true;
 
@@ -999,6 +1076,7 @@ public class Database {
 
     }
 
+    //Checks username exists in database
     public static boolean userNameNotExist(String userName){
 
         boolean nameExists = true;
@@ -1032,7 +1110,7 @@ public class Database {
                 if (nameFromDatabase.equals(userName)) {
                     System.out.println("FALSE");
                     nameExists = false;
-                    System.out.println("User Name Already in Use");
+                    System.out.println("Optimizer.User Name Already in Use");
                     break;
                 }
             }
@@ -1049,7 +1127,7 @@ public class Database {
 
     public static void insertNewUserGarden(int gardenid, int userid, boolean edit){
 
-        System.out.println("Insert new Garden Running");
+        System.out.println("Insert new Optimizer.Garden Running");
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -1228,6 +1306,7 @@ public class Database {
 
     }
 
+    //method updates plots details in the database
     public static void updatePlot(int plotId, String plotName, double size, int plantid,  LocalDate datePlanted, double priority ){
 
         try {
@@ -1269,6 +1348,7 @@ public class Database {
 
     }
 
+    //method checks the database to see if given user values match the username and passoword in database
     public static boolean userNameAndPasswordCheck(String userName, String thePassword){
         try {
             Class.forName("org.postgresql.Driver");
@@ -1305,11 +1385,92 @@ public class Database {
             } else {
                 areCorrect=true;
             }
+
+            conn.close();
         } catch(SQLException e){
 
         }
 
         return areCorrect;
+    }
+
+    //Method removes plot from database
+    public static void deletePlot(int plotid){
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        try {
+            String deletePlotString = "DELETE FROM plots WHERE id=?;";
+            PreparedStatement deletePlotPS = conn.prepareStatement(deletePlotString);
+            deletePlotPS.setInt(1, plotid);
+
+            deletePlotPS.executeUpdate();
+
+            conn.close();
+
+        }catch (SQLException e){
+            System.out.println("Database Delete Operation Failed");
+        }
+
+    }
+
+    public static ArrayList<Environment> returnEnvironmentList() {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch(ClassNotFoundException e){
+            System.out.println("driver");
+        }
+
+
+        String user = "stephen";
+        String password = "Keyb0ard";
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        } catch(SQLException e) {
+
+        }
+
+        ArrayList<Environment> theArrayList = new ArrayList<>();
+
+        try
+        {
+            String EnvListString = "SELECT * FROM environment;";
+            PreparedStatement envListPS = conn.prepareStatement(EnvListString);
+
+            ResultSet rs = envListPS.executeQuery();
+
+            while(rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                double value = rs.getDouble("value");
+
+                Environment env = new Environment(id, name, value);
+                theArrayList.add(env);
+            }
+
+            conn.close();
+
+        } catch (SQLException e) {
+
+        }
+
+    return theArrayList;
     }
 
 
@@ -1321,51 +1482,53 @@ public class Database {
      */
     public static void main(String[] args) {
 
-        try {
-            User a = createUser("Stephen");
-            createNewGarden("TestGarden4", a, "Birmingham", "00000.54.03534");
-            Garden test = userGardenReturn("TestGarden3", a);
+//        try {
+//            User a = createUser("Stephen");
+//            createNewGarden("TestGarden4", a, "Birmingham", "00000.54.03534");
+//            Garden test = userGardenReturn("TestGarden3", a);
+//
+//            System.out.println(test.getUserEditRights());
+//
+//            System.out.println(test.getName());
+//            System.out.println(test.getUserEditRights());
+//
+//
+//
+//        } catch(SQLException e){
+//
+//        }
 
-            System.out.println(test.getUserEditRights());
-
-            System.out.println(test.getName());
-            System.out.println(test.getUserEditRights());
-
-
-
-        } catch(SQLException e){
-
-        }
+        deletePlot(11);
             // System.out.println(userNameExists("MyUserName"));
             //System.out.println(createUser("MyUserName").getPassword());
-//            User test = createUser("PekingBroth");
+//            Optimizer.User test = createUser("PekingBroth");
 //            System.out.println(test.getPassword());
 //            System.out.println(test.getId());
 //
-//            List<Garden> test = new ArrayList<>();
+//            List<Optimizer.Garden> test = new ArrayList<>();
 //            test = getUsersGardens(2);
 //
-//           for(Garden n : test){
-//               List<Plot> garden = n.getPlots();
-//               for( Plot np : garden) {
+//           for(Optimizer.Garden n : test){
+//               List<Optimizer.Plot> garden = n.getPlots();
+//               for( Optimizer.Plot np : garden) {
 //                   System.out.println(np.getName());
 //               }
 
             //createGarden(2);
 
-          //  System.out.println(getUserIDBasedOnName("User Name"));
+          //  System.out.println(getUserIDBasedOnName("Optimizer.User Name"));
 
 
             // System.out.println(u.getPassword());
 
-            // insertNewPlot("My Tomatoe Plot", 5, 4, 3, 2, 1, 10 , 5,  2017, 2);
+            // insertNewPlot("My Tomatoe Optimizer.Plot", 5, 4, 3, 2, 1, 10 , 5,  2017, 2);
 
 
 
 
 
 //        try {
-//           Database.insertUserNameANDPassword("Stephen", "sjjjjj@Jackson.com", "boop");
+//           Optimizer.Database.insertUserNameANDPassword("Stephen", "sjjjjj@Jackson.com", "boop");
 //
 //
 //        } catch( SQLException e) {

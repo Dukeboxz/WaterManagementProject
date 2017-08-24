@@ -1,11 +1,13 @@
+package Optimizer;
+
 /**
  * Created by stephen on 14/06/17.
- * class to create Plant objects
+ * class to create Optimizer.Plant objects
  */
 public class Plant {
 
     String name;
-    int st1_days, st2_days, st3_days, st4_days, id;
+    int st1_days, st2_days, st3_days, st4_days, id, type;
     double st1_or, st2_or, st3_or, st4_or;
     double st1_br, st2_br, st3_br, st4_br;
     int numberPerMeter;
@@ -17,6 +19,7 @@ public class Plant {
 
     public Plant(int id,
                  String name,
+                 int type,
                  int st1Days,
                  double st1OR,
                  double st1BR,
@@ -32,6 +35,7 @@ public class Plant {
                  int numberPerMeter ){
         this.id=id;
         this.name=name;
+        this.type=type;
         this.st1_days=st1Days;
         this.st1_or=st1OR;
         this.st1_br=st1BR;
@@ -53,6 +57,8 @@ public class Plant {
 
     }
     public int getid() {return id;}
+
+    public int getType() { return type;}
 
     public int getSt1_days() {
         return st1_days;

@@ -31,3 +31,9 @@
 
 }
 
+#testGrid {
+    -fx-border-color: black;
+    -fx-background-size: 2px;
+    -fx-border-style: solid;
+}
+

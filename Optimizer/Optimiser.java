@@ -1,19 +1,10 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.Array;
-import java.sql.SQLException;
+package Optimizer;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.TreeMap;
-
-import com.MyAlgorithm;
-import com.jom.*;
-import com.sun.org.apache.xpath.internal.SourceTree;
-
-import javax.swing.*;
 
 
 /**
@@ -22,7 +13,7 @@ import javax.swing.*;
  * Uses methods within the Java OPtimiser Modeler Authored by Professor Pablo Pavon Marino University of Cartagena(Spain)
  * Method from this library will be inidcated as JOM methods in comments
  */
-public class Optimiser {
+public class Optimiser  extends Observable{
 
     private Garden garden;
     public static int days;
@@ -62,6 +53,10 @@ public class Optimiser {
         return this.days;
     }
 
+    public LocalDate getDateSelected() {
+        return this.dateSelected;
+    }
+
     public double getWaterAvailable() {
         return this.waterAvailable;
     }
@@ -72,6 +67,48 @@ public class Optimiser {
 
     public Map<String, ArrayList<Double>> getBasicMap() {
         return this.basicMap;
+    }
+
+    public boolean getWithWeather(){
+        return this.withWeather;
+    }
+
+    public boolean getMattAlgorithm(){
+        return  this.mathmaticalAlgorithm;
+    }
+
+    public void setGarden(Garden garden) {
+        this.garden = garden;
+        setChanged();
+        notifyObservers();
+    }
+
+    public static void setDays(int days) {
+        Optimiser.days = days;
+    }
+
+    public void setWaterAvailable(double waterAvailable) {
+        this.waterAvailable = waterAvailable;
+    }
+
+    public void setDateSelected(LocalDate dateSelected) {
+        this.dateSelected = dateSelected;
+    }
+
+    public void setWithWeather(boolean withWeather) {
+        this.withWeather = withWeather;
+    }
+
+    public void setMathmaticalAlgorithm(boolean mathmaticalAlgorithm) {
+        this.mathmaticalAlgorithm = mathmaticalAlgorithm;
+    }
+
+    public void setOptimalMap(Map<String, ArrayList<Double>> optimalMap) {
+        this.optimalMap = optimalMap;
+    }
+
+    public void setBasicMap(Map<String, ArrayList<Double>> basicMap) {
+        this.basicMap = basicMap;
     }
 
     /**
@@ -417,7 +454,7 @@ public class Optimiser {
         System.out.println(System.getProperty("java.library.path"));
 
 
-        Garden testGarden = Database.createGarden(20, true);
+        Garden testGarden = Database.createGarden(1, true);
 
         Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false, true);
         Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true, true);

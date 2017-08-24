@@ -1,8 +1,9 @@
+package Optimizer;
+
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 import waterOp.Water;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 public class MatLabFunction {
@@ -74,6 +75,8 @@ public class MatLabFunction {
             solutionMatrix = (double[][])resultSet.toDoubleArray();
 
 
+            theClass.dispose();
+            resultSet.dispose();
 
         } catch (MWException f){
             f.printStackTrace();
@@ -86,13 +89,13 @@ public class MatLabFunction {
    public static void main(String[] args)
    {
 
-        Garden testGarden = Database.createGarden(2, true);
-
-        Optimiser optimiserTest = new Optimiser(testGarden, 10 , 4500, LocalDate.now(), false, true);
-
-       MatLabFunction functionTest = new MatLabFunction(optimiserTest.createOptimalMatrix(), optimiserTest.createBasicMatrix(), optimiserTest.createPriorityMatrix(), optimiserTest.getWaterAvailable());
-
-        double[][] sol = functionTest.callMatLabFunction();
+//        Garden testGarden = Database.createGarden(2, true);
+//
+//        Optimiser optimiserTest = new Optimiser(testGarden, 10 , 4500, LocalDate.now(), false, true);
+//
+//       MatLabFunction functionTest = new MatLabFunction(optimiserTest.createOptimalMatrix(), optimiserTest.createBasicMatrix(), optimiserTest.createPriorityMatrix(), optimiserTest.getWaterAvailable());
+//
+//        double[][] sol = functionTest.callMatLabFunction();
   }
 
 

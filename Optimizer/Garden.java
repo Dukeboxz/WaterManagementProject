@@ -1,12 +1,14 @@
-import java.lang.reflect.Array;
+package Optimizer;
+
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by stephen on 15/06/17.
- * class to create Garden Object
+ * class to create Optimizer.Garden Object
  */
-public class Garden {
+public class Garden extends Observable {
    private int gardenID;
      private String name;
      private ArrayList<Plot> plots;
@@ -46,6 +48,13 @@ public class Garden {
 
     public void setUserEditRights(boolean edit) {
         this.userEditRights=edit;
+    }
+
+    public void setPlots(ArrayList<Plot> newPlots){
+        System.out.println("Set Plots");
+        setChanged();
+        notifyObservers();
+        this.plots=newPlots;
     }
 
 }

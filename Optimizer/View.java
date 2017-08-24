@@ -1,8 +1,12 @@
+package Optimizer;
+
+import UI.EditPlotView;
+import UI.LoginView;
+import UI.OptimizationSceneView;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -79,7 +83,7 @@ public class View  extends Application{
 
         // Garden Selection Page
         javafx.scene.control.Label gardenLabel = new javafx.scene.control.Label();
-        String  a = " Welcome" + user.getName() + "  please select your garden  or create a new one ";
+        String  a = " Welcome " + user.getName() + "  please select your garden  or create a new one ";
         gardenLabel.setText(a);
         gardenLabel.setWrapText(true);
         gardenLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -146,28 +150,6 @@ public class View  extends Application{
             }
         });
 
-//        viewAndEdit.selectedProperty().addListener(new ChangeListener<Boolean>() {
-//            @Override
-//            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-//                if(t1==false){
-//                    usersGardens.getItems().clear();
-//                    for(Garden g : gardenList){
-//                        if(g.getUserEditRights()==false){
-//                            usersGardens.getItems().add(g.getName());
-//                        }
-//                    }
-//                } else {
-//                    if(!usersGardens.getItems().isEmpty()) {
-//                        usersGardens.getItems().clear();
-//                    }
-//                    for(Garden g : gardenList){
-//                        if(g.getUserEditRights()==true){
-//                            usersGardens.getItems().add(g.getName());
-//                        }
-//                    }
-//                }
-//            }
-//        });
 
 
 
@@ -478,7 +460,9 @@ public class View  extends Application{
                     public void handle(ActionEvent actionEvent) {
                         for (Plot p : gPlots) {
                             if (plotButton.getText().equals(p.getName())) {
-                                plotView(p, stage, user, g);
+                                EditPlotView newEditPlotView = new EditPlotView(p, stage, user, g);
+                                newEditPlotView.launchEditPlotView();
+                               // plotView(p, stage, user, g);
                             }
                         }
 
@@ -645,7 +629,8 @@ public class View  extends Application{
 
                                 Optimiser opObject = new Optimiser(g, days, water, theDate, weatherActive, mathmaticalValue);
                                 //optimisationScene(opObject, stage);
-                                OptimizationSceneView opPage = new OptimizationSceneView(opObject, stage);
+                                OptimizationSceneView opPage = new OptimizationSceneView(opObject, stage, user, "In^3");
+                                opObject.getGarden().addObserver(opPage);
                                 opPage.launchOptimizer();
                             }
 
@@ -670,6 +655,8 @@ public class View  extends Application{
 
             }
         });
+
+        Button back = new Button("Button");
 
 
         //gardenPlotPane.add(waterSlider, 2, 2, 2, 1);
@@ -912,7 +899,8 @@ public class View  extends Application{
 
 
 
-        javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit/Remove Plot ");
+        javafx.scene.control.Button editPlot = new javafx.scene.control.Button("Edit Plot ");
+
 
 
         if(p.getUserEditRights()==false){
@@ -1168,10 +1156,10 @@ public class View  extends Application{
 
                         }
                     }
-                    System.out.println("New Plot name= " + newPlotName + "\n" +
+                    System.out.println("New Optimizer.Plot name= " + newPlotName + "\n" +
                             "The new plant= " + thePlant.getName() + "\n" +
                             " The new planted date= " + theLocalDate + "\n" +
-                            "New size of Plot= " + newPlotSize + "\n" +
+                            "New size of Optimizer.Plot= " + newPlotSize + "\n" +
                             "New plot priority= " + priorityValue + "\n" +
                              "The plant id= " + thePlant.getid());
 
@@ -1781,7 +1769,7 @@ public class View  extends Application{
 
                     } else {
                         Alert writeFailure = new Alert(Alert.AlertType.ERROR);
-                        writeFailure.setContentText("Failed To Write to Database ");
+                        writeFailure.setContentText("Failed To Write to Optimizer.Database ");
                         writeFailure.show();
                     }
                 } else {
@@ -1899,7 +1887,7 @@ public class View  extends Application{
 
 
                    Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
-                   userAlreadyExistsAlert.setContentText("Not Valid User");
+                   userAlreadyExistsAlert.setContentText("Not Valid Optimizer.User");
                    userAlreadyExistsAlert.show();
 
 
@@ -1931,7 +1919,7 @@ public class View  extends Application{
 
 
                         Alert userAlreadyExistsAlert = new Alert(Alert.AlertType.ERROR);
-                        userAlreadyExistsAlert.setContentText("Not Valid User");
+                        userAlreadyExistsAlert.setContentText("Not Valid Optimizer.User");
                         userAlreadyExistsAlert.show();
 
 
@@ -2113,7 +2101,7 @@ public class View  extends Application{
 
 
 
-        javafx.scene.control.TextField user = new javafx.scene.control.TextField("User Name");
+        javafx.scene.control.TextField user = new javafx.scene.control.TextField(" Name");
         javafx.scene.control.TextField emailentry = new javafx.scene.control.TextField("email");
         PasswordField pass = new PasswordField();
         pass.setPromptText("Password at least 6 characters");
@@ -2132,7 +2120,7 @@ public class View  extends Application{
 
                     if (userName.length() < 6) {
                         Alert userNameAlert = new Alert(Alert.AlertType.ERROR);
-                        userNameAlert.setContentText("User Name not long enough");
+                        userNameAlert.setContentText(" Name not long enough");
                         userNameAlert.showAndWait();
 
                     } else if (password.length() < 6) {

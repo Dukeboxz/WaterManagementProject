@@ -1,3 +1,5 @@
+package Optimizer;
+
 /**
  * Created by stephen on 10/07/17.
  * class to create object to store soil information

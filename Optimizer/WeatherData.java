@@ -1,8 +1,9 @@
+package Optimizer;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import sun.reflect.generics.tree.Tree;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,9 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Created by stephen on 11/07/17.
