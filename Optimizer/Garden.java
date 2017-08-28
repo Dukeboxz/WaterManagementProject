@@ -6,7 +6,7 @@ import java.util.Observer;
 
 /**
  * Created by stephen on 15/06/17.
- * class to create Optimizer.Garden Object
+ * class to create Garden Object
  */
 public class Garden extends Observable {
    private int gardenID;

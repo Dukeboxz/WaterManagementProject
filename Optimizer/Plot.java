@@ -49,6 +49,11 @@ public class Plot implements  Comparable<Plot>{
 
     }
 
+    /**
+     * Compare method to set how plots are ordered
+     * @param comparePlot
+     * @return
+     */
     public int compareTo(Plot comparePlot){
 
       return this.getName().compareTo(comparePlot.getName());
@@ -168,6 +173,8 @@ public class Plot implements  Comparable<Plot>{
         return stagePrioirty + plotPriority;
     }
 
+
+    //getters and setters
     public double getSize() {
         return size;
     }

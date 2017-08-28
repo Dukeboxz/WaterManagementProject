@@ -1,5 +1,6 @@
 package Optimizer;
 
+import javafx.scene.control.Alert;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,19 +18,32 @@ import java.util.TreeMap;
 
 /**
  * Created by stephen on 11/07/17.
- * Class to get weather data from weather underground
+ * Class to get weather data from weather underground using JsonSimple methods to read from the sent JSON file
+ * This is then used to create a weather object to store relevant daata
  */
 public class WeatherData {
 
+    /**
+     *  Creates a url that can be used to get data from Weather Underground
+     * @param town
+     * @return String
+     */
     public static String createURL(String town){
         String url = "http://api.wunderground.com/api/88d7a239ed54d0d5/geolookup/conditions/forecast10day/q/zmw:" + town + ".json";
 
         return url;
     }
 
+    /**
+     * Send http query to weather underground to get potential list of locations
+     * @param part
+     * @return
+     */
     public static TreeMap<String, String> getPotentialLocations(String part){
 
         TreeMap<String, String> name = new TreeMap<>();
+        Alert failtoGetLocations = new Alert(Alert.AlertType.ERROR);
+        failtoGetLocations.setHeaderText("Failed to connect to location data using default ");
 
         try {
             String url = "http://autocomplete.wunderground.com/aq?query=" + part + "&c=GB" ;
@@ -63,18 +77,34 @@ public class WeatherData {
 
 
         } catch (MalformedURLException e){
+            failtoGetLocations.show();
+            name.put("Birmingham, United Kingdon", "00000.10.03781");
 
         } catch(IOException f) {
+            failtoGetLocations.show();
+            name.put("Birmingham, United Kingdon", "00000.10.03781");
+
 
 
 
         } catch(ParseException g){
+            failtoGetLocations.show();
+            name.put("Birmingham, United Kingdon", "00000.10.03781");
+
 
         }
 
         return name;
     }
 
+    /**
+     * Method send http request to weather underground to get weather details for location of garden
+     * Returns data in WeatherObject
+     * Uses method contained within the JsonSimple API
+     * https://code.google.com/archive/p/json-simple/
+     * @param town
+     * @return
+     */
     public static ArrayList<WeatherObject> getWeatherData(String town){
 
         String url =  createURL(town);

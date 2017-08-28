@@ -117,7 +117,9 @@ public class NewUserEntryView {
         backButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                View.welcomePage(stage);
+                welcomePageView back = new welcomePageView(NewUserEntryView.this.getStage());
+                back.launch();
+
 
             }
         });

@@ -22,8 +22,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import static Optimizer.View.addPlot;
-import static Optimizer.View.linkUserView;
+
+
+/**
+ * Class that allow users to set up garden for optimization calulation
+ *
+ */
 
 public class GardenAndPlotView {
 
@@ -38,6 +42,7 @@ public class GardenAndPlotView {
 
     }
 
+    // getters and setters
     public Stage getStage() {
         return stage;
     }
@@ -50,7 +55,12 @@ public class GardenAndPlotView {
         return g;
     }
 
+    /**
+     * Method to set up UI and Actions
+     */
     public void setUp(){
+
+        // set up layout of UI
         GridPane gardenPlotPane = new GridPane();
         Scene gardenPlotScene = new Scene(gardenPlotPane, 500, 500);
 
@@ -84,7 +94,7 @@ public class GardenAndPlotView {
 
 
 
-
+        // create element that adds a list of plots of the garden on to the page
         VBox thePlots = new VBox();
 
         thePlots.setSpacing(5);
@@ -229,55 +239,58 @@ public class GardenAndPlotView {
             }
         });
 
-        boolean weatherActive;
-        if(optimiseStartDate.isVisible()){
-            weatherActive = false;
-        } else {
-            weatherActive= true;
-        }
-
-        Tooltip mathmaticalTip = new Tooltip();
-        mathmaticalTip.setText("Selecting this option will run a mathmatical algorithm through matlab.  To use it you must have matlab installed on your system");
-        mathmaticalTip.wrapTextProperty().setValue(true);
-
-        Tooltip simpleTip = new Tooltip();
-        simpleTip.setText("This uses simple algorithm.  Select this if you do not have access to matlab. ");
 
 
+//        Tooltip mathmaticalTip = new Tooltip();
+//        mathmaticalTip.setText("Selecting this option will run a mathmatical algorithm through matlab.  To use it you must have matlab installed on your system");
+//        mathmaticalTip.wrapTextProperty().setValue(true);
+//
+//        Tooltip simpleTip = new Tooltip();
+//        simpleTip.setText("This uses simple algorithm.  Select this if you do not have access to matlab. ");
+//
+//
+//
+//
+//        optimise.setMaxWidth(Double.MAX_VALUE);
+//        optimise.setMaxHeight(50);
+//
+//        ToggleGroup algorithms = new ToggleGroup();
+//        RadioButton math = new RadioButton("Use mathmatical algorithm");
+//        math.wrapTextProperty().setValue(true);
+//        math.setTooltip(mathmaticalTip);
+//        math.setSelected(true);
+//        math.setToggleGroup(algorithms);
+//        math.setStyle("-fx-background-color: white");
+//
+//        RadioButton simple = new RadioButton("Use Simple Algorithm");
+//        simple.setTooltip(simpleTip);
+//        simple.setToggleGroup(algorithms);
+//        simple.setWrapText(true);
+//        simple.setStyle("-fx-background-color: white");
 
 
-        optimise.setMaxWidth(Double.MAX_VALUE);
-        optimise.setMaxHeight(50);
-
-        ToggleGroup algorithms = new ToggleGroup();
-        RadioButton math = new RadioButton("Use mathmatical algorithm");
-        math.wrapTextProperty().setValue(true);
-        math.setTooltip(mathmaticalTip);
-        math.setSelected(true);
-        math.setToggleGroup(algorithms);
-        math.setStyle("-fx-background-color: white");
-
-        RadioButton simple = new RadioButton("Use Simple Algorithm");
-        simple.setTooltip(simpleTip);
-        simple.setToggleGroup(algorithms);
-        simple.setWrapText(true);
-        simple.setStyle("-fx-background-color: white");
-
-
-
-        /// optimise action
+        /**
+         * On optimization action the method creates an Optimiser Object that creates an Optimization scene
+         */
         optimise.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
+
+                boolean weatherActive;
+                if(includeWeatherToggle.isSelected()){
+                    weatherActive = true;
+                } else {
+                    weatherActive= false;
+                }
                 int days = Integer.parseInt(dayLabel.getText());
                 if (g.getPlots().size() > 0) {
 
-                    boolean mathmaticalValue = true;
-                    if(math.isSelected()){
-                        mathmaticalValue=true;
-                    } else {
-                        mathmaticalValue=false;
-                    }
+//                    boolean mathmaticalValue = true;
+//                    if(math.isSelected()){
+//                        mathmaticalValue=true;
+//                    } else {
+//                        mathmaticalValue=false;
+//                    }
 
                     if (days > 1) {
 
@@ -299,8 +312,9 @@ public class GardenAndPlotView {
                                 //double water = Double.parseDouble(waterLabel.getText());
 
                                 LocalDate theDate = optimiseStartDate.getValue();
+                                System.out.println("The Weather is Active = " + weatherActive);
 
-                                Optimiser opObject = new Optimiser(g, days, water, theDate, weatherActive, mathmaticalValue);
+                                Optimiser opObject = new Optimiser(g, days, water, theDate, weatherActive);
                                 //optimisationScene(opObject, stage);
                                 OptimizationSceneView opPage = new OptimizationSceneView(opObject, GardenAndPlotView.this.getStage(), GardenAndPlotView.this.getUser(), measurement);
                                 opObject.getGarden().addObserver(opPage);
@@ -361,8 +375,7 @@ public class GardenAndPlotView {
         gardenPlotPane.add(includeWeatherToggle, 1 , 5);
         gardenPlotPane.add(optimiseStartDate, 1, 6);
         gardenPlotPane.add(optimise, 1, 7);
-        gardenPlotPane.add(math, 1, 8);
-        gardenPlotPane.add(simple, 2, 8);
+
         gardenPlotPane.add(back, 0, 8);
 
 
@@ -411,6 +424,9 @@ public class GardenAndPlotView {
 
     }
 
+    /**
+     * Method launches the GardenAndPlot UI element
+     */
     public void launch() {
 
         setUp();

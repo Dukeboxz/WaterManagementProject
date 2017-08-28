@@ -6,12 +6,16 @@ import java.util.*;
 
 /**
  * Created by stephen on 15/06/17.
- * Class that has methods that access the database created for the project
+ * Class that has static methoda that access the database and return required information that it then sends to other classes
+ * in required datastructures
  */
 public class Database {
 
     static Connection conn = null;
     static Statement stmt = null;
+    static String host = "//localhost/mscproject";
+    static String thePassword = "Keyb0ard";
+    static String theUserName = "stephen";
 
     /**
      * Method to check if user name exists
@@ -19,7 +23,7 @@ public class Database {
      * @return
      * @throws SQLException
      */
-    public static boolean userNameExists(String userName) throws  SQLException{
+    public static boolean userNameExists(String userName) {
 
 
         boolean doesExist = false;
@@ -34,16 +38,17 @@ public class Database {
         String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e){ }
 
+        try {
         String checkUserNameString = "SELECT name FROM users";
         PreparedStatement checkedUserName = conn.prepareStatement(checkUserNameString);
 
         String userElemnt = null;
 
 
-        try {
+
             ResultSet r = checkedUserName.executeQuery();
             while(r.next() & doesExist==false){
                 userElemnt = r.getString("name");
@@ -57,10 +62,11 @@ public class Database {
                 }
             }
 
+            conn.close();
         } catch (SQLException missing) {
 
         }
-        conn.close();
+
         return doesExist;
     }
 
@@ -282,6 +288,10 @@ public class Database {
 
     }
 
+    /**
+     * Method that returns map of all plants within the database as map
+     * @return Map<String, Plant> key is the name of the plant
+     */
     public static Map<String, Plant> returnMapOfAllPlants() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -981,8 +991,13 @@ public class Database {
 
 
     }
-    // Method for getting garden Names
 
+    /**
+     * Method to retrieve list of users gardens basen on their id
+     * returns results in List of Garden Objects
+     * @param userID
+     * @return List<Garden></Garden>
+     */
     public static List<Garden> getUsersGardens(int userID ) {
         try {
             Class.forName("org.postgresql.Driver");
@@ -1026,7 +1041,20 @@ public class Database {
         return nameList;
     }
 
-    // method to insert new plot in database
+    /**
+     * method to insert new plot in database
+     * @param name
+     * @param size
+     * @param plantID
+     * @param gardenID
+     * @param soilTypeID
+     * @param environmentID
+     * @param dayPlanted
+     * @param monthPlanted
+     * @param yearPlanted
+     * @param priority
+     * @return boolean
+     */
     public static boolean insertNewPlot(String name, double size, int plantID, int gardenID, int soilTypeID, int environmentID,
                               int dayPlanted, int monthPlanted, int yearPlanted,  double priority) {
 
@@ -1076,7 +1104,11 @@ public class Database {
 
     }
 
-    //Checks username exists in database
+    /**
+     * Method that checks to see if a user name exists in the database
+     * @param userName
+     * @return
+     */
     public static boolean userNameNotExist(String userName){
 
         boolean nameExists = true;
@@ -1125,6 +1157,12 @@ public class Database {
 
     }
 
+    /**
+     * Method to insert a new garden into the database
+     * @param gardenid
+     * @param userid
+     * @param edit
+     */
     public static void insertNewUserGarden(int gardenid, int userid, boolean edit){
 
         System.out.println("Insert new Optimizer.Garden Running");
@@ -1163,6 +1201,11 @@ public class Database {
 
     }
 
+    /**
+     * Method that access database and returns user name based on their id
+     * @param name
+     * @return
+     */
     public static int getUserIDBasedOnName(String name){
         try {
             Class.forName("org.postgresql.Driver");
@@ -1257,8 +1300,8 @@ public class Database {
 
     /**
      * Method that returns plant types in Map datastructure
+     * @return Map
      */
-
     public static Map<Integer, String> getPlantTypesInMap() {
 
         Map<Integer, String> theMap = new TreeMap<>();
@@ -1306,7 +1349,15 @@ public class Database {
 
     }
 
-    //method updates plots details in the database
+    /**
+     * Method updates plot details within the database
+     * @param plotId
+     * @param plotName
+     * @param size
+     * @param plantid
+     * @param datePlanted
+     * @param priority
+     */
     public static void updatePlot(int plotId, String plotName, double size, int plantid,  LocalDate datePlanted, double priority ){
 
         try {
@@ -1348,7 +1399,9 @@ public class Database {
 
     }
 
-    //method checks the database to see if given user values match the username and passoword in database
+    /*
+     method checks the database to see if given user values match the username and passoword in database
+     */
     public static boolean userNameAndPasswordCheck(String userName, String thePassword){
         try {
             Class.forName("org.postgresql.Driver");
@@ -1394,7 +1447,10 @@ public class Database {
         return areCorrect;
     }
 
-    //Method removes plot from database
+    /**
+     * Removes plot from database
+     * @param plotid
+     */
     public static void deletePlot(int plotid){
 
         try {
@@ -1428,6 +1484,10 @@ public class Database {
 
     }
 
+    /**
+     * Method that gets details from environment table in database and then create and array list of Environment objects
+     * @return
+     */
     public static ArrayList<Environment> returnEnvironmentList() {
 
         try {
@@ -1482,6 +1542,8 @@ public class Database {
      */
     public static void main(String[] args) {
 
+        System.out.println(userNameExists("Stephen"));
+
 //        try {
 //            User a = createUser("Stephen");
 //            createNewGarden("TestGarden4", a, "Birmingham", "00000.54.03534");
@@ -1498,7 +1560,7 @@ public class Database {
 //
 //        }
 
-        deletePlot(11);
+
             // System.out.println(userNameExists("MyUserName"));
             //System.out.println(createUser("MyUserName").getPassword());
 //            Optimizer.User test = createUser("PekingBroth");

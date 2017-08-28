@@ -16,6 +16,7 @@ public class Environment {
         this.value = value;
     }
 
+    //Getters and Setters
     public int getId() {
         return id;
     }

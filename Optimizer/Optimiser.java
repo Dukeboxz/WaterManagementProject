@@ -10,8 +10,7 @@ import java.util.TreeMap;
 /**
  * Created by stephen on 19/06/17.
  * Class that creates and then solves the optimisation problem.
- * Uses methods within the Java OPtimiser Modeler Authored by Professor Pablo Pavon Marino University of Cartagena(Spain)
- * Method from this library will be inidcated as JOM methods in comments
+ * Calls the MatLabFunction class to access MatLabs Linprog functinality to provide solution to problem
  */
 public class Optimiser  extends Observable{
 
@@ -20,7 +19,7 @@ public class Optimiser  extends Observable{
     private double waterAvailable;
     LocalDate dateSelected;
     boolean withWeather;
-    boolean mathmaticalAlgorithm;
+
     Map<String, ArrayList<Double>> optimalMap;
     Map<String, ArrayList<Double>> basicMap;
 
@@ -31,8 +30,8 @@ public class Optimiser  extends Observable{
                      int days,
                      double water,
                      LocalDate selectedDate,
-                     boolean withWeather,
-                     boolean mattAlgorithm) {
+                     boolean withWeather
+                     ) {
 
         this.garden = garden;
         this.days = days;
@@ -41,10 +40,11 @@ public class Optimiser  extends Observable{
         this.withWeather = withWeather;
         this.optimalMap = createOptimalMap(this.withWeather);
         this.basicMap = createBasicMap(this.withWeather);
-        this.mathmaticalAlgorithm = mattAlgorithm;
+
     }
 
 
+    //Getters and Setters
     public Garden getGarden() {
         return this.garden;
     }
@@ -73,9 +73,7 @@ public class Optimiser  extends Observable{
         return this.withWeather;
     }
 
-    public boolean getMattAlgorithm(){
-        return  this.mathmaticalAlgorithm;
-    }
+
 
     public void setGarden(Garden garden) {
         this.garden = garden;
@@ -99,9 +97,7 @@ public class Optimiser  extends Observable{
         this.withWeather = withWeather;
     }
 
-    public void setMathmaticalAlgorithm(boolean mathmaticalAlgorithm) {
-        this.mathmaticalAlgorithm = mathmaticalAlgorithm;
-    }
+
 
     public void setOptimalMap(Map<String, ArrayList<Double>> optimalMap) {
         this.optimalMap = optimalMap;
@@ -136,8 +132,11 @@ public class Optimiser  extends Observable{
     }
 
 
-    // Create optimal matrix using Map data structure
-
+    /**
+     * Create optimal matrix using Map data structure
+      * @param withWeather
+     * @return
+     */
     public Map<String, ArrayList<Double>> createOptimalMap(boolean withWeather) {
 
 
@@ -232,7 +231,11 @@ public class Optimiser  extends Observable{
         return matrix;
     }
 
-
+    /**
+     * Method that creates maps data structure with basic values for each plot on day by day basis
+     * @param withWeather
+     * @return
+     */
     public Map<String, ArrayList<Double>> createBasicMap(boolean withWeather) {
 
 
@@ -309,7 +312,7 @@ public class Optimiser  extends Observable{
     /**
      * Method creates matrix of priority weightings
      *
-     * @return
+     * @return double[][]
      */
     public double[][] createPriorityMatrix() {
         double[][] priortyMatrix = new double[this.garden.getPlots().size()][this.getDays()];
@@ -344,8 +347,11 @@ public class Optimiser  extends Observable{
     }
 
 
-    // test of resturning map
-
+    /**
+     * Main method of the class
+     * Takes input matrix and then creates a of the matlab function
+     * @return Map<String, ArrayList<Double>>
+     */
     public Map<String, ArrayList<Double>> optimizeForMap() {
 
         double[][] optimal = this.createOptimalMatrix();
@@ -354,7 +360,7 @@ public class Optimiser  extends Observable{
         Map<String, ArrayList<Double>> solutionMap = new TreeMap<>();
         double[][] solutionMatrix = new double[this.getGarden().getPlots().size()][this.getDays()];
 
-        if(this.mathmaticalAlgorithm==true) {
+
 
             double basicTotal = 0;
             for (int i = 0; i < basic.length; i++) {
@@ -375,11 +381,7 @@ public class Optimiser  extends Observable{
                 MatLabFunction theFunction = new MatLabFunction(optimal, basic, priority, this.getWaterAvailable());
                 solutionMatrix = theFunction.callMatLabFunction();
             }
-        } else {
-            MyAlgorithm newClass = new MyAlgorithm(optimal, basic, priority, this.getWaterAvailable());
 
-            solutionMatrix = newClass.optimize();
-        }
 
         int rowCounter = 0;
         for (Map.Entry<String, ArrayList<Double>> entry : this.getOptimalMap().entrySet()) {
@@ -400,7 +402,11 @@ public class Optimiser  extends Observable{
 
     }
 
-
+    /**
+     *  returns totals of each plot optimal on a day by day basis
+     * @param theMap
+     * @return
+     */
     public double[] decisionByDay(Map<String, ArrayList<Double>> theMap) {
         double[] days = new double[this.getDays()];
 
@@ -415,6 +421,12 @@ public class Optimiser  extends Observable{
 
     }
 
+
+    /**
+     *
+     *  returns desired totals for all plots each day
+     * @return double[]
+     */
     public double[] getOptimisationPoints(){
        double[][] opMatrix = this.createOptimalMatrix();
        double[] totals = new double[this.getDays()];
@@ -429,6 +441,10 @@ public class Optimiser  extends Observable{
        return totals;
     }
 
+    /**
+     * returns basic total on a day by day basis
+     * @return
+     */
     public double[] getBasicPoints() {
         double[][]basicMatrix = this.createBasicMatrix();
         double[] totals = new double[this.getDays()];
@@ -456,8 +472,8 @@ public class Optimiser  extends Observable{
 
         Garden testGarden = Database.createGarden(1, true);
 
-        Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false, true);
-        Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true, true);
+        Optimiser optimiserTest = new Optimiser(testGarden, 20, 4500, LocalDate.now(), false);
+        Optimiser optimiserWithWeather = new Optimiser(testGarden, 20, 4500, LocalDate.now(), true);
 
         double[][] testMatrix = optimiserTest.createOptimalMatrix();
         double[][] basicMatrix = optimiserTest.createBasicMatrix();

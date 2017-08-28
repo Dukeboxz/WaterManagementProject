@@ -106,7 +106,7 @@ public class LinkedUserView {
             public void handle(ActionEvent actionEvent) {
                 String the = userNameInput.getText();
                 System.out.println("*" + the + "*");
-                try {
+
                     if (Database.userNameExists(the)) {
                         int linkedUserid = Database.getUserIDBasedOnName(the);
                         if(viewOnly.isSelected()) {
@@ -123,10 +123,8 @@ public class LinkedUserView {
                         noName.setContentText("User Name does not exist");
                         noName.show();
                     }
-                }
-                catch(SQLException f){
 
-                }
+
 
             }
         });

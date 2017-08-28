@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 /**
  * Created by stephen on 16/07/17.
+ * Used to store weather data obtained through Weather Underground http request
  */
 public class WeatherObject {
 

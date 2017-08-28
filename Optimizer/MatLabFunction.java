@@ -6,6 +6,12 @@ import waterOp.Water;
 
 import java.time.LocalDate;
 
+/*
+Class that uses function contaimed within the MatLab Java Builder Library to call created MatLab functions and then send return data back to Optimizer Class
+Author Stephen Jackson
+MatLab code created by Dr Morteza Azad University of Birmingham and then modified by Stephen Jackson
+ */
+
 public class MatLabFunction {
 
     private double[][] optimalMatrix;
@@ -29,6 +35,7 @@ public class MatLabFunction {
 
     }
 
+    // Getters and Setters
     public double[][] getOptimalMatrix() {
         return optimalMatrix;
     }
@@ -45,6 +52,8 @@ public class MatLabFunction {
         return waterAvailable;
     }
 
+
+    // Method that calls MatLab function
     public double[][] callMatLabFunction() {
 
 //        try {
@@ -70,7 +79,9 @@ public class MatLabFunction {
             input[2] = this.getPriorityMatrix();
             input[3] = this.getWaterAvailable();
 
+            // get result from matlab function
             output= theClass.waterOp(1, input);
+            //get results and turn back to double[][] matrix
             MWNumericArray resultSet = (MWNumericArray)output[0];
             solutionMatrix = (double[][])resultSet.toDoubleArray();
 

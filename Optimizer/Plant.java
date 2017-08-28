@@ -2,7 +2,7 @@ package Optimizer;
 
 /**
  * Created by stephen on 14/06/17.
- * class to create Optimizer.Plant objects
+ * class to create Plant objects
  */
 public class Plant {
 

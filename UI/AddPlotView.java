@@ -19,6 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Class to create UI and actions that allow users to add new plots to their garden
+ */
+
 public class AddPlotView {
 
     private Stage stage;
@@ -31,6 +35,7 @@ public class AddPlotView {
         this.user=user;
     }
 
+    //Getters and Setters
     public Stage getStage() {
         return stage;
     }
@@ -43,8 +48,13 @@ public class AddPlotView {
         return garden;
     }
 
+
+    /**
+     * Method to set up UI and Actions
+     */
     public  void setUp(){
 
+        //set up layout of scene
         GridPane addPlotPane = new GridPane();
         Scene addPlotScene = new Scene(addPlotPane, 400, 500);
         this.getStage().setTitle("Add Plot");
@@ -62,6 +72,7 @@ public class AddPlotView {
         addPlotPane.getColumnConstraints().addAll(col2, col1, col3, col1, col3, col1, col2);
         addPlotPane.getRowConstraints().addAll(row1, row1, row1, row1, row1, row1, row1, row1, row1, row1);
 
+        // add elements to allow user to add new plot to garden
         javafx.scene.control.Label name = new javafx.scene.control.Label("Name");
         name.setTextFill(Color.WHITE);
         javafx.scene.control.TextField nameField = new javafx.scene.control.TextField();
@@ -301,6 +312,7 @@ public class AddPlotView {
             }
         });
 
+        // back button action moves back to previouse scene
         javafx.scene.control.Button backButton = new javafx.scene.control.Button("Back");
         backButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -348,6 +360,9 @@ public class AddPlotView {
 
     }
 
+    /**
+     * Method that launches the UI for this part of the application
+     */
     public void launch() {
         setUp();
 

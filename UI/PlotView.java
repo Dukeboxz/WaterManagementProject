@@ -12,6 +12,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 
+/**
+ * Class to create UI and action to allow user to view details of a particular plot
+ * Author Stephen Jackson
+ */
+
 public class PlotView {
 
     private Plot plot;
@@ -26,6 +31,7 @@ public class PlotView {
         this.garden = garden;
     }
 
+    //Getters and Setters
     public Plot getPlot() {
         return plot;
     }
@@ -42,8 +48,10 @@ public class PlotView {
         return garden;
     }
 
+    //Method to set up UI and actions
     public void setUp() {
 
+        // set up layout to UI
         this.getStage().setTitle(this.getPlot().getName());
 
         GridPane plotViewPane = new GridPane();
@@ -98,7 +106,7 @@ public class PlotView {
 
 
 
-
+        //button to go back
         javafx.scene.control.Button back = new javafx.scene.control.Button("Back");
         back.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -155,6 +163,8 @@ public class PlotView {
 
     }
 
+
+    // Method to launch UI
     public void launch(){
         setUp();
 
