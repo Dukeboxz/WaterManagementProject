@@ -698,10 +698,12 @@ public class OptimizationSceneView implements Observer {
 
 
         // Add labels to show daily need per plot
+        Label onthisDay = new Label();
+        opGrid.add(onthisDay, 0, 12, 3, 1);
         ArrayList<javafx.scene.control.Label> labels = new ArrayList<>();
 
         int theRowCounter = 0;
-        int rowIndex = 12;
+        int rowIndex = 13;
         int theColumnConter = 0;
 
         for(Map.Entry<String, ArrayList<Double>> entry:optimisedInMap.entrySet()){
@@ -710,7 +712,7 @@ public class OptimizationSceneView implements Observer {
             plotText.setWrapText(true);
 
 
-            if(theRowCounter > 4){
+            if(theRowCounter > 3){
                 theRowCounter=0;
                 theColumnConter+=2;
             }
@@ -740,6 +742,8 @@ public class OptimizationSceneView implements Observer {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
                 int n = t1.intValue();
+
+                onthisDay.setText("On "+OptimizationSceneView.this.getOp().getDateSelected().plusDays(n) );
                 for(Map.Entry<String, ArrayList<Double>> entry : optimisedInMap.entrySet()){
                     for(javafx.scene.control.Label l : labels){
                         if(l.getId().equals(entry.getKey())){

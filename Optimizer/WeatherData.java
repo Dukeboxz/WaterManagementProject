@@ -209,6 +209,8 @@ public class WeatherData {
 
         Garden testGarden = Database.createGarden(2, true);
 
+
+
         System.out.println("*" + testGarden.getLocation() + "*");
 
         ArrayList<WeatherObject> test = getWeatherData(testGarden.getLocation().trim());

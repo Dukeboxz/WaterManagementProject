@@ -74,7 +74,7 @@ public class AddGardenView {
         createGardenLabel.setStyle("-fx-font-size: 150%");
         javafx.scene.control.TextField gardenNameText = new javafx.scene.control.TextField();
 
-        javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden Type first 3 letters");
+        javafx.scene.control.Label locationLabel = new javafx.scene.control.Label("Location Of Garden Type first 3 letters and press enter");
         locationLabel.setWrapText(true);
         locationLabel.setTextFill(Color.WHITE);
 

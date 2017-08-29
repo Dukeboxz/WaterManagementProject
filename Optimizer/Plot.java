@@ -163,7 +163,7 @@ public class Plot implements  Comparable<Plot>{
     public double getPlotPriorityValue(int days, LocalDate date){
 
         double stagePrioirty = this.getStagePriority(days, date);
-        double plotPriority;
+        double plotPriority = this.getPriority();
         if(stagePrioirty==0){
             plotPriority=0;
 
