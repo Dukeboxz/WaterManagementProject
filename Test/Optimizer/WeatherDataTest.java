@@ -1,13 +1,15 @@
 package Optimizer;
 
-import org.junit.jupiter.api.Test;
+import Optimizer.WeatherData;
+import Optimizer.WeatherObject;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.*;
+
 
 class WeatherDataTest {
 
@@ -37,7 +39,7 @@ class WeatherDataTest {
         assert(theWeather.size() >0);
 
         for(WeatherObject o : theWeather){
-            assert(o.rainInInches >=0);
+            assert(o.getRainInInches() >=0);
             assert(o.getHighTemp() > o.getLowTemp());
         }
     }
