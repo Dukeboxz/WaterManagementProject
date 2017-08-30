@@ -1,6 +1,8 @@
+package Optimizer;
+
 /**
  * Created by stephen on 30/06/17.
- * Class to create user Object
+ * Class to create User Object
  */
 public class User {
 

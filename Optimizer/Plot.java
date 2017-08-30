@@ -1,15 +1,17 @@
+package Optimizer;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 
 /**
  * Created by stephen on 14/06/17.
  * class to create plot object
  */
-public class Plot {
+public class Plot implements  Comparable<Plot>{
 
 
+    int id;
     double size;
 
    String name;
@@ -18,18 +20,20 @@ public class Plot {
     int noOfPlants;
     double soil;
     double environment;
-    int priority;
+    double priority;
 
 
-    public Plot(String name,
+    public Plot(int id,
+                String name,
                 double size,
                 LocalDate datePlanted,
                 Plant plant,
                 int number,
                 double soil,
                 double environment,
-                int priority){
+                double priority){
 
+        this.id=id;
         this.name=name;
         this.size=size;
         this.datePlanted=datePlanted;
@@ -43,6 +47,16 @@ public class Plot {
 //
 
 
+    }
+
+    /**
+     * Compare method to set how plots are ordered
+     * @param comparePlot
+     * @return
+     */
+    public int compareTo(Plot comparePlot){
+
+      return this.getName().compareTo(comparePlot.getName());
     }
 
     /**
@@ -146,10 +160,21 @@ public class Plot {
      * @param days
      * @return int
      */
-    public int getPlotPriorityValue(int days, LocalDate date){
-        return this.getPriority()+ this.getStagePriority(days, date);
+    public double getPlotPriorityValue(int days, LocalDate date){
+
+        double stagePrioirty = this.getStagePriority(days, date);
+        double plotPriority = this.getPriority();
+        if(stagePrioirty==0){
+            plotPriority=0;
+
+        } else {
+            plotPriority=this.getPriority();
+        }
+        return stagePrioirty + plotPriority;
     }
 
+
+    //getters and setters
     public double getSize() {
         return size;
     }
@@ -198,26 +223,41 @@ public class Plot {
         this.environment = environment;
     }
 
-    public int getPriority() {
+    public double getPriority() {
         return this.priority;
+    }
+
+    public void setPriority(double priorityvalue){
+        this.priority=priorityvalue;
     }
 
     public String getName() {
         return this.name;
     }
 
+    public void setName(String newName){
+        this.name=newName;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+
+
+
+
     public static void main(String[] args){
 
         try {
-            Plot a = Database.createPlot(2);
+            Plot a = Database.createPlot("Radish 2", 12, 7, 2017);
 
-            System.out.println(a.getDatePlanted());
+            System.out.println(a.getName());
+            System.out.println(a.getPlant().getName());
 
-            System.out.println(a.getDatePlanted().until(LocalDate.now(), ChronoUnit.DAYS));
 
-           for(int i = 0 ; i < 50 ; i++ ){
-               System.out.println(a.getBasic(i, LocalDate.now()));
-           }
+
+
         } catch(SQLException e){
 
         }

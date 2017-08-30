@@ -1,16 +1,16 @@
-/** Copyright (C) 2007 VRTech Industrial Technologies - www.vrtech.com.br.
+package org.coinor; /** Copyright (C) 2007 VRTech Industrial Technologies - www.vrtech.com.br.
  * Copyright (C) 2007 Tong Kewei, Beihang University, - www.buaa.edu.cn.
  * All Rights Reserved.
  * This code is published under the Eclipse Public License.
  * 
- * $Id: Ipopt.java 2276 2013-05-05 12:33:44Z stefan $
+ * $Id: org.coinor.Ipopt.java 2276 2013-05-05 12:33:44Z stefan $
  */
 
 import java.io.File;
 
-/** A Java Native Interface for the Ipopt optimization solver.
+/** A Java Native Interface for the org.coinor.Ipopt optimization solver.
  * <p>
- * Ipopt is a solver for large scale nonlinear optimization problems (NLP).
+ * org.coinor.Ipopt is a solver for large scale nonlinear optimization problems (NLP).
  * <p>
  * The Java Native Interface (JNI) is a programming framework that allows
  * Java code running in the Java Virtual Machine (JVM) to call and be
@@ -18,9 +18,9 @@ import java.io.File;
  * operating system platform) and libraries written in other languages,
  * such as C and C++.
  * <p>
- * This class is a JNI hook around the C++ interface of Ipopt, as a consequence
+ * This class is a JNI hook around the C++ interface of org.coinor.Ipopt, as a consequence
  * it will need a nativelly compiled DLL to run.
- * For more details about Ipopt
+ * For more details about org.coinor.Ipopt
  * <a href="https://projects.coin-or.org/Ipopt">click here</a>.
  * <p>
  * The user should subclass this class and implement the abstract methods.
@@ -35,7 +35,7 @@ import java.io.File;
  * and {@link #OptimizeNLP()} can be called multiple times.
  * <p>
  * Programmers should, for efficiency, call {@link #dispose()} when finished using a
- * Ipopt object, otherwise the nativelly allocated memory will be disposed of only
+ * org.coinor.Ipopt object, otherwise the nativelly allocated memory will be disposed of only
  * when the JVM call {@link #finalize()} on it.
  * 
  * @author Rafael de Pelegrini Soares
@@ -77,7 +77,7 @@ public abstract class Ipopt
 	/** Use FORTRAN index style for iRow and jCol vectors */
 	public final static int FORTRAN_STYLE = 1;
 
-	/** The possible Ipopt status return codes: should be kept in sync with Ipopt return codes */
+	/** The possible org.coinor.Ipopt status return codes: should be kept in sync with org.coinor.Ipopt return codes */
 	public final static int SOLVE_SUCCEEDED = 0;
 	public final static int ACCEPTABLE_LEVEL = 1;
 	public final static int INFEASIBLE_PROBLEM = 2;
@@ -180,7 +180,7 @@ public abstract class Ipopt
 
 	/** Dispose of the natively allocated memory.
 	 * Programmers should, for efficiency, call the dispose method when finished
-	 * using a Ipopt object.
+	 * using a org.coinor.Ipopt object.
 	 * <p>
 	 * An JIpopt object can be reused to solve different problems by calling again
 	 * {@link #create(int, int, int, int, int)}.
@@ -238,7 +238,7 @@ public abstract class Ipopt
 
 	/** Function for setting an integer option.
 	 * <p>
-	 * For a list of valid keywords check the Ipopt documentation.
+	 * For a list of valid keywords check the org.coinor.Ipopt documentation.
 	 * 
 	 * @param keyword the option keyword
 	 * @param val the value
@@ -251,7 +251,7 @@ public abstract class Ipopt
 
 	/** Function for setting a number option.
 	 * <p>
-	 * For a list of valid keywords check the Ipopt documentation.
+	 * For a list of valid keywords check the org.coinor.Ipopt documentation.
 	 * 
 	 * @param keyword the option keyword
 	 * @param val the value
@@ -264,7 +264,7 @@ public abstract class Ipopt
 
 	/** Function for setting a string option.
 	 * <p>
-	 * For a list of valid keywords check the Ipopt documentation.
+	 * For a list of valid keywords check the org.coinor.Ipopt documentation.
 	 * 
 	 * @param keyword the option keyword
 	 * @param val the value
@@ -279,7 +279,7 @@ public abstract class Ipopt
 	 * <p>
 	 * The solve status returned is one of the constant fields of this class,
 	 * e.g. SOLVE_SUCCEEDED. For more details about the valid solve status
-	 * check the Ipopt documentation.
+	 * check the org.coinor.Ipopt documentation.
 	 * 
 	 * @return the solve status
 	 * 
@@ -310,7 +310,7 @@ public abstract class Ipopt
 		return obj_val[0];
 	}
 
-	/** Gives Ipopt status of last OptimizeNLP call.
+	/** Gives org.coinor.Ipopt status of last OptimizeNLP call.
 	 * @return the status of the solver.
 	 * 
 	 * @see #OptimizeNLP()

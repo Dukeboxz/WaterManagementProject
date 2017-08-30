@@ -1,0 +1,39 @@
+#green {
+    -fx-background-color:
+            linear-gradient(#f0ff35, #a9ff00),
+            radial-gradient(center 50% -40%, radius 200%, #b8ee36 45%, #80c800 50%);
+    -fx-background-radius: 6, 5;
+    -fx-background-insets: 0, 1;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.4) , 5, 0.0 , 0 , 1 );
+    -fx-text-fill: #395306;
+    -fx-wrap-text: true;
+}
+.label {
+
+
+    -fx-font-weight: 500;
+    -fx-font-size: 100%;
+    -fx-opacity: 80%;
+    -fx-fit-to-height: true;
+    -fx-fit-to-width: true;
+    -fx-font-size: 150%;
+
+}
+#gardengrid {
+    -fx-background-image: url( "/res/Classic-KellyGreen.jpg");
+
+
+}
+
+#plotScroler {
+    -fx-background-color: #a9ff00;
+    -fx-fit-to-width: true;
+
+}
+
+#testGrid {
+    -fx-border-color: black;
+    -fx-background-size: 2px;
+    -fx-border-style: solid;
+}
+

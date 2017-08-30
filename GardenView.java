@@ -29,7 +29,7 @@ public class GardenView extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        primaryStage.setTitle("Garden");
+        primaryStage.setTitle("Optimizer.Garden");
         Button btn = new Button();
 
         Slider waterSlider = new Slider();
