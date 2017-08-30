@@ -1,0 +1,430 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.5.7
+-- Dumped by pg_dump version 9.5.7
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: environment; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE environment (
+    id integer NOT NULL,
+    name character(20),
+    value numeric
+);
+
+
+ALTER TABLE environment OWNER TO stephen;
+
+--
+-- Name: garden; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE garden (
+    id integer NOT NULL,
+    name character(20),
+    userid integer,
+    location character(30),
+    location_reference character(30)
+);
+
+
+ALTER TABLE garden OWNER TO stephen;
+
+--
+-- Name: garden_id_seq; Type: SEQUENCE; Schema: public; Owner: stephen
+--
+
+CREATE SEQUENCE garden_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE garden_id_seq OWNER TO stephen;
+
+--
+-- Name: garden_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: stephen
+--
+
+ALTER SEQUENCE garden_id_seq OWNED BY garden.id;
+
+
+--
+-- Name: gardenusers; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE gardenusers (
+    gardenid integer,
+    userid integer,
+    editrights boolean
+);
+
+
+ALTER TABLE gardenusers OWNER TO stephen;
+
+--
+-- Name: plants; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE plants (
+    id integer NOT NULL,
+    name character(30) NOT NULL,
+    type integer,
+    st1_days integer,
+    st1_ow numeric,
+    st1_bw numeric,
+    st2_days integer,
+    st2_ow numeric,
+    st2_bw numeric,
+    st3_days integer,
+    st3_ow numeric,
+    st3_bw numeric,
+    st4_days integer,
+    st4_ow numeric,
+    st4_bw numeric,
+    plants_persqm numeric
+);
+
+
+ALTER TABLE plants OWNER TO stephen;
+
+--
+-- Name: plants_id_seq; Type: SEQUENCE; Schema: public; Owner: stephen
+--
+
+CREATE SEQUENCE plants_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE plants_id_seq OWNER TO stephen;
+
+--
+-- Name: plants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: stephen
+--
+
+ALTER SEQUENCE plants_id_seq OWNED BY plants.id;
+
+
+--
+-- Name: planttypes; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE planttypes (
+    id integer NOT NULL,
+    name character(20)
+);
+
+
+ALTER TABLE planttypes OWNER TO stephen;
+
+--
+-- Name: plots; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE plots (
+    id integer NOT NULL,
+    name character varying(30),
+    size numeric NOT NULL,
+    plantid integer,
+    gardenid integer,
+    soiltypeid integer,
+    environmentid integer,
+    day_planted integer,
+    month_planted integer,
+    year_planted integer,
+    priority integer,
+    CONSTRAINT plots_priority_check CHECK ((priority > 0)),
+    CONSTRAINT plots_priority_check1 CHECK ((priority < 4)),
+    CONSTRAINT plots_size_check CHECK ((size >= (1)::numeric))
+);
+
+
+ALTER TABLE plots OWNER TO stephen;
+
+--
+-- Name: plots_id_seq; Type: SEQUENCE; Schema: public; Owner: stephen
+--
+
+CREATE SEQUENCE plots_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE plots_id_seq OWNER TO stephen;
+
+--
+-- Name: plots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: stephen
+--
+
+ALTER SEQUENCE plots_id_seq OWNED BY plots.id;
+
+
+--
+-- Name: soiltype; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE soiltype (
+    id integer NOT NULL,
+    name character(20),
+    value numeric
+);
+
+
+ALTER TABLE soiltype OWNER TO stephen;
+
+--
+-- Name: test; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE test (
+    name character(20) NOT NULL
+);
+
+
+ALTER TABLE test OWNER TO stephen;
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: stephen
+--
+
+CREATE TABLE users (
+    id integer NOT NULL,
+    name character varying(30) NOT NULL,
+    email character varying(30) NOT NULL,
+    password text NOT NULL
+);
+
+
+ALTER TABLE users OWNER TO stephen;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: stephen
+--
+
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE users_id_seq OWNER TO stephen;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: stephen
+--
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY garden ALTER COLUMN id SET DEFAULT nextval('garden_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plants ALTER COLUMN id SET DEFAULT nextval('plants_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots ALTER COLUMN id SET DEFAULT nextval('plots_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: environment_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY environment
+    ADD CONSTRAINT environment_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: garden_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY garden
+    ADD CONSTRAINT garden_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plants_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plants
+    ADD CONSTRAINT plants_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: planttypes_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY planttypes
+    ADD CONSTRAINT planttypes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plots_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots
+    ADD CONSTRAINT plots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: soiltype_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY soiltype
+    ADD CONSTRAINT soiltype_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_email_key; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: garden_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY garden
+    ADD CONSTRAINT garden_userid_fkey FOREIGN KEY (userid) REFERENCES users(id);
+
+
+--
+-- Name: gardenusers_gardenid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY gardenusers
+    ADD CONSTRAINT gardenusers_gardenid_fkey FOREIGN KEY (gardenid) REFERENCES garden(id);
+
+
+--
+-- Name: gardenusers_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY gardenusers
+    ADD CONSTRAINT gardenusers_userid_fkey FOREIGN KEY (userid) REFERENCES users(id);
+
+
+--
+-- Name: plants_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plants
+    ADD CONSTRAINT plants_type_fkey FOREIGN KEY (type) REFERENCES planttypes(id);
+
+
+--
+-- Name: plots_environmentid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots
+    ADD CONSTRAINT plots_environmentid_fkey FOREIGN KEY (environmentid) REFERENCES environment(id);
+
+
+--
+-- Name: plots_gardenid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots
+    ADD CONSTRAINT plots_gardenid_fkey FOREIGN KEY (gardenid) REFERENCES garden(id);
+
+
+--
+-- Name: plots_plantid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots
+    ADD CONSTRAINT plots_plantid_fkey FOREIGN KEY (plantid) REFERENCES plants(id);
+
+
+--
+-- Name: plots_soiltypeid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: stephen
+--
+
+ALTER TABLE ONLY plots
+    ADD CONSTRAINT plots_soiltypeid_fkey FOREIGN KEY (soiltypeid) REFERENCES soiltype(id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
