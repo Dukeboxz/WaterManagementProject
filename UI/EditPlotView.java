@@ -187,9 +187,11 @@ public class EditPlotView {
             public void handle(ActionEvent actionEvent) {
                 String plotName = plotNameTextField.getText().trim();
                 boolean nameExists = false;
-                for(Plot p : EditPlotView.this.getGarden().getPlots()){
-                    if(p.getName().equals(plotName)){
-                        nameExists=true;
+                if(!plotName.equals(EditPlotView.this.getPlot().getName())) {
+                    for (Plot p : EditPlotView.this.getGarden().getPlots()) {
+                        if (p.getName().equals(plotName)) {
+                            nameExists = true;
+                        }
                     }
                 }
                 if(nameExists==false) {

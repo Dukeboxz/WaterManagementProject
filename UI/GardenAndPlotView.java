@@ -194,7 +194,9 @@ public class GardenAndPlotView {
             }
         });
         javafx.scene.control.TextField waterText = new javafx.scene.control.TextField();
-        javafx.scene.control.Button optimise = new javafx.scene.control.Button("OPTIMISE");
+        javafx.scene.control.Button optimise = new javafx.scene.control.Button("OPTIMIZE");
+        optimise.setMaxHeight(50);
+        optimise.setMaxWidth(Double.MAX_VALUE);
 
         // date picker
         DatePicker optimiseStartDate = new DatePicker(LocalDate.now());

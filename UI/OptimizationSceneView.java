@@ -873,6 +873,14 @@ public class OptimizationSceneView implements Observer {
                 " between dates of " + this.op.getDateSelected() + " and "  + this.op.getDateSelected().plusDays(this.op.getDays()) );
                 out.newLine();
                 out.newLine();
+
+                for(int i = 0; i < this.getOp().getDays(); i++){
+
+                    LocalDate theDate = this.getOp().getDateSelected().plusDays(i);
+                    String date = theDate.getDayOfMonth()+"/"+ theDate.getMonthValue();
+                    out.write( String.format("|%-6s", date));
+                }
+
                 for(Map.Entry<String, ArrayList<Double>> entry : desiredMap.entrySet()){
                     out.write(entry.getKey());
                     out.newLine();
@@ -883,11 +891,7 @@ public class OptimizationSceneView implements Observer {
                     out.newLine();
                 }
 
-                for(int i = 0; i < this.getOp().getDays(); i++){
 
-                    LocalDate theDate = this.getOp().getDateSelected().plusDays(i);
-                    out.write( theDate.getDayOfMonth()+"/" + theDate.getMonthValue()+ "  ");
-                }
 
                 out.newLine();
                 out.close();
