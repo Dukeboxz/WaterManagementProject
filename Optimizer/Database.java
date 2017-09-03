@@ -32,10 +32,7 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
@@ -83,12 +80,8 @@ public class Database {
         } catch (ClassNotFoundException e) {
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
-
-        conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
 
         String createUserString = "SELECT * FROM users WHERE name=?";
         PreparedStatement createUserStatement = conn.prepareStatement(createUserString);
@@ -126,12 +119,9 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
-        conn= DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+        conn= DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
 
         if(conn!=null) {
             System.out.println("Connection ");
@@ -176,11 +166,10 @@ public class Database {
         }
         System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -223,11 +212,10 @@ public class Database {
         }
         System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -298,13 +286,11 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -377,13 +363,10 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -472,13 +455,10 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -563,13 +543,10 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -612,13 +589,10 @@ public class Database {
         } catch(ClassNotFoundException e){
             System.out.println("driver");
         }
-        System.out.println("working");
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -663,11 +637,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -717,11 +690,9 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -775,11 +746,9 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -837,11 +806,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -948,11 +916,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1006,11 +973,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1067,11 +1033,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1121,11 +1086,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1174,11 +1138,9 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1214,11 +1176,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1255,11 +1216,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1313,11 +1273,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1367,11 +1326,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1402,7 +1360,7 @@ public class Database {
     /*
      method checks the database to see if given user values match the username and passoword in database
      */
-    public static boolean userNameAndPasswordCheck(String userName, String thePassword){
+    public static boolean userNameAndPasswordCheck(String userName, String thePass){
         try {
             Class.forName("org.postgresql.Driver");
         } catch(ClassNotFoundException e){
@@ -1410,12 +1368,13 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword );
         } catch(SQLException e) {
+
+
 
         }
 
@@ -1425,15 +1384,21 @@ public class Database {
           String userNameAndPasswordString = "SELECT * FROM users WHERE name=? AND password=?;";
             PreparedStatement userNameAndPasswordPS = conn.prepareStatement(userNameAndPasswordString);
             userNameAndPasswordPS.setString(1, userName);
-            userNameAndPasswordPS.setString(2, thePassword);
+            userNameAndPasswordPS.setString(2, thePass);
 
             ResultSet rs = userNameAndPasswordPS.executeQuery();
+
+//            String name = rs.getString("name");
+//            String passwrd = rs.getString("password");
+
+
 
 
 
 
             if(!rs.next()) {
                 areCorrect=false;
+                System.out.println("does not have next ");
 
             } else {
                 areCorrect=true;
@@ -1460,11 +1425,9 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1497,11 +1460,10 @@ public class Database {
         }
 
 
-        String user = "stephen";
-        String password = "Keyb0ard";
+
 
         try {
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost/mscproject", user, password);
+            conn = DriverManager.getConnection("jdbc:postgresql:"+host, theUserName, thePassword);
         } catch(SQLException e) {
 
         }
@@ -1542,6 +1504,7 @@ public class Database {
      */
     public static void main(String[] args) {
 
+        System.out.println(userNameAndPasswordCheck("Stephen", "123456"));
         System.out.println(userNameExists("Stephen"));
 
 //        try {
